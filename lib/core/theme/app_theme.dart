@@ -49,6 +49,9 @@ class AppTheme {
         scrim: Colors.black,
       ),
 
+      // Global card color (Material2 compatibility, used by some widgets)
+      cardColor: AppColors.lightSurface,
+
       // Typography
       textTheme: AppTypography.getTextTheme(color: AppColors.lightPrimaryText),
 
@@ -314,6 +317,9 @@ class AppTheme {
         shadow: Colors.black,
         scrim: Colors.black,
       ),
+
+      // Global card color (Material2 compatibility, used by some widgets)
+      cardColor: AppColors.darkSurface,
 
       // Typography
       textTheme: AppTypography.getTextTheme(color: AppColors.darkPrimaryText),

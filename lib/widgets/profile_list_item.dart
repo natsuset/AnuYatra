@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:testing_flutter/models/profile.dart';
 import 'package:testing_flutter/theme/app_theme.dart';
 import 'package:intl/intl.dart';
@@ -21,11 +20,15 @@ class ProfileListItem extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color:
+              Theme.of(context).cardTheme.color ??
+              Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withOpacity(
+                Theme.of(context).brightness == Brightness.dark ? 0.2 : 0.08,
+              ),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -199,6 +202,11 @@ class ProfileListItem extends StatelessWidget {
                       profile.height,
                     ),
 
+                    const SizedBox(height: 6),
+
+                    // Compact personal summary to avoid clutter
+                    _buildCompactSummary(context, profile),
+
                     const SizedBox(height: 8),
 
                     // Status message if not pending
@@ -253,6 +261,26 @@ class ProfileListItem extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildCompactSummary(BuildContext context, Profile profile) {
+    final items = <String>[];
+    if (profile.religion.trim().isNotEmpty) items.add(profile.religion);
+    if (profile.motherTongue.trim().isNotEmpty) items.add(profile.motherTongue);
+    if (profile.maritalStatus.trim().isNotEmpty) {
+      items.add(profile.maritalStatus);
+    }
+    if (items.isEmpty) return const SizedBox.shrink();
+
+    return Text(
+      items.join(' • '),
+      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: AppTheme.secondaryTextColor,
+            fontWeight: FontWeight.w500,
+          ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
     );
   }
 

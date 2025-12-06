@@ -7,6 +7,14 @@ class Profile {
   final String city;
   final String community;
   final String height;
+  // Extended personal fields
+  final String religion;
+  final String caste;
+  final String motherTongue;
+  final String maritalStatus;
+  final String aboutMe;
+  final String familyBackground;
+  final List<String> interests;
   final String fatherOccupation;
   final String motherOccupation;
   final String siblings;
@@ -24,6 +32,13 @@ class Profile {
     required this.city,
     this.community = '',
     required this.height,
+    this.religion = '',
+    this.caste = '',
+    this.motherTongue = '',
+    this.maritalStatus = '',
+    this.aboutMe = '',
+    this.familyBackground = '',
+    this.interests = const [],
     this.fatherOccupation = '',
     this.motherOccupation = '',
     this.siblings = '',
@@ -35,11 +50,19 @@ class Profile {
 
   String get displayName => '$name, $age';
   String get snippet => '$education, $city';
-  String get fullDetails => '$profession • $education • $city${community.isNotEmpty ? ' • $community' : ''}';
+  String get fullDetails =>
+      '$profession • $education • $city${community.isNotEmpty ? ' • $community' : ''}';
 
   Profile copyWith({
     ProfileStatus? status,
     bool? isNew,
+    String? religion,
+    String? caste,
+    String? motherTongue,
+    String? maritalStatus,
+    String? aboutMe,
+    String? familyBackground,
+    List<String>? interests,
   }) {
     return Profile(
       id: id,
@@ -50,6 +73,13 @@ class Profile {
       city: city,
       community: community,
       height: height,
+      religion: religion ?? this.religion,
+      caste: caste ?? this.caste,
+      motherTongue: motherTongue ?? this.motherTongue,
+      maritalStatus: maritalStatus ?? this.maritalStatus,
+      aboutMe: aboutMe ?? this.aboutMe,
+      familyBackground: familyBackground ?? this.familyBackground,
+      interests: interests ?? this.interests,
       fatherOccupation: fatherOccupation,
       motherOccupation: motherOccupation,
       siblings: siblings,

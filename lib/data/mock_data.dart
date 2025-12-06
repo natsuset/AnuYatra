@@ -15,6 +15,46 @@ class MockData {
     lastSeen: DateTime.now().subtract(const Duration(minutes: 5)),
   );
 
+  static final List<Broker> brokers = [
+    broker,
+    Broker(
+      id: '2',
+      name: 'Neha Verma',
+      phoneNumber: '+91 98234 56780',
+      profilePhoto:
+          'https://ui-avatars.com/api/?name=Neha+Verma&size=200&background=EA5455&color=fff',
+      agencyName: 'Vivaha Connect',
+      agencyLogo:
+          'https://ui-avatars.com/api/?name=V&size=200&background=1D3557&color=fff&bold=true',
+      isOnline: false,
+      lastSeen: DateTime.now().subtract(const Duration(hours: 2, minutes: 15)),
+    ),
+    Broker(
+      id: '3',
+      name: 'Anil Mehta',
+      phoneNumber: '+91 98111 22334',
+      profilePhoto:
+          'https://ui-avatars.com/api/?name=Anil+Mehta&size=200&background=2DCE89&color=fff',
+      agencyName: 'Anuyātrā Matrimonials',
+      agencyLogo:
+          'https://ui-avatars.com/api/?name=A&size=200&background=8B2635&color=fff&bold=true',
+      isOnline: true,
+      lastSeen: DateTime.now().subtract(const Duration(minutes: 1)),
+    ),
+    Broker(
+      id: '4',
+      name: 'Priya Singh',
+      phoneNumber: '+91 99000 11223',
+      profilePhoto:
+          'https://ui-avatars.com/api/?name=Priya+Singh&size=200&background=4ECDC4&color=000',
+      agencyName: 'Harmony Matches',
+      agencyLogo:
+          'https://ui-avatars.com/api/?name=H&size=200&background=FFBE0B&color=000&bold=true',
+      isOnline: false,
+      lastSeen: DateTime.now().subtract(const Duration(days: 1, hours: 4)),
+    ),
+  ];
+
   static final List<Profile> profiles = [
     Profile(
       id: '1',
@@ -25,6 +65,15 @@ class MockData {
       city: 'Bangalore',
       community: 'Hindu',
       height: '5\'8"',
+      religion: 'Hindu',
+      caste: 'Brahmin',
+      motherTongue: 'Hindi',
+      maritalStatus: 'Never Married',
+      aboutMe:
+          'Passionate about building meaningful products. I enjoy hiking and photography.',
+      familyBackground:
+          'Father is a Business Owner and mother is a Teacher. Close-knit family values.',
+      interests: ['Hiking', 'Photography', 'Classical Music'],
       fatherOccupation: 'Business Owner',
       motherOccupation: 'Teacher',
       siblings: '1 younger sister (married)',
@@ -46,6 +95,15 @@ class MockData {
       city: 'Mumbai',
       community: 'Hindu',
       height: '5\'10"',
+      religion: 'Hindu',
+      caste: 'Patel',
+      motherTongue: 'Gujarati',
+      maritalStatus: 'Never Married',
+      aboutMe:
+          'Caring and calm. Love volunteering and learning new medical research.',
+      familyBackground:
+          'Parents are in healthcare. We value education and compassion.',
+      interests: ['Reading', 'Tennis', 'Volunteering'],
       fatherOccupation: 'Doctor',
       motherOccupation: 'Homemaker',
       siblings: '1 elder brother',
@@ -68,6 +126,15 @@ class MockData {
       city: 'Delhi',
       community: 'Hindu',
       height: '5\'9"',
+      religion: 'Hindu',
+      caste: 'Rajput',
+      motherTongue: 'Hindi',
+      maritalStatus: 'Never Married',
+      aboutMe:
+          'Detail-oriented and family-focused. I enjoy cooking on weekends.',
+      familyBackground:
+          'Father is a Government Officer, mother is a Bank Manager.',
+      interests: ['Cooking', 'Cricket', 'Travel'],
       fatherOccupation: 'Government Officer',
       motherOccupation: 'Bank Manager',
       siblings: 'Only child',
@@ -88,6 +155,13 @@ class MockData {
       city: 'Pune',
       community: 'Hindu',
       height: '5\'7"',
+      religion: 'Hindu',
+      caste: 'Baniya',
+      motherTongue: 'Hindi',
+      maritalStatus: 'Never Married',
+      aboutMe: 'Ambitious and creative. Love brand strategy and storytelling.',
+      familyBackground: 'Entrepreneurial family with progressive outlook.',
+      interests: ['Running', 'Movies', 'Startups'],
       fatherOccupation: 'Businessman',
       motherOccupation: 'Social Worker',
       siblings: '1 younger brother',
@@ -107,6 +181,14 @@ class MockData {
       city: 'Chennai',
       community: 'Hindu',
       height: '5\'11"',
+      religion: 'Hindu',
+      caste: 'Khatri',
+      motherTongue: 'Punjabi',
+      maritalStatus: 'Never Married',
+      aboutMe:
+          'Practical and grounded. I enjoy architecture, sketching, and road-trips.',
+      familyBackground: 'Father is a retired engineer; mother is a homemaker.',
+      interests: ['Sketching', 'Road Trips', 'History'],
       fatherOccupation: 'Retired Engineer',
       motherOccupation: 'Homemaker',
       siblings: '1 elder sister (married)',
@@ -126,6 +208,15 @@ class MockData {
       city: 'Hyderabad',
       community: 'Hindu',
       height: '5\'8"',
+      religion: 'Hindu',
+      caste: 'Agarwal',
+      motherTongue: 'Hindi',
+      maritalStatus: 'Never Married',
+      aboutMe:
+          'Curious and analytical. I love solving puzzles and exploring ML.',
+      familyBackground:
+          'Father works in a bank; mother is a teacher. Supportive family.',
+      interests: ['Chess', 'Cycling', 'Coding'],
       fatherOccupation: 'Bank Officer',
       motherOccupation: 'Teacher',
       siblings: '2 sisters (both married)',
@@ -145,6 +236,14 @@ class MockData {
       city: 'Kolkata',
       community: 'Hindu',
       height: '5\'9"',
+      religion: 'Hindu',
+      caste: 'Kayastha',
+      motherTongue: 'Bengali',
+      maritalStatus: 'Never Married',
+      aboutMe:
+          'Calm and observant. Enjoy reading non-fiction and learning languages.',
+      familyBackground: 'Business family; strong emphasis on education.',
+      interests: ['Reading', 'Languages', 'Badminton'],
       fatherOccupation: 'Businessman',
       motherOccupation: 'Doctor',
       siblings: '1 younger brother',

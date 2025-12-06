@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:testing_flutter/models/profile.dart';
+import 'package:testing_flutter/models/broker.dart';
 import 'package:testing_flutter/theme/app_theme.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/theme/theme_extensions.dart';
@@ -10,11 +11,13 @@ import 'package:testing_flutter/widgets/chat_bubble.dart';
 class ProfileDetailScreen extends ConsumerStatefulWidget {
   final Profile profile;
   final Function(Profile) onStatusChanged;
+  final Broker? sentByBroker;
 
   const ProfileDetailScreen({
     super.key,
     required this.profile,
     required this.onStatusChanged,
+    this.sentByBroker,
   });
 
   @override
@@ -112,13 +115,13 @@ class _ProfileDetailScreenState extends ConsumerState<ProfileDetailScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    currentProfile.name,
+                    'Personal space',
                     style: Theme.of(
                       context,
                     ).appBarTheme.titleTextStyle?.copyWith(fontSize: 16),
                   ),
                   Text(
-                    'Shared by your broker',
+                    'Sent by ${widget.sentByBroker?.displayName ?? 'your broker'}',
                     style: Theme.of(context).appBarTheme.titleTextStyle
                         ?.copyWith(
                           fontSize: 12,
@@ -386,14 +389,45 @@ class _ProfileDetailScreenState extends ConsumerState<ProfileDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Profile details text (without ChatBubble wrapper)
-          Text(
-            message.content,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: isDark ? Colors.white : AppColors.lightPrimaryText,
-              height: 1.3,
+          // Sections - Personal Details
+          _buildSectionTitle('Personal Details'),
+          const SizedBox(height: 8),
+          _buildDetailsGrid([
+            MapEntry('Height', currentProfile.height),
+            MapEntry('Religion', currentProfile.religion),
+            MapEntry('Caste', currentProfile.caste),
+            MapEntry('Mother Tongue', currentProfile.motherTongue),
+            MapEntry('Marital Status', currentProfile.maritalStatus),
+          ]),
+
+          // About Me
+          if (currentProfile.aboutMe.trim().isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildSectionTitle('About Me'),
+            const SizedBox(height: 6),
+            _buildSectionParagraph(currentProfile.aboutMe),
+          ],
+
+          // Family Background
+          if (_familySummary().trim().isNotEmpty ||
+              currentProfile.familyBackground.trim().isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildSectionTitle('Family Background'),
+            const SizedBox(height: 6),
+            _buildSectionParagraph(
+              currentProfile.familyBackground.trim().isNotEmpty
+                  ? currentProfile.familyBackground
+                  : _familySummary(),
             ),
-          ),
+          ],
+
+          // Interests & Hobbies
+          if (currentProfile.interests.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildSectionTitle('Interests & Hobbies'),
+            const SizedBox(height: 8),
+            _buildSectionChips(currentProfile.interests),
+          ],
 
           const SizedBox(height: 16),
 
@@ -448,6 +482,139 @@ class _ProfileDetailScreenState extends ConsumerState<ProfileDetailScreen> {
         ],
       ),
     );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Text(
+      title,
+      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+        color: isDark ? Colors.white : AppColors.lightPrimaryText,
+        fontWeight: FontWeight.w700,
+      ),
+    );
+  }
+
+  Widget _buildDetailsGrid(List<MapEntry<String, String>> pairs) {
+    final items = pairs
+        .where((e) => e.value.trim().isNotEmpty)
+        .toList(growable: false);
+    if (items.isEmpty) return const SizedBox.shrink();
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final itemWidth = (constraints.maxWidth - 12) / 2;
+        return Wrap(
+          spacing: 12,
+          runSpacing: 8,
+          children: items
+              .map(
+                (e) => SizedBox(
+                  width: itemWidth,
+                  child: _buildDetailTile(
+                    context,
+                    e.key,
+                    e.value,
+                  ), // reuse pattern
+                ),
+              )
+              .toList(),
+        );
+      },
+    );
+  }
+
+  Widget _buildDetailTile(BuildContext context, String label, String value) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final labelStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
+      color: isDark
+          ? Colors.white.withValues(alpha: 0.7)
+          : AppColors.lightTertiaryText,
+    );
+    final valueStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
+      color: isDark ? Colors.white : AppColors.lightPrimaryText,
+      fontWeight: FontWeight.w600,
+    );
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF24323A) : Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.08)
+              : AppTheme.whatsAppGray.withOpacity(0.6),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: labelStyle),
+          const SizedBox(height: 2),
+          Text(
+            value,
+            style: valueStyle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionParagraph(String text) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Text(
+      text,
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+        color: isDark ? Colors.white : AppColors.lightPrimaryText,
+        height: 1.35,
+      ),
+    );
+  }
+
+  Widget _buildSectionChips(List<String> items) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: items.map((e) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF2A3942) : const Color(0xFFF0F2F5),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.08)
+                  : AppColors.lightBorder,
+            ),
+          ),
+          child: Text(
+            e,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: isDark ? Colors.white : AppColors.lightPrimaryText,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  String _familySummary() {
+    final parts = <String>[];
+    if (currentProfile.fatherOccupation.isNotEmpty) {
+      parts.add('Father: ${currentProfile.fatherOccupation}');
+    }
+    if (currentProfile.motherOccupation.isNotEmpty) {
+      parts.add('Mother: ${currentProfile.motherOccupation}');
+    }
+    if (currentProfile.siblings.isNotEmpty) {
+      parts.add('Siblings: ${currentProfile.siblings}');
+    }
+    return parts.join(' • ');
   }
 
   String _formatTime(DateTime dateTime) {

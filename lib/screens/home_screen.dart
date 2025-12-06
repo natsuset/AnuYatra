@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:testing_flutter/models/profile.dart';
-import 'package:testing_flutter/models/broker.dart';
 import 'package:testing_flutter/screens/profile_detail_screen.dart';
-import 'package:testing_flutter/screens/broker_screen.dart';
+import 'package:testing_flutter/screens/brokers_list_screen.dart';
 import 'package:testing_flutter/screens/design_system_demo_screen.dart';
 import 'package:testing_flutter/theme/app_theme.dart';
 import 'package:testing_flutter/widgets/profile_list_item.dart';
@@ -19,14 +17,14 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<Profile> profiles = MockData.profiles;
-  Broker broker = MockData.broker;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.whatsAppGray.withOpacity(0.1),
+      // Use theme-driven scaffold background
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: AppTheme.deepMaroon,
+        // AppBar colors come from global theme
         title: Row(
           children: [
             // Agency logo placeholder
@@ -80,11 +78,14 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Column(
         children: [
-          // Broker pinned chat at top
+          // Broker entry point (replaces single pinned broker)
           _buildBrokerPinnedChat(),
 
           // Divider
-          Container(height: 8, color: AppTheme.whatsAppGray.withOpacity(0.3)),
+          Container(
+            height: 8,
+            color: Theme.of(context).dividerColor.withOpacity(0.3),
+          ),
 
           // Profile list
           Expanded(
@@ -108,96 +109,40 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBrokerPinnedChat() {
+    final brokerCount = MockData.brokers.length;
     return Container(
-      color: Colors.white,
+      color:
+          Theme.of(context).cardTheme.color ??
+          Theme.of(context).colorScheme.surface,
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: Stack(
-          children: [
-            CircleAvatar(
-              radius: 28,
-              backgroundColor: AppTheme.whatsAppGray,
-              backgroundImage: broker.profilePhoto.isNotEmpty
-                  ? CachedNetworkImageProvider(broker.profilePhoto)
-                  : null,
-              child: broker.profilePhoto.isEmpty
-                  ? const Icon(Icons.person, size: 32, color: Colors.white)
-                  : null,
-            ),
-            // Pin indicator
-            Positioned(
-              right: 0,
-              top: 0,
-              child: Container(
-                padding: const EdgeInsets.all(2),
-                decoration: const BoxDecoration(
-                  color: AppTheme.sacredSaffron,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.push_pin,
-                  size: 12,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
+        leading: Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: AppTheme.sacredSaffron,
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(Icons.chat, color: Colors.white),
         ),
-        title: Row(
-          children: [
-            Expanded(
-              child: Text(
-                broker.displayName,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            Text(
-              'Your Broker',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: AppTheme.sacredSaffron,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
+        title: Text(
+          'Brokers',
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
-        subtitle: Row(
-          children: [
-            Icon(
-              broker.isOnline ? Icons.circle : Icons.schedule,
-              size: 12,
-              color: broker.isOnline
-                  ? AppTheme.statusGreen
-                  : AppTheme.secondaryTextColor,
-            ),
-            const SizedBox(width: 4),
-            Expanded(
-              child: Text(
-                broker.statusText,
-                style: Theme.of(context).textTheme.bodySmall,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
+        subtitle: Text(
+          '$brokerCount chats',
+          style: Theme.of(context).textTheme.bodySmall,
         ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.phone, color: AppTheme.statusGreen),
-              onPressed: () {
-                // TODO: Implement call functionality
-              },
-            ),
-            const Icon(Icons.chevron_right, color: AppTheme.lightTextColor),
-          ],
+        trailing: const Icon(
+          Icons.chevron_right,
+          color: AppTheme.lightTextColor,
         ),
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const BrokerScreen()),
+            MaterialPageRoute(builder: (context) => const BrokersListScreen()),
           );
         },
       ),
@@ -229,7 +174,9 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const BrokerScreen()),
+                MaterialPageRoute(
+                  builder: (context) => const BrokersListScreen(),
+                ),
               );
             },
             child: const Text('Contact Your Broker'),

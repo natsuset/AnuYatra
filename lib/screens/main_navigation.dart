@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:testing_flutter/screens/home_screen.dart';
 import 'package:testing_flutter/screens/shortlist_screen.dart';
-import 'package:testing_flutter/screens/broker_screen.dart';
+import 'package:testing_flutter/screens/brokers_list_screen.dart';
 import 'package:testing_flutter/screens/vivaha_samskara_home_screen.dart';
 import 'package:testing_flutter/screens/trust_verification_screen.dart';
 import 'package:testing_flutter/screens/financial_compatibility_screen.dart';
@@ -18,19 +18,7 @@ class MainNavigationScreen extends StatefulWidget {
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    _screens = [
-      const HomeScreen(),
-      ShortlistScreen(onNavigateToHome: () => _navigateToTab(0)),
-      const BrokerScreen(),
-      const VivahaSamskaraHomeScreen(),
-      _buildRevolutionaryFeaturesScreen(),
-    ];
-  }
-
-  late final List<Widget> _screens;
+  // Build screens in build() to safely access Theme.of(context)
 
   final List<NavigationItem> _navigationItems = [
     NavigationItem(
@@ -62,8 +50,16 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screens = <Widget>[
+      const HomeScreen(),
+      ShortlistScreen(onNavigateToHome: () => _navigateToTab(0)),
+      const BrokersListScreen(),
+      const VivahaSamskaraHomeScreen(),
+      _buildRevolutionaryFeaturesScreen(),
+    ];
+
     return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: _screens),
+      body: IndexedStack(index: _currentIndex, children: screens),
       bottomNavigationBar: _buildPremiumNavigationBar(),
     );
   }
@@ -71,10 +67,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   Widget _buildPremiumNavigationBar() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withOpacity(
+              Theme.of(context).brightness == Brightness.dark ? 0.2 : 0.08,
+            ),
             blurRadius: 20,
             offset: const Offset(0, -8),
             spreadRadius: 0,
@@ -150,14 +148,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   Widget _buildRevolutionaryFeaturesScreen() {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F6F3),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Revolutionary Features',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w700,
-            color: AppTheme.primaryTextColor,
+            color: Theme.of(context).textTheme.titleLarge?.color,
           ),
         ),
         backgroundColor: Colors.transparent,
@@ -177,8 +175,16 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    AppTheme.sacredSaffron.withOpacity(0.1),
-                    AppTheme.deepMaroon.withOpacity(0.1),
+                    AppTheme.sacredSaffron.withOpacity(
+                      Theme.of(context).brightness == Brightness.dark
+                          ? 0.15
+                          : 0.1,
+                    ),
+                    AppTheme.deepMaroon.withOpacity(
+                      Theme.of(context).brightness == Brightness.dark
+                          ? 0.15
+                          : 0.1,
+                    ),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(20),
@@ -212,16 +218,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
-                            color: AppTheme.primaryTextColor,
+                            color: Colors.white,
                           ),
                         ),
                         SizedBox(height: 4),
                         Text(
                           'Revolutionary tools for modern matrimony',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: AppTheme.secondaryTextColor,
-                          ),
+                          style: TextStyle(fontSize: 14, color: Colors.white70),
                         ),
                       ],
                     ),
@@ -280,11 +283,15 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withOpacity(
+                      Theme.of(context).brightness == Brightness.dark
+                          ? 0.2
+                          : 0.04,
+                    ),
                     blurRadius: 16,
                     offset: const Offset(0, 4),
                   ),
@@ -351,7 +358,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: color.withOpacity(0.2)),
           boxShadow: [
@@ -389,9 +396,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                   const SizedBox(height: 4),
                   Text(
                     description,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
-                      color: AppTheme.secondaryTextColor,
+                      color: Theme.of(context).textTheme.bodyMedium?.color,
                       height: 1.3,
                     ),
                   ),

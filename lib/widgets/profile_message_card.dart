@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:testing_flutter/models/profile.dart';
+import 'package:testing_flutter/models/broker.dart';
 import 'package:testing_flutter/screens/profile_detail_screen.dart';
 import 'package:testing_flutter/theme/app_theme.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
@@ -10,12 +11,14 @@ class ProfileMessageCard extends StatefulWidget {
   final Profile profile;
   final DateTime timestamp;
   final bool isSentByBroker;
+  final Broker? broker;
 
   const ProfileMessageCard({
     super.key,
     required this.profile,
     required this.timestamp,
     required this.isSentByBroker,
+    this.broker,
   });
 
   @override
@@ -202,6 +205,25 @@ class _ProfileMessageCardState extends State<ProfileMessageCard> {
                   overflow: TextOverflow.ellipsis,
                 ),
 
+                // Sent by broker info
+                if (widget.broker != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    'Sent by ${widget.broker!.displayName}',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.75)
+                          : AppTheme.secondaryTextColor,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
+
+                const SizedBox(height: 8),
+
+                // Personal Details section (compact)
+                _buildPersonalDetailsSection(context),
+
                 const SizedBox(height: 8),
 
                 // View profile button
@@ -312,6 +334,90 @@ class _ProfileMessageCardState extends State<ProfileMessageCard> {
     );
   }
 
+  Widget _buildPersonalDetailsSection(BuildContext context) {
+    final profile = widget.profile;
+    final details = <MapEntry<String, String>>[
+      MapEntry('Height', profile.height),
+      MapEntry('Religion', profile.religion),
+      MapEntry('Caste', profile.caste),
+      MapEntry('Mother Tongue', profile.motherTongue),
+      MapEntry('Marital Status', profile.maritalStatus),
+    ].where((e) => e.value.trim().isNotEmpty).toList();
+
+    if (details.isEmpty) return const SizedBox.shrink();
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final titleStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
+      color: isDark
+          ? Colors.white.withValues(alpha: 0.8)
+          : AppTheme.secondaryTextColor,
+      fontWeight: FontWeight.w700,
+      letterSpacing: 0.2,
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final itemWidth = (constraints.maxWidth - 12) / 2;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Personal Details', style: titleStyle),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 12,
+              runSpacing: 8,
+              children: details.map((e) {
+                return SizedBox(
+                  width: itemWidth,
+                  child: _buildDetailTile(context, e.key, e.value),
+                );
+              }).toList(),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildDetailTile(BuildContext context, String label, String value) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final labelStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
+      color: isDark
+          ? Colors.white.withValues(alpha: 0.7)
+          : AppTheme.lightTextColor,
+    );
+    final valueStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
+      color: isDark ? Colors.white : AppTheme.primaryTextColor,
+      fontWeight: FontWeight.w600,
+    );
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1F2C34) : Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.08)
+              : AppTheme.whatsAppGray.withOpacity(0.6),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: labelStyle),
+          const SizedBox(height: 2),
+          Text(
+            value,
+            style: valueStyle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildQuickActionButton(
     BuildContext context, {
     required IconData icon,
@@ -409,6 +515,7 @@ class _ProfileMessageCardState extends State<ProfileMessageCard> {
       MaterialPageRoute(
         builder: (context) => ProfileDetailScreen(
           profile: widget.profile,
+          sentByBroker: widget.broker,
           onStatusChanged: (updatedProfile) {
             // Handle status change if needed
           },
@@ -423,6 +530,7 @@ class _ProfileMessageCardState extends State<ProfileMessageCard> {
       MaterialPageRoute(
         builder: (context) => ProfileDetailScreen(
           profile: widget.profile,
+          sentByBroker: widget.broker,
           onStatusChanged: (updatedProfile) {
             // Handle status change if needed
           },

@@ -10,7 +10,9 @@ import 'package:testing_flutter/widgets/profile_message_card.dart';
 import 'package:testing_flutter/data/mock_data.dart';
 
 class BrokerScreen extends ConsumerStatefulWidget {
-  const BrokerScreen({super.key});
+  final Broker broker;
+
+  const BrokerScreen({super.key, required this.broker});
 
   @override
   ConsumerState<BrokerScreen> createState() => _BrokerScreenState();
@@ -20,7 +22,6 @@ class _BrokerScreenState extends ConsumerState<BrokerScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
-  Broker broker = MockData.broker;
   List<ChatMessage> messages = MockData.getChatMessages();
 
   @override
@@ -48,10 +49,10 @@ class _BrokerScreenState extends ConsumerState<BrokerScreen> {
             CircleAvatar(
               radius: 20,
               backgroundColor: AppTheme.whatsAppGray,
-              backgroundImage: broker.profilePhoto.isNotEmpty
-                  ? CachedNetworkImageProvider(broker.profilePhoto)
+              backgroundImage: widget.broker.profilePhoto.isNotEmpty
+                  ? CachedNetworkImageProvider(widget.broker.profilePhoto)
                   : null,
-              child: broker.profilePhoto.isEmpty
+              child: widget.broker.profilePhoto.isEmpty
                   ? const Icon(Icons.person, size: 24, color: Colors.white)
                   : null,
             ),
@@ -61,7 +62,7 @@ class _BrokerScreenState extends ConsumerState<BrokerScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    broker.displayName,
+                    widget.broker.displayName,
                     style: Theme.of(
                       context,
                     ).appBarTheme.titleTextStyle?.copyWith(fontSize: 16),
@@ -69,15 +70,15 @@ class _BrokerScreenState extends ConsumerState<BrokerScreen> {
                   Row(
                     children: [
                       Icon(
-                        broker.isOnline ? Icons.circle : Icons.schedule,
+                        widget.broker.isOnline ? Icons.circle : Icons.schedule,
                         size: 12,
-                        color: broker.isOnline
+                        color: widget.broker.isOnline
                             ? AppTheme.statusGreen
                             : Colors.white.withOpacity(0.7),
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        broker.statusText,
+                        widget.broker.statusText,
                         style: Theme.of(context).appBarTheme.titleTextStyle
                             ?.copyWith(
                               fontSize: 12,
@@ -151,6 +152,7 @@ class _BrokerScreenState extends ConsumerState<BrokerScreen> {
               profile: message.profile!,
               timestamp: message.timestamp,
               isSentByBroker: message.isSentByBroker,
+              broker: widget.broker,
             ),
             if (message.isSentByBroker) const Spacer(),
           ],
@@ -181,10 +183,10 @@ class _BrokerScreenState extends ConsumerState<BrokerScreen> {
             CircleAvatar(
               radius: 16,
               backgroundColor: AppTheme.whatsAppGray,
-              backgroundImage: broker.profilePhoto.isNotEmpty
-                  ? CachedNetworkImageProvider(broker.profilePhoto)
+              backgroundImage: widget.broker.profilePhoto.isNotEmpty
+                  ? CachedNetworkImageProvider(widget.broker.profilePhoto)
                   : null,
-              child: broker.profilePhoto.isEmpty
+              child: widget.broker.profilePhoto.isEmpty
                   ? const Icon(Icons.person, size: 18, color: Colors.white)
                   : null,
             ),
@@ -353,7 +355,9 @@ class _BrokerScreenState extends ConsumerState<BrokerScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Call Broker'),
-        content: Text('Call ${broker.displayName} at ${broker.phoneNumber}?'),
+        content: Text(
+          'Call ${widget.broker.displayName} at ${widget.broker.phoneNumber}?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -365,7 +369,7 @@ class _BrokerScreenState extends ConsumerState<BrokerScreen> {
               // TODO: Implement actual phone call
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Calling ${broker.displayName}...'),
+                  content: Text('Calling ${widget.broker.displayName}...'),
                   backgroundColor: AppTheme.statusGreen,
                 ),
               );

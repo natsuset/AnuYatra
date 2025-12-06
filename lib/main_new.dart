@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testing_flutter/core/providers/theme_provider.dart';
 import 'package:testing_flutter/core/theme/app_theme.dart';
 import 'package:testing_flutter/screens/main_navigation.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
+  // Prevent network font fetching to avoid runtime exceptions in restricted environments
+  GoogleFonts.config.allowRuntimeFetching = false;
   runApp(const ProviderScope(child: AnuyatraApp()));
 }
 
