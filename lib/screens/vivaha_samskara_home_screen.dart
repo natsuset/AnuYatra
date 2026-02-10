@@ -575,11 +575,9 @@ class _VivahaSamskaraHomeScreenState extends State<VivahaSamskaraHomeScreen>
         return;
     }
 
-    if (targetScreen != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => targetScreen!),
-      );
-    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => targetScreen!),
+    );
   }
 }

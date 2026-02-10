@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:testing_flutter/components/superwrapperstryles/superwrapper.dart';
 
 class NewsletterFeedScreen extends StatefulWidget {
-  const NewsletterFeedScreen({Key? key}) : super(key: key);
+  const NewsletterFeedScreen({super.key});
 
   @override
   State<NewsletterFeedScreen> createState() => _NewsletterFeedScreenState();
@@ -111,7 +111,7 @@ class _NewsletterFeedScreenState extends State<NewsletterFeedScreen> {
   }
 
   Widget _buildTabBar(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: 40,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
@@ -159,7 +159,7 @@ class _NewsletterFeedScreenState extends State<NewsletterFeedScreen> {
       child: Row(
         children: [
           // Rank
-          Container(
+          SizedBox(
             width: 24,
             child: Text(
               newsletter['rank'].toString(),

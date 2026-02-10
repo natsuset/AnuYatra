@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:testing_flutter/components/superwrapperstryles/superwrapper.dart';
 
 class DateSelectionScreen extends StatefulWidget {
-  const DateSelectionScreen({Key? key}) : super(key: key);
+  const DateSelectionScreen({super.key});
 
   @override
   State<DateSelectionScreen> createState() => _DateSelectionScreenState();
@@ -148,7 +148,7 @@ class _DateSelectionScreenState extends State<DateSelectionScreen>
     // Add weekday headers
     for (String weekDay in weekDays) {
       days.add(
-        Container(
+        SizedBox(
           width: 40,
           height: 30,
           child: Center(

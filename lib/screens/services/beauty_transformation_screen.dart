@@ -4,7 +4,6 @@ import 'package:testing_flutter/models/premium_service.dart';
 import 'package:testing_flutter/data/premium_services_data.dart';
 import 'package:testing_flutter/widgets/service_feature_card.dart';
 import 'package:testing_flutter/widgets/service_progress_card.dart';
-import 'package:testing_flutter/widgets/service_appointment_card.dart';
 
 class BeautyTransformationScreen extends StatelessWidget {
   const BeautyTransformationScreen({super.key});
