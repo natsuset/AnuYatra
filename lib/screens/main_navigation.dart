@@ -7,6 +7,7 @@ import 'package:testing_flutter/screens/trust_verification_screen.dart';
 import 'package:testing_flutter/screens/financial_compatibility_screen.dart';
 import 'package:testing_flutter/screens/virtual_meeting_screen.dart';
 import 'package:testing_flutter/theme/app_theme.dart';
+import 'package:testing_flutter/core/constants/app_colors.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -70,7 +71,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(
+            color: Colors.black.withValues(alpha: 
               Theme.of(context).brightness == Brightness.dark ? 0.2 : 0.08,
             ),
             blurRadius: 20,
@@ -100,7 +101,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                   ),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? AppTheme.sacredSaffron.withOpacity(0.15)
+                        ? AppTheme.sacredSaffron.withValues(alpha: 0.15)
                         : Colors.transparent,
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -110,13 +111,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                       AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
                         curve: Curves.easeInOutCubic,
-                        transform: Matrix4.identity()
-                          ..scale(isSelected ? 1.1 : 1.0),
+                        transform: isSelected
+                            ? Matrix4.diagonal3Values(1.1, 1.1, 1.0)
+                            : Matrix4.identity(),
                         child: Icon(
                           isSelected ? item.activeIcon : item.icon,
                           color: isSelected
                               ? AppTheme.sacredSaffron
-                              : AppTheme.secondaryTextColor,
+                              : AppTheme.secondaryText(context),
                           size: 22,
                         ),
                       ),
@@ -126,7 +128,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                         style: TextStyle(
                           color: isSelected
                               ? AppTheme.sacredSaffron
-                              : AppTheme.secondaryTextColor,
+                              : AppTheme.secondaryText(context),
                           fontSize: isSelected ? 11 : 10,
                           fontWeight: isSelected
                               ? FontWeight.w600
@@ -175,12 +177,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    AppTheme.sacredSaffron.withOpacity(
+                    AppTheme.sacredSaffron.withValues(alpha: 
                       Theme.of(context).brightness == Brightness.dark
                           ? 0.15
                           : 0.1,
                     ),
-                    AppTheme.deepMaroon.withOpacity(
+                    AppTheme.deepMaroon.withValues(alpha: 
                       Theme.of(context).brightness == Brightness.dark
                           ? 0.15
                           : 0.1,
@@ -189,7 +191,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 ),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: AppTheme.sacredSaffron.withOpacity(0.2),
+                  color: AppTheme.sacredSaffron.withValues(alpha: 0.2),
                 ),
               ),
               child: Row(
@@ -240,7 +242,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               'Trust & Verification',
               'Community verified profiles with 95% accuracy',
               Icons.verified_user,
-              const Color(0xFF1A4B84),
+              AppColors.trustBlue,
               () => Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -254,7 +256,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               'Financial Compatibility',
               'Transparent financial planning and budget tools',
               Icons.account_balance_wallet,
-              const Color(0xFF059669),
+              AppColors.successDark,
               () => Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -268,7 +270,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               'Virtual Family Meets',
               'Meet families from anywhere with AI assistance',
               Icons.video_call,
-              const Color(0xFF7C3AED),
+              AppColors.meetingPurple,
               () => Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -287,7 +289,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(
+                    color: Colors.black.withValues(alpha: 
                       Theme.of(context).brightness == Brightness.dark
                           ? 0.2
                           : 0.04,
@@ -300,20 +302,20 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
                       Icon(
                         Icons.upcoming,
-                        color: AppTheme.secondaryTextColor,
+                        color: AppTheme.secondaryText(context),
                         size: 24,
                       ),
-                      SizedBox(width: 12),
+                      const SizedBox(width: 12),
                       Text(
                         'Coming Soon',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: AppTheme.primaryTextColor,
+                          color: AppTheme.primaryText(context),
                         ),
                       ),
                     ],
@@ -360,10 +362,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.2)),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               blurRadius: 20,
               offset: const Offset(0, 8),
               spreadRadius: -4,
@@ -375,7 +377,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: color, size: 28),
@@ -423,17 +425,17 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: AppTheme.primaryTextColor,
+                  color: AppTheme.primaryText(context),
                 ),
               ),
               Text(
                 description,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
-                  color: AppTheme.secondaryTextColor,
+                  color: AppTheme.secondaryText(context),
                 ),
               ),
             ],

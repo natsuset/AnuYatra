@@ -32,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(Icons.favorite, color: Colors.white, size: 20),
@@ -84,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // Divider
           Container(
             height: 8,
-            color: Theme.of(context).dividerColor.withOpacity(0.3),
+            color: Theme.of(context).dividerColor.withValues(alpha: 0.3),
           ),
 
           // Profile list
@@ -135,9 +135,9 @@ class _HomeScreenState extends State<HomeScreen> {
           '$brokerCount chats',
           style: Theme.of(context).textTheme.bodySmall,
         ),
-        trailing: const Icon(
+        trailing: Icon(
           Icons.chevron_right,
-          color: AppTheme.lightTextColor,
+          color: AppTheme.tertiaryText(context),
         ),
         onTap: () {
           Navigator.push(
@@ -154,12 +154,12 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.people_outline, size: 80, color: AppTheme.lightTextColor),
+          Icon(Icons.people_outline, size: 80, color: AppTheme.tertiaryText(context)),
           const SizedBox(height: 16),
           Text(
             'No profiles yet',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              color: AppTheme.secondaryTextColor,
+              color: AppTheme.secondaryText(context),
             ),
           ),
           const SizedBox(height: 8),
@@ -167,7 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
             'Your broker will share profiles soon',
             style: Theme.of(
               context,
-            ).textTheme.bodyMedium?.copyWith(color: AppTheme.lightTextColor),
+            ).textTheme.bodyMedium?.copyWith(color: AppTheme.tertiaryText(context)),
           ),
           const SizedBox(height: 24),
           ElevatedButton(

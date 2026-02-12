@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:testing_flutter/theme/app_theme.dart';
+import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/models/premium_service.dart';
 import 'package:testing_flutter/data/premium_services_data.dart';
 import 'package:testing_flutter/widgets/service_feature_card.dart';
@@ -13,7 +14,7 @@ class HealthWellnessScreen extends StatelessWidget {
     final service = PremiumServicesData.getServiceById('health_wellness')!;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F2),
+      backgroundColor: AppColors.warmBackground,
       body: CustomScrollView(
         slivers: [
           // Custom App Bar with service theme
@@ -38,7 +39,7 @@ class HealthWellnessScreen extends StatelessWidget {
                     end: Alignment.bottomRight,
                     colors: [
                       service.primaryColor,
-                      service.accentColor.withOpacity(0.8),
+                      service.accentColor.withValues(alpha: 0.8),
                     ],
                   ),
                 ),
@@ -50,7 +51,7 @@ class HealthWellnessScreen extends StatelessWidget {
                       right: 30,
                       child: Icon(
                         service.icon,
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         size: 80,
                       ),
                     ),
@@ -77,7 +78,7 @@ class HealthWellnessScreen extends StatelessWidget {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.25),
+                              color: Colors.white.withValues(alpha: 0.25),
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Row(
@@ -141,7 +142,7 @@ class HealthWellnessScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
 
-                _buildHealthScreeningGrid(service.primaryColor),
+                _buildHealthScreeningGrid(context, service.primaryColor),
 
                 const SizedBox(height: 24),
 
@@ -150,6 +151,7 @@ class HealthWellnessScreen extends StatelessWidget {
                 const SizedBox(height: 12),
 
                 _buildWellnessProgram(
+                  context,
                   'Pre-Wedding Fitness',
                   'Customized workout plans to help you feel your best',
                   Icons.fitness_center,
@@ -159,6 +161,7 @@ class HealthWellnessScreen extends StatelessWidget {
                 const SizedBox(height: 12),
 
                 _buildWellnessProgram(
+                  context,
                   'Mental Health Support',
                   'Counseling sessions to manage pre-wedding stress',
                   Icons.psychology,
@@ -168,6 +171,7 @@ class HealthWellnessScreen extends StatelessWidget {
                 const SizedBox(height: 12),
 
                 _buildWellnessProgram(
+                  context,
                   'Nutritional Guidance',
                   'Meal planning for optimal health and energy',
                   Icons.restaurant,
@@ -227,7 +231,7 @@ class HealthWellnessScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHealthScreeningGrid(Color primaryColor) {
+  Widget _buildHealthScreeningGrid(BuildContext context, Color primaryColor) {
     final screenings = [
       {'title': 'Blood Tests', 'icon': Icons.bloodtype},
       {'title': 'Heart Health', 'icon': Icons.favorite},
@@ -254,10 +258,10 @@ class HealthWellnessScreen extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: primaryColor.withOpacity(0.2)),
+            border: Border.all(color: primaryColor.withValues(alpha: 0.2)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 4,
                 offset: const Offset(0, 2),
               ),
@@ -274,10 +278,10 @@ class HealthWellnessScreen extends StatelessWidget {
               Expanded(
                 child: Text(
                   screening['title'] as String,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.primaryTextColor,
+                    color: AppTheme.primaryText(context),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -291,6 +295,7 @@ class HealthWellnessScreen extends StatelessWidget {
   }
 
   Widget _buildWellnessProgram(
+    BuildContext context,
     String title,
     String description,
     IconData icon,
@@ -303,7 +308,7 @@ class HealthWellnessScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -315,7 +320,7 @@ class HealthWellnessScreen extends StatelessWidget {
             width: 50,
             height: 50,
             decoration: BoxDecoration(
-              color: primaryColor.withOpacity(0.1),
+              color: primaryColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(25),
             ),
             child: Icon(icon, color: primaryColor, size: 24),
@@ -327,18 +332,18 @@ class HealthWellnessScreen extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryTextColor,
+                    color: AppTheme.primaryText(context),
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   description,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: AppTheme.secondaryTextColor,
+                    color: AppTheme.secondaryText(context),
                   ),
                 ),
               ],
@@ -346,7 +351,7 @@ class HealthWellnessScreen extends StatelessWidget {
           ),
           Icon(
             Icons.arrow_forward_ios,
-            color: AppTheme.lightTextColor,
+            color: AppTheme.tertiaryText(context),
             size: 16,
           ),
         ],

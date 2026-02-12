@@ -24,12 +24,12 @@ class ChatBubble extends StatelessWidget {
     // WhatsApp-like bubble colors
     final bubbleColor = isSentByUser
         ? (isDark
-              ? const Color(0xFF005C4B) // Dark mode sent message
+              ? AppColors.chatDarkSentBubble // Dark mode sent message
               : const Color(
                   0xFFDCF8C6,
                 )) // Light mode sent message (WhatsApp green)
         : (isDark
-              ? const Color(0xFF1F2C34) // Dark mode received message
+              ? AppColors.chatDarkBubble // Dark mode received message
               : Colors.white); // Light mode received message
 
     final textColor = isDark
@@ -89,7 +89,7 @@ class ChatBubble extends StatelessWidget {
                           ? Colors.white.withValues(alpha: 0.6)
                           : (isSentByUser
                                 ? Colors.black.withValues(alpha: 0.6)
-                                : AppTheme.lightTextColor),
+                                : AppTheme.tertiaryText(context)),
                       fontSize: 11,
                     ),
                   ),

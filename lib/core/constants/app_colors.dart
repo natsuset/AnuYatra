@@ -83,6 +83,40 @@ class AppColors {
   static const Color chatGray = Color(0xFFECE5DD);
   static const Color chatDarkGray = Color(0xFF8696A0);
 
+  /// Chat screen backgrounds
+  static const Color chatDarkBackground = Color(0xFF0B141A);
+  static const Color chatLightBackground = Color(0xFFECE5DD);
+
+  /// Chat bubble surfaces
+  static const Color chatDarkBubble = Color(0xFF1F2C34);
+  static const Color chatDarkSentBubble = Color(0xFF005C4B);
+
+  /// Chat input area
+  static const Color chatDarkInput = Color(0xFF1E2A32);
+  static const Color chatDarkInputField = Color(0xFF2A3942);
+  static const Color chatLightInputField = Color(0xFFF0F2F5);
+
+  /// Success-tinted surface for light mode
+  static const Color chatLightSuccess = Color(0xFFE8F5E9);
+
+  // ============================================
+  // FEATURE SCREEN THEME COLORS
+  // ============================================
+
+  /// Warm off-white background for premium/service screens
+  static const Color warmBackground = Color(0xFFFAF7F2);
+
+  /// Trust Verification feature
+  static const Color trustBlue = Color(0xFF1A4B84);
+
+  /// Meeting / Virtual feature
+  static const Color meetingPurple = Color(0xFF7C3AED);
+  static const Color meetingPurpleLight = Color(0xFF8B5CF6);
+  static const Color meetingPurpleLighter = Color(0xFFA78BFA);
+
+  /// Accent pink
+  static const Color pink = Color(0xFFEC4899);
+
   // ============================================
   // OVERLAY COLORS
   // ============================================

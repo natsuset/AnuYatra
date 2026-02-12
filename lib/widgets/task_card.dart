@@ -13,16 +13,16 @@ class TaskCard extends StatelessWidget {
       width: 220,
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardSurface(context),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
         ],
-        border: Border.all(color: task.priority.color.withOpacity(0.2)),
+        border: Border.all(color: task.priority.color.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,7 +34,7 @@ class TaskCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                 decoration: BoxDecoration(
-                  color: task.priority.color.withOpacity(0.1),
+                  color: task.priority.color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
@@ -53,7 +53,7 @@ class TaskCard extends StatelessWidget {
                     : Icons.radio_button_unchecked,
                 color: task.isCompleted
                     ? AppTheme.statusGreen
-                    : AppTheme.lightTextColor,
+                    : AppTheme.tertiaryText(context),
                 size: 16,
               ),
             ],
@@ -68,8 +68,8 @@ class TaskCard extends StatelessWidget {
               fontSize: 11,
               fontWeight: FontWeight.bold,
               color: task.isCompleted
-                  ? AppTheme.lightTextColor
-                  : AppTheme.primaryTextColor,
+                  ? AppTheme.tertiaryText(context)
+                  : AppTheme.primaryText(context),
               decoration: task.isCompleted ? TextDecoration.lineThrough : null,
               height: 1.2,
             ),
@@ -85,8 +85,8 @@ class TaskCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 9,
               color: task.isCompleted
-                  ? AppTheme.lightTextColor
-                  : AppTheme.secondaryTextColor,
+                  ? AppTheme.tertiaryText(context)
+                  : AppTheme.secondaryText(context),
               height: 1.2,
             ),
             maxLines: 1,
@@ -103,15 +103,15 @@ class TaskCard extends StatelessWidget {
                 Icon(
                   Icons.attachment,
                   size: 12,
-                  color: AppTheme.lightTextColor,
+                  color: AppTheme.tertiaryText(context),
                 ),
                 const SizedBox(width: 2),
                 Flexible(
                   child: Text(
                     '${task.resources.length} resource${task.resources.length > 1 ? 's' : ''}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 9,
-                      color: AppTheme.lightTextColor,
+                      color: AppTheme.tertiaryText(context),
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -122,14 +122,14 @@ class TaskCard extends StatelessWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.schedule, size: 12, color: AppTheme.lightTextColor),
+                Icon(Icons.schedule, size: 12, color: AppTheme.tertiaryText(context)),
                 const SizedBox(width: 2),
                 Flexible(
                   child: Text(
                     'Due: ${task.dueDate!.day}/${task.dueDate!.month}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 9,
-                      color: AppTheme.lightTextColor,
+                      color: AppTheme.tertiaryText(context),
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),

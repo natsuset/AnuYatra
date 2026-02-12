@@ -67,12 +67,12 @@ class _ShortlistScreenState extends State<ShortlistScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.star_border, size: 80, color: AppTheme.lightTextColor),
+          Icon(Icons.star_border, size: 80, color: AppTheme.tertiaryText(context)),
           const SizedBox(height: 16),
           Text(
             'No profiles in shortlist',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              color: AppTheme.secondaryTextColor,
+              color: AppTheme.secondaryText(context),
             ),
           ),
           const SizedBox(height: 8),
@@ -80,7 +80,7 @@ class _ShortlistScreenState extends State<ShortlistScreen> {
             'Profiles you save or show interest in will appear here',
             style: Theme.of(
               context,
-            ).textTheme.bodyMedium?.copyWith(color: AppTheme.lightTextColor),
+            ).textTheme.bodyMedium?.copyWith(color: AppTheme.tertiaryText(context)),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
@@ -239,7 +239,7 @@ class _ShortlistCard extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(
                         context,
-                      ).textTheme.bodySmall?.color?.withOpacity(0.7),
+                      ).textTheme.bodySmall?.color?.withValues(alpha: 0.7),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -254,10 +254,10 @@ class _ShortlistCard extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: _getStatusColor(profile.status).withOpacity(0.1),
+                      color: _getStatusColor(context, profile.status).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: _getStatusColor(profile.status).withOpacity(0.3),
+                        color: _getStatusColor(context, profile.status).withValues(alpha: 0.3),
                       ),
                     ),
                     child: Row(
@@ -266,7 +266,7 @@ class _ShortlistCard extends StatelessWidget {
                         Icon(
                           _getStatusIcon(profile.status),
                           size: 12,
-                          color: _getStatusColor(profile.status),
+                          color: _getStatusColor(context, profile.status),
                         ),
                         const SizedBox(width: 4),
                         Flexible(
@@ -274,7 +274,7 @@ class _ShortlistCard extends StatelessWidget {
                             profile.status.displayName,
                             style: Theme.of(context).textTheme.labelSmall
                                 ?.copyWith(
-                                  color: _getStatusColor(profile.status),
+                                  color: _getStatusColor(context, profile.status),
                                   fontWeight: FontWeight.w500,
                                 ),
                             maxLines: 1,
@@ -293,7 +293,7 @@ class _ShortlistCard extends StatelessWidget {
     );
   }
 
-  Color _getStatusColor(ProfileStatus status) {
+  Color _getStatusColor(BuildContext context, ProfileStatus status) {
     switch (status) {
       case ProfileStatus.interested:
       case ProfileStatus.mutualInterest:
@@ -302,7 +302,7 @@ class _ShortlistCard extends StatelessWidget {
       case ProfileStatus.awaitingResponse:
         return AppTheme.statusAmber;
       default:
-        return AppTheme.secondaryTextColor;
+        return AppTheme.secondaryText(context);
     }
   }
 

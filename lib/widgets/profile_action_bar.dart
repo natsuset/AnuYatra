@@ -19,7 +19,7 @@ class ProfileActionBar extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, -2),
           ),
@@ -30,7 +30,7 @@ class ProfileActionBar extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: currentStatus == ProfileStatus.pending
               ? _buildActionButtons()
-              : _buildStatusMessage(),
+              : _buildStatusMessage(context),
         ),
       ),
     );
@@ -76,7 +76,7 @@ class ProfileActionBar extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusMessage() {
+  Widget _buildStatusMessage(BuildContext context) {
     IconData icon;
     Color color;
     String message;
@@ -109,16 +109,16 @@ class ProfileActionBar extends StatelessWidget {
         break;
       default:
         icon = Icons.info;
-        color = AppTheme.secondaryTextColor;
+        color = AppTheme.secondaryText(context);
         message = 'Profile status updated';
     }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [

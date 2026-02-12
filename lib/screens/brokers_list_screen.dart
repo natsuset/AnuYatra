@@ -14,7 +14,7 @@ class BrokersListScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppTheme.deepMaroon,
+        backgroundColor: AppTheme.appBarBackground(context),
         title: const Text('Brokers'),
       ),
       body: ListView.separated(
@@ -51,7 +51,7 @@ class BrokersListScreen extends StatelessWidget {
                 Text(
                   _formatTime(broker.lastSeen),
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: AppTheme.lightTextColor,
+                    color: AppTheme.tertiaryText(context),
                   ),
                 ),
               ],
@@ -63,7 +63,7 @@ class BrokersListScreen extends StatelessWidget {
                   size: 12,
                   color: broker.isOnline
                       ? AppTheme.statusGreen
-                      : AppTheme.secondaryTextColor,
+                      : AppTheme.secondaryText(context),
                 ),
                 const SizedBox(width: 6),
                 Expanded(
@@ -75,9 +75,9 @@ class BrokersListScreen extends StatelessWidget {
                 ),
               ],
             ),
-            trailing: const Icon(
+            trailing: Icon(
               Icons.chevron_right,
-              color: AppTheme.lightTextColor,
+              color: AppTheme.tertiaryText(context),
             ),
             onTap: () {
               Navigator.push(

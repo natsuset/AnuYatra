@@ -21,11 +21,11 @@ class ServiceFeatureCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: isCompleted ? primaryColor : Colors.grey.withOpacity(0.3),
+          color: isCompleted ? primaryColor : Colors.grey.withValues(alpha: 0.3),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 4,
             offset: const Offset(0, 1),
           ),
@@ -35,7 +35,7 @@ class ServiceFeatureCard extends StatelessWidget {
         children: [
           Icon(
             isCompleted ? Icons.check_circle : Icons.radio_button_unchecked,
-            color: isCompleted ? primaryColor : AppTheme.lightTextColor,
+            color: isCompleted ? primaryColor : AppTheme.tertiaryText(context),
             size: 20,
           ),
           const SizedBox(width: 12),
@@ -44,7 +44,7 @@ class ServiceFeatureCard extends StatelessWidget {
               feature,
               style: TextStyle(
                 fontSize: 14,
-                color: isCompleted ? primaryColor : AppTheme.primaryTextColor,
+                color: isCompleted ? primaryColor : AppTheme.primaryText(context),
                 fontWeight: isCompleted ? FontWeight.w600 : FontWeight.normal,
                 decoration: isCompleted ? TextDecoration.lineThrough : null,
               ),

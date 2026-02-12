@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:testing_flutter/theme/app_theme.dart';
+import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/models/premium_service.dart';
 import 'package:testing_flutter/data/premium_services_data.dart';
 import 'package:testing_flutter/widgets/service_feature_card.dart';
 import 'package:testing_flutter/widgets/service_progress_card.dart';
-import 'package:testing_flutter/widgets/service_appointment_card.dart';
 
 class BeautyTransformationScreen extends StatelessWidget {
   const BeautyTransformationScreen({super.key});
@@ -16,7 +16,7 @@ class BeautyTransformationScreen extends StatelessWidget {
     )!;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F2),
+      backgroundColor: AppColors.warmBackground,
       body: CustomScrollView(
         slivers: [
           // Custom App Bar with service theme
@@ -41,7 +41,7 @@ class BeautyTransformationScreen extends StatelessWidget {
                     end: Alignment.bottomRight,
                     colors: [
                       service.primaryColor,
-                      service.accentColor.withOpacity(0.8),
+                      service.accentColor.withValues(alpha: 0.8),
                     ],
                   ),
                 ),
@@ -53,7 +53,7 @@ class BeautyTransformationScreen extends StatelessWidget {
                       right: 30,
                       child: Icon(
                         service.icon,
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         size: 80,
                       ),
                     ),
@@ -80,7 +80,7 @@ class BeautyTransformationScreen extends StatelessWidget {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.25),
+                              color: Colors.white.withValues(alpha: 0.25),
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Row(
@@ -142,7 +142,7 @@ class BeautyTransformationScreen extends StatelessWidget {
                 const SizedBox(height: 12),
 
                 // Beauty Timeline
-                _buildBeautyTimeline(service.primaryColor),
+                _buildBeautyTimeline(context, service.primaryColor),
 
                 const SizedBox(height: 24),
 
@@ -151,6 +151,7 @@ class BeautyTransformationScreen extends StatelessWidget {
                 const SizedBox(height: 12),
 
                 _buildExpertCard(
+                  context,
                   'Dr. Priya Sharma',
                   'Celebrity Dermatologist',
                   'Skin analysis & treatment planning',
@@ -161,6 +162,7 @@ class BeautyTransformationScreen extends StatelessWidget {
                 const SizedBox(height: 12),
 
                 _buildExpertCard(
+                  context,
                   'Meera Kapoor',
                   'Bridal Makeup Artist',
                   'Professional makeup tutorials',
@@ -221,7 +223,7 @@ class BeautyTransformationScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBeautyTimeline(Color primaryColor) {
+  Widget _buildBeautyTimeline(BuildContext context, Color primaryColor) {
     final steps = [
       {
         'title': 'Skin Analysis',
@@ -260,7 +262,7 @@ class BeautyTransformationScreen extends StatelessWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: primaryColor.withOpacity(0.1),
+                    color: primaryColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: primaryColor, width: 2),
                   ),
@@ -278,7 +280,7 @@ class BeautyTransformationScreen extends StatelessWidget {
                   Container(
                     width: 2,
                     height: 40,
-                    color: primaryColor.withOpacity(0.3),
+                    color: primaryColor.withValues(alpha: 0.3),
                   ),
               ],
             ),
@@ -293,7 +295,7 @@ class BeautyTransformationScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withValues(alpha: 0.05),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -307,10 +309,10 @@ class BeautyTransformationScreen extends StatelessWidget {
                         Expanded(
                           child: Text(
                             step['title']!,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: AppTheme.primaryTextColor,
+                              color: AppTheme.primaryText(context),
                             ),
                           ),
                         ),
@@ -327,9 +329,9 @@ class BeautyTransformationScreen extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       step['description']!,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: AppTheme.secondaryTextColor,
+                        color: AppTheme.secondaryText(context),
                       ),
                     ),
                   ],
@@ -343,6 +345,7 @@ class BeautyTransformationScreen extends StatelessWidget {
   }
 
   Widget _buildExpertCard(
+    BuildContext context,
     String name,
     String title,
     String specialization,
@@ -356,7 +359,7 @@ class BeautyTransformationScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -369,7 +372,7 @@ class BeautyTransformationScreen extends StatelessWidget {
             width: 60,
             height: 60,
             decoration: BoxDecoration(
-              color: primaryColor.withOpacity(0.1),
+              color: primaryColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(30),
             ),
             child: Icon(Icons.person, color: primaryColor, size: 30),
@@ -382,10 +385,10 @@ class BeautyTransformationScreen extends StatelessWidget {
               children: [
                 Text(
                   name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryTextColor,
+                    color: AppTheme.primaryText(context),
                   ),
                 ),
                 Text(
@@ -398,9 +401,9 @@ class BeautyTransformationScreen extends StatelessWidget {
                 ),
                 Text(
                   specialization,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: AppTheme.secondaryTextColor,
+                    color: AppTheme.secondaryText(context),
                   ),
                 ),
               ],
@@ -410,7 +413,7 @@ class BeautyTransformationScreen extends StatelessWidget {
           ElevatedButton(
             onPressed: () {},
             style: ElevatedButton.styleFrom(
-              backgroundColor: primaryColor.withOpacity(0.1),
+              backgroundColor: primaryColor.withValues(alpha: 0.1),
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),

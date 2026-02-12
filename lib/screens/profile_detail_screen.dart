@@ -7,6 +7,7 @@ import 'package:testing_flutter/theme/app_theme.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/theme/theme_extensions.dart';
 import 'package:testing_flutter/widgets/chat_bubble.dart';
+import 'package:testing_flutter/common/widgets/molecules/details_grid.dart';
 
 class ProfileDetailScreen extends ConsumerStatefulWidget {
   final Profile profile;
@@ -90,8 +91,8 @@ class _ProfileDetailScreenState extends ConsumerState<ProfileDetailScreen> {
   Widget build(BuildContext context) {
     final isDark = context.isDarkMode;
     final chatBackgroundColor = isDark
-        ? const Color(0xFF0B141A) // WhatsApp dark mode
-        : const Color(0xFFECE5DD); // WhatsApp light mode
+        ? AppColors.chatDarkBackground // WhatsApp dark mode
+        : AppColors.chatLightBackground; // WhatsApp light mode
 
     return Scaffold(
       backgroundColor: chatBackgroundColor,
@@ -125,7 +126,7 @@ class _ProfileDetailScreenState extends ConsumerState<ProfileDetailScreen> {
                     style: Theme.of(context).appBarTheme.titleTextStyle
                         ?.copyWith(
                           fontSize: 12,
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withValues(alpha: 0.8),
                         ),
                   ),
                 ],
@@ -262,7 +263,7 @@ class _ProfileDetailScreenState extends ConsumerState<ProfileDetailScreen> {
 
   Widget _buildProfilePhotos() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bubbleColor = isDark ? const Color(0xFF1F2C34) : Colors.white;
+    final bubbleColor = isDark ? AppColors.chatDarkBubble : Colors.white;
 
     return Container(
       width: double.infinity,
@@ -370,7 +371,7 @@ class _ProfileDetailScreenState extends ConsumerState<ProfileDetailScreen> {
 
   Widget _buildProfileDetailsWithActions(ProfileMessage message) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bubbleColor = isDark ? const Color(0xFF1F2C34) : Colors.white;
+    final bubbleColor = isDark ? AppColors.chatDarkBubble : Colors.white;
 
     return Container(
       width: double.infinity,
@@ -392,13 +393,15 @@ class _ProfileDetailScreenState extends ConsumerState<ProfileDetailScreen> {
           // Sections - Personal Details
           _buildSectionTitle('Personal Details'),
           const SizedBox(height: 8),
-          _buildDetailsGrid([
-            MapEntry('Height', currentProfile.height),
-            MapEntry('Religion', currentProfile.religion),
-            MapEntry('Caste', currentProfile.caste),
-            MapEntry('Mother Tongue', currentProfile.motherTongue),
-            MapEntry('Marital Status', currentProfile.maritalStatus),
-          ]),
+          DetailsGrid(
+            details: [
+              MapEntry('Height', currentProfile.height),
+              MapEntry('Religion', currentProfile.religion),
+              MapEntry('Caste', currentProfile.caste),
+              MapEntry('Mother Tongue', currentProfile.motherTongue),
+              MapEntry('Marital Status', currentProfile.maritalStatus),
+            ],
+          ),
 
           // About Me
           if (currentProfile.aboutMe.trim().isNotEmpty) ...[
@@ -442,7 +445,7 @@ class _ProfileDetailScreenState extends ConsumerState<ProfileDetailScreen> {
                   onTap: () => _handleQuickAction('interested'),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 8),
               Expanded(
                 child: _buildQuickActionButton(
                   icon: Icons.schedule,
@@ -451,7 +454,7 @@ class _ProfileDetailScreenState extends ConsumerState<ProfileDetailScreen> {
                   onTap: () => _handleQuickAction('pending'),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 8),
               Expanded(
                 child: _buildQuickActionButton(
                   icon: Icons.close,
@@ -495,74 +498,6 @@ class _ProfileDetailScreenState extends ConsumerState<ProfileDetailScreen> {
     );
   }
 
-  Widget _buildDetailsGrid(List<MapEntry<String, String>> pairs) {
-    final items = pairs
-        .where((e) => e.value.trim().isNotEmpty)
-        .toList(growable: false);
-    if (items.isEmpty) return const SizedBox.shrink();
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final itemWidth = (constraints.maxWidth - 12) / 2;
-        return Wrap(
-          spacing: 12,
-          runSpacing: 8,
-          children: items
-              .map(
-                (e) => SizedBox(
-                  width: itemWidth,
-                  child: _buildDetailTile(
-                    context,
-                    e.key,
-                    e.value,
-                  ), // reuse pattern
-                ),
-              )
-              .toList(),
-        );
-      },
-    );
-  }
-
-  Widget _buildDetailTile(BuildContext context, String label, String value) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final labelStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
-      color: isDark
-          ? Colors.white.withValues(alpha: 0.7)
-          : AppColors.lightTertiaryText,
-    );
-    final valueStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
-      color: isDark ? Colors.white : AppColors.lightPrimaryText,
-      fontWeight: FontWeight.w600,
-    );
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF24323A) : Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.08)
-              : AppTheme.whatsAppGray.withOpacity(0.6),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: labelStyle),
-          const SizedBox(height: 2),
-          Text(
-            value,
-            style: valueStyle,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildSectionParagraph(String text) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Text(
@@ -583,7 +518,7 @@ class _ProfileDetailScreenState extends ConsumerState<ProfileDetailScreen> {
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF2A3942) : const Color(0xFFF0F2F5),
+            color: isDark ? AppColors.chatDarkInputField : AppColors.chatLightInputField,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: isDark
@@ -640,7 +575,7 @@ class _ProfileDetailScreenState extends ConsumerState<ProfileDetailScreen> {
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+        padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
           color: color.withValues(alpha: isDark ? 0.2 : 0.1),
           borderRadius: BorderRadius.circular(8),
@@ -652,18 +587,23 @@ class _ProfileDetailScreenState extends ConsumerState<ProfileDetailScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 24, color: color),
-            const SizedBox(height: 6),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: color,
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
+            Icon(icon, size: 20, color: color),
+            const SizedBox(height: 4),
+            SizedBox(
+              width: double.infinity,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  label,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: color,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 11,
+                  ),
+                  maxLines: 1,
+                  textAlign: TextAlign.center,
+                ),
               ),
-              maxLines: 1,
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.visible,
             ),
           ],
         ),
@@ -690,7 +630,7 @@ class _ProfileDetailScreenState extends ConsumerState<ProfileDetailScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF2A3942) : const Color(0xFFE8F5E9),
+        color: isDark ? AppColors.chatDarkInputField : AppColors.chatLightSuccess,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -743,7 +683,7 @@ class _ProfileDetailScreenState extends ConsumerState<ProfileDetailScreen> {
 
   Widget _buildMessageInput(bool isDark) {
     final inputBackgroundColor = isDark
-        ? const Color(0xFF1E2A32) // WhatsApp dark input background
+        ? AppColors.chatDarkInput // WhatsApp dark input background
         : Colors.white;
 
     return Container(
@@ -803,8 +743,8 @@ class _ProfileDetailScreenState extends ConsumerState<ProfileDetailScreen> {
                     ),
                     filled: true,
                     fillColor: isDark
-                        ? const Color(0xFF2A3942)
-                        : const Color(0xFFF0F2F5),
+                        ? AppColors.chatDarkInputField
+                        : AppColors.chatLightInputField,
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 8,

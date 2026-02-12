@@ -36,13 +36,13 @@ class _BrokerScreenState extends ConsumerState<BrokerScreen> {
     // Get WhatsApp-like chat background color based on theme
     final isDark = context.isDarkMode;
     final chatBackgroundColor = isDark
-        ? const Color(0xFF0B141A) // WhatsApp dark mode background
-        : const Color(0xFFECE5DD); // WhatsApp light mode background
+        ? AppColors.chatDarkBackground // WhatsApp dark mode background
+        : AppColors.chatLightBackground; // WhatsApp light mode background
 
     return Scaffold(
       backgroundColor: chatBackgroundColor,
       appBar: AppBar(
-        backgroundColor: AppTheme.deepMaroon,
+        backgroundColor: AppTheme.appBarBackground(context),
         titleSpacing: 0,
         title: Row(
           children: [
@@ -74,16 +74,20 @@ class _BrokerScreenState extends ConsumerState<BrokerScreen> {
                         size: 12,
                         color: widget.broker.isOnline
                             ? AppTheme.statusGreen
-                            : Colors.white.withOpacity(0.7),
+                            : Colors.white.withValues(alpha: 0.7),
                       ),
                       const SizedBox(width: 4),
-                      Text(
-                        widget.broker.statusText,
-                        style: Theme.of(context).appBarTheme.titleTextStyle
-                            ?.copyWith(
-                              fontSize: 12,
-                              color: Colors.white.withOpacity(0.8),
-                            ),
+                      Expanded(
+                        child: Text(
+                          widget.broker.statusText,
+                          style: Theme.of(context).appBarTheme.titleTextStyle
+                              ?.copyWith(
+                                fontSize: 12,
+                                color: Colors.white.withValues(alpha: 0.8),
+                              ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
                       ),
                     ],
                   ),
@@ -208,7 +212,7 @@ class _BrokerScreenState extends ConsumerState<BrokerScreen> {
   Widget _buildMessageInput() {
     final isDark = context.isDarkMode;
     final inputBackgroundColor = isDark
-        ? const Color(0xFF1E2A32) // WhatsApp dark input background
+        ? AppColors.chatDarkInput // WhatsApp dark input background
         : Colors.white;
 
     return Container(
@@ -264,8 +268,8 @@ class _BrokerScreenState extends ConsumerState<BrokerScreen> {
                     ),
                     filled: true,
                     fillColor: isDark
-                        ? const Color(0xFF2A3942) // Dark mode input field
-                        : const Color(0xFFF0F2F5), // Light mode input field
+                        ? AppColors.chatDarkInputField // Dark mode input field
+                        : AppColors.chatLightInputField, // Light mode input field
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 8,
@@ -397,9 +401,9 @@ class _BrokerScreenState extends ConsumerState<BrokerScreen> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Hold to record, release to send',
-                style: TextStyle(color: AppTheme.secondaryTextColor),
+                style: TextStyle(color: AppTheme.secondaryText(context)),
               ),
               const SizedBox(height: 24),
               Row(

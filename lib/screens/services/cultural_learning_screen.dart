@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:testing_flutter/theme/app_theme.dart';
+import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/models/premium_service.dart';
 import 'package:testing_flutter/data/premium_services_data.dart';
 import 'package:testing_flutter/widgets/service_feature_card.dart';
@@ -13,7 +14,7 @@ class CulturalLearningScreen extends StatelessWidget {
     final service = PremiumServicesData.getServiceById('cultural_learning')!;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F2),
+      backgroundColor: AppColors.warmBackground,
       body: CustomScrollView(
         slivers: [
           // Custom App Bar with service theme
@@ -47,7 +48,7 @@ class CulturalLearningScreen extends StatelessWidget {
                       right: 20,
                       child: Icon(
                         Icons.temple_hindu,
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         size: 80,
                       ),
                     ),
@@ -74,7 +75,7 @@ class CulturalLearningScreen extends StatelessWidget {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.25),
+                              color: Colors.white.withValues(alpha: 0.25),
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Row(
@@ -136,6 +137,7 @@ class CulturalLearningScreen extends StatelessWidget {
                 const SizedBox(height: 12),
 
                 _buildTopicCard(
+                  context,
                   'Wedding Rituals',
                   'Learn the significance of each ceremony',
                   Icons.celebration,
@@ -146,6 +148,7 @@ class CulturalLearningScreen extends StatelessWidget {
                 const SizedBox(height: 12),
 
                 _buildTopicCard(
+                  context,
                   'Regional Customs',
                   'Understand local traditions and practices',
                   Icons.location_city,
@@ -156,6 +159,7 @@ class CulturalLearningScreen extends StatelessWidget {
                 const SizedBox(height: 12),
 
                 _buildTopicCard(
+                  context,
                   'Sanskrit Basics',
                   'Learn essential mantras and meanings',
                   Icons.translate,
@@ -166,6 +170,7 @@ class CulturalLearningScreen extends StatelessWidget {
                 const SizedBox(height: 12),
 
                 _buildTopicCard(
+                  context,
                   'Cultural History',
                   'Discover the roots of wedding traditions',
                   Icons.history_edu,
@@ -180,6 +185,7 @@ class CulturalLearningScreen extends StatelessWidget {
                 const SizedBox(height: 12),
 
                 _buildScholarCard(
+                  context,
                   'Dr. Ramesh Gupta',
                   'Sanskrit Scholar & Vedic Expert',
                   'Specializes in wedding rituals and mantras',
@@ -189,6 +195,7 @@ class CulturalLearningScreen extends StatelessWidget {
                 const SizedBox(height: 12),
 
                 _buildScholarCard(
+                  context,
                   'Prof. Lakshmi Devi',
                   'Cultural Anthropologist',
                   'Expert in regional wedding customs',
@@ -249,6 +256,7 @@ class CulturalLearningScreen extends StatelessWidget {
   }
 
   Widget _buildTopicCard(
+    BuildContext context,
     String title,
     String description,
     IconData icon,
@@ -262,7 +270,7 @@ class CulturalLearningScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -274,7 +282,7 @@ class CulturalLearningScreen extends StatelessWidget {
             width: 50,
             height: 50,
             decoration: BoxDecoration(
-              color: primaryColor.withOpacity(0.1),
+              color: primaryColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(25),
             ),
             child: Icon(icon, color: primaryColor, size: 24),
@@ -286,18 +294,18 @@ class CulturalLearningScreen extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryTextColor,
+                    color: AppTheme.primaryText(context),
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   description,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: AppTheme.secondaryTextColor,
+                    color: AppTheme.secondaryText(context),
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -319,6 +327,7 @@ class CulturalLearningScreen extends StatelessWidget {
   }
 
   Widget _buildScholarCard(
+    BuildContext context,
     String name,
     String title,
     String specialization,
@@ -331,7 +340,7 @@ class CulturalLearningScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -344,7 +353,7 @@ class CulturalLearningScreen extends StatelessWidget {
             width: 60,
             height: 60,
             decoration: BoxDecoration(
-              color: primaryColor.withOpacity(0.1),
+              color: primaryColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(30),
             ),
             child: Icon(Icons.school, color: primaryColor, size: 30),
@@ -357,10 +366,10 @@ class CulturalLearningScreen extends StatelessWidget {
               children: [
                 Text(
                   name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryTextColor,
+                    color: AppTheme.primaryText(context),
                   ),
                 ),
                 Text(
@@ -373,9 +382,9 @@ class CulturalLearningScreen extends StatelessWidget {
                 ),
                 Text(
                   specialization,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: AppTheme.secondaryTextColor,
+                    color: AppTheme.secondaryText(context),
                   ),
                 ),
               ],
@@ -385,7 +394,7 @@ class CulturalLearningScreen extends StatelessWidget {
           ElevatedButton(
             onPressed: () {},
             style: ElevatedButton.styleFrom(
-              backgroundColor: primaryColor.withOpacity(0.1),
+              backgroundColor: primaryColor.withValues(alpha: 0.1),
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),

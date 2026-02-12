@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:testing_flutter/models/financial_profile.dart';
 import 'package:testing_flutter/data/revolutionary_features_data.dart';
 import 'package:testing_flutter/theme/app_theme.dart';
+import 'package:testing_flutter/core/constants/app_colors.dart';
 
 class FinancialCompatibilityScreen extends StatefulWidget {
   const FinancialCompatibilityScreen({super.key});
@@ -60,7 +61,7 @@ class _FinancialCompatibilityScreenState
     final marketInsights = RevolutionaryFeaturesData.marketInsights;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F6F3),
+      backgroundColor: AppColors.warmBackground,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -69,7 +70,7 @@ class _FinancialCompatibilityScreenState
             expandedHeight: 200,
             floating: false,
             pinned: true,
-            backgroundColor: const Color(0xFF059669), // Financial green
+            backgroundColor: AppColors.successDark, // Financial green
             elevation: 0,
             systemOverlayStyle: SystemUiOverlayStyle.light,
             flexibleSpace: FlexibleSpaceBar(
@@ -88,9 +89,9 @@ class _FinancialCompatibilityScreenState
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Color(0xFF059669), // Deep green
-                      Color(0xFF10B981), // Bright green
-                      Color(0xFF34D399), // Light green
+                      AppColors.successDark, // Deep green
+                      AppColors.success, // Bright green
+                      AppColors.successLight, // Light green
                     ],
                     stops: [0.0, 0.6, 1.0],
                   ),
@@ -105,7 +106,7 @@ class _FinancialCompatibilityScreenState
                         angle: 0.2,
                         child: Icon(
                           Icons.account_balance_wallet,
-                          color: Colors.white.withOpacity(0.15),
+                          color: Colors.white.withValues(alpha: 0.15),
                           size: 80,
                         ),
                       ),
@@ -117,7 +118,7 @@ class _FinancialCompatibilityScreenState
                         angle: -0.3,
                         child: Icon(
                           Icons.trending_up,
-                          color: Colors.white.withOpacity(0.1),
+                          color: Colors.white.withValues(alpha: 0.1),
                           size: 60,
                         ),
                       ),
@@ -136,10 +137,10 @@ class _FinancialCompatibilityScreenState
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.15),
+                              color: Colors.white.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withValues(alpha: 0.2),
                                 width: 1,
                               ),
                             ),
@@ -161,10 +162,10 @@ class _FinancialCompatibilityScreenState
                                   vertical: 6,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
+                                  color: Colors.white.withValues(alpha: 0.2),
                                   borderRadius: BorderRadius.circular(16),
                                   border: Border.all(
-                                    color: Colors.white.withOpacity(0.3),
+                                    color: Colors.white.withValues(alpha: 0.3),
                                     width: 1,
                                   ),
                                 ),
@@ -275,10 +276,10 @@ class _FinancialCompatibilityScreenState
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFF059669).withOpacity(0.1),
+                color: AppColors.successDark.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, color: const Color(0xFF059669), size: 20),
+              child: Icon(icon, color: AppColors.successDark, size: 20),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -290,7 +291,7 @@ class _FinancialCompatibilityScreenState
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF059669),
+                      color: AppColors.successDark,
                       letterSpacing: -0.5,
                     ),
                   ),
@@ -300,7 +301,7 @@ class _FinancialCompatibilityScreenState
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
-                      color: AppTheme.secondaryTextColor.withOpacity(0.8),
+                      color: AppTheme.secondaryText(context).withValues(alpha: 0.8),
                     ),
                   ),
                 ],
@@ -320,12 +321,12 @@ class _FinancialCompatibilityScreenState
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
           BoxShadow(
-            color: const Color(0xFF059669).withOpacity(0.1),
+            color: AppColors.successDark.withValues(alpha: 0.1),
             blurRadius: 40,
             offset: const Offset(0, 16),
             spreadRadius: -8,
@@ -340,7 +341,7 @@ class _FinancialCompatibilityScreenState
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF059669), Color(0xFF10B981)],
+                    colors: [AppColors.successDark, AppColors.success],
                   ),
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -360,17 +361,17 @@ class _FinancialCompatibilityScreenState
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF059669),
+                        color: AppColors.successDark,
                         letterSpacing: -0.5,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       profile.incomeDisplayRange,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: AppTheme.secondaryTextColor,
+                        color: AppTheme.secondaryText(context),
                       ),
                     ),
                   ],
@@ -384,20 +385,20 @@ class _FinancialCompatibilityScreenState
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      const Color(0xFF059669).withOpacity(0.1),
-                      const Color(0xFF10B981).withOpacity(0.1),
+                      AppColors.successDark.withValues(alpha: 0.1),
+                      AppColors.success.withValues(alpha: 0.1),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: const Color(0xFF059669).withOpacity(0.3),
+                    color: AppColors.successDark.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
                 child: Text(
                   '${profile.profileCompleteness}%',
                   style: const TextStyle(
-                    color: Color(0xFF059669),
+                    color: AppColors.successDark,
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                   ),
@@ -430,18 +431,18 @@ class _FinancialCompatibilityScreenState
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: AppTheme.secondaryTextColor,
+            color: AppTheme.secondaryText(context),
           ),
         ),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: AppTheme.primaryTextColor,
+            color: AppTheme.primaryText(context),
           ),
         ),
       ],
@@ -456,7 +457,7 @@ class _FinancialCompatibilityScreenState
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -469,11 +470,11 @@ class _FinancialCompatibilityScreenState
             children: [
               CircleAvatar(
                 radius: 24,
-                backgroundColor: const Color(0xFF059669).withOpacity(0.1),
+                backgroundColor: AppColors.successDark.withValues(alpha: 0.1),
                 child: const Text(
                   'P',
                   style: TextStyle(
-                    color: Color(0xFF059669),
+                    color: AppColors.successDark,
                     fontWeight: FontWeight.w600,
                     fontSize: 18,
                   ),
@@ -484,12 +485,12 @@ class _FinancialCompatibilityScreenState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Priya Gupta\'s Family',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: AppTheme.primaryTextColor,
+                        color: AppTheme.primaryText(context),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -514,7 +515,7 @@ class _FinancialCompatibilityScreenState
                 decoration: BoxDecoration(
                   color: _getCompatibilityColor(
                     compatibility.overallCompatibility,
-                  ).withOpacity(0.1),
+                  ).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
@@ -544,12 +545,12 @@ class _FinancialCompatibilityScreenState
 
           // Alignment points
           if (compatibility.alignmentPoints.isNotEmpty) ...[
-            const Text(
+            Text(
               'Strong Alignment:',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: AppTheme.primaryTextColor,
+                color: AppTheme.primaryText(context),
               ),
             ),
             const SizedBox(height: 8),
@@ -563,16 +564,16 @@ class _FinancialCompatibilityScreenState
                       children: [
                         const Icon(
                           Icons.check_circle,
-                          color: Color(0xFF059669),
+                          color: AppColors.successDark,
                           size: 16,
                         ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             point,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
-                              color: AppTheme.secondaryTextColor,
+                              color: AppTheme.secondaryText(context),
                             ),
                           ),
                         ),
@@ -584,12 +585,12 @@ class _FinancialCompatibilityScreenState
 
           if (compatibility.discussionNeeded.isNotEmpty) ...[
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'Discussion Needed:',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: AppTheme.primaryTextColor,
+                color: AppTheme.primaryText(context),
               ),
             ),
             const SizedBox(height: 8),
@@ -604,9 +605,9 @@ class _FinancialCompatibilityScreenState
                       Expanded(
                         child: Text(
                           point,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
-                            color: AppTheme.secondaryTextColor,
+                            color: AppTheme.secondaryText(context),
                           ),
                         ),
                       ),
@@ -621,7 +622,7 @@ class _FinancialCompatibilityScreenState
             child: ElevatedButton(
               onPressed: () => _startFinancialDiscussion(),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF059669),
+                backgroundColor: AppColors.successDark,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -649,7 +650,7 @@ class _FinancialCompatibilityScreenState
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -677,10 +678,10 @@ class _FinancialCompatibilityScreenState
           children: [
             Text(
               category,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
-                color: AppTheme.primaryTextColor,
+                color: AppTheme.primaryText(context),
               ),
             ),
             Text(
@@ -712,7 +713,7 @@ class _FinancialCompatibilityScreenState
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -754,10 +755,10 @@ class _FinancialCompatibilityScreenState
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: const Color(0xFF059669).withOpacity(0.1),
+            color: AppColors.successDark.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, color: const Color(0xFF059669), size: 20),
+          child: Icon(icon, color: AppColors.successDark, size: 20),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -766,17 +767,17 @@ class _FinancialCompatibilityScreenState
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: AppTheme.primaryTextColor,
+                  color: AppTheme.primaryText(context),
                 ),
               ),
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
-                  color: AppTheme.secondaryTextColor,
+                  color: AppTheme.secondaryText(context),
                 ),
               ),
             ],
@@ -793,7 +794,7 @@ class _FinancialCompatibilityScreenState
           'Budget Planner',
           'Plan your wedding budget with family',
           Icons.calculate,
-          const Color(0xFF8B5CF6),
+          AppColors.meetingPurpleLight,
           () => _showBudgetPlanner(),
         ),
         const SizedBox(height: 12),
@@ -801,7 +802,7 @@ class _FinancialCompatibilityScreenState
           'Complete Financial Profile',
           'Add future goals and investment preferences',
           Icons.timeline,
-          const Color(0xFF3B82F6),
+          AppColors.info,
           () => _showProfileCompletion(),
         ),
         const SizedBox(height: 12),
@@ -809,7 +810,7 @@ class _FinancialCompatibilityScreenState
           'Financial Counseling',
           'Get expert advice on financial planning',
           Icons.support_agent,
-          const Color(0xFF10B981),
+          AppColors.success,
           () => _showCounselingOptions(),
         ),
       ],
@@ -831,14 +832,14 @@ class _FinancialCompatibilityScreenState
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.2)),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(icon, color: color, size: 20),
@@ -850,18 +851,18 @@ class _FinancialCompatibilityScreenState
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: AppTheme.primaryTextColor,
+                      color: AppTheme.primaryText(context),
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
-                      color: AppTheme.secondaryTextColor,
+                      color: AppTheme.secondaryText(context),
                     ),
                   ),
                 ],
@@ -875,9 +876,9 @@ class _FinancialCompatibilityScreenState
   }
 
   Color _getCompatibilityColor(int score) {
-    if (score >= 90) return const Color(0xFF059669);
-    if (score >= 80) return const Color(0xFF10B981);
-    if (score >= 70) return const Color(0xFF34D399);
+    if (score >= 90) return AppColors.successDark;
+    if (score >= 80) return AppColors.success;
+    if (score >= 70) return AppColors.successLight;
     if (score >= 60) return Colors.orange;
     return Colors.red;
   }
@@ -886,7 +887,7 @@ class _FinancialCompatibilityScreenState
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Starting financial discussion...'),
-        backgroundColor: Color(0xFF059669),
+        backgroundColor: AppColors.successDark,
       ),
     );
   }
@@ -907,7 +908,7 @@ class _FinancialCompatibilityScreenState
           ElevatedButton(
             onPressed: () => Navigator.pop(context),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF059669),
+              backgroundColor: AppColors.successDark,
             ),
             child: const Text('Start Planning'),
           ),
@@ -932,7 +933,7 @@ class _FinancialCompatibilityScreenState
           ElevatedButton(
             onPressed: () => Navigator.pop(context),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF059669),
+              backgroundColor: AppColors.successDark,
             ),
             child: const Text('Complete Now'),
           ),
@@ -957,7 +958,7 @@ class _FinancialCompatibilityScreenState
           ElevatedButton(
             onPressed: () => Navigator.pop(context),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF059669),
+              backgroundColor: AppColors.successDark,
             ),
             child: const Text('Book Session'),
           ),

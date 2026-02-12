@@ -22,12 +22,12 @@ class ServiceAppointmentCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
         ],
-        border: Border.all(color: primaryColor.withOpacity(0.2)),
+        border: Border.all(color: primaryColor.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
@@ -35,7 +35,7 @@ class ServiceAppointmentCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: primaryColor.withOpacity(0.1),
+              color: primaryColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Column(
@@ -58,9 +58,9 @@ class ServiceAppointmentCard extends StatelessWidget {
                 ),
                 Text(
                   DateFormat('HH:mm').format(appointment.dateTime),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10,
-                    color: AppTheme.secondaryTextColor,
+                    color: AppTheme.secondaryText(context),
                   ),
                 ),
               ],
@@ -76,10 +76,10 @@ class ServiceAppointmentCard extends StatelessWidget {
               children: [
                 Text(
                   appointment.title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryTextColor,
+                    color: AppTheme.primaryText(context),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -90,15 +90,15 @@ class ServiceAppointmentCard extends StatelessWidget {
                     Icon(
                       Icons.person,
                       size: 16,
-                      color: AppTheme.lightTextColor,
+                      color: AppTheme.tertiaryText(context),
                     ),
                     const SizedBox(width: 4),
                     Flexible(
                       child: Text(
                         '${appointment.expertName} - ${appointment.expertRole}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
-                          color: AppTheme.secondaryTextColor,
+                          color: AppTheme.secondaryText(context),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -114,15 +114,15 @@ class ServiceAppointmentCard extends StatelessWidget {
                           ? Icons.video_call
                           : Icons.location_on,
                       size: 16,
-                      color: AppTheme.lightTextColor,
+                      color: AppTheme.tertiaryText(context),
                     ),
                     const SizedBox(width: 4),
                     Flexible(
                       child: Text(
                         appointment.location,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: AppTheme.lightTextColor,
+                          color: AppTheme.tertiaryText(context),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

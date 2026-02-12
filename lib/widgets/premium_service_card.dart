@@ -18,17 +18,17 @@ class PremiumServiceCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppTheme.cardSurface(context),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: service.primaryColor.withOpacity(0.1),
+              color: service.primaryColor.withValues(alpha: 0.1),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
           ],
           border: Border.all(
-            color: service.accentColor.withOpacity(0.3),
+            color: service.accentColor.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -44,8 +44,8 @@ class PremiumServiceCard extends StatelessWidget {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    service.primaryColor.withOpacity(0.1),
-                    service.accentColor.withOpacity(0.05),
+                    service.primaryColor.withValues(alpha: 0.1),
+                    service.accentColor.withValues(alpha: 0.05),
                   ],
                 ),
                 borderRadius: const BorderRadius.only(
@@ -59,7 +59,7 @@ class PremiumServiceCard extends StatelessWidget {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: service.primaryColor.withOpacity(0.15),
+                      color: service.primaryColor.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
@@ -76,7 +76,7 @@ class PremiumServiceCard extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: _getStatusColor(service.status),
+                        color: _getStatusColor(service.status, context),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -103,10 +103,10 @@ class PremiumServiceCard extends StatelessWidget {
                     // Title
                     Text(
                       service.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.primaryTextColor,
+                        color: AppTheme.primaryText(context),
                         height: 1.2,
                       ),
                       maxLines: 1,
@@ -118,9 +118,9 @@ class PremiumServiceCard extends StatelessWidget {
                     // Description
                     Text(
                       service.description,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 10,
-                        color: AppTheme.secondaryTextColor,
+                        color: AppTheme.secondaryText(context),
                         height: 1.2,
                       ),
                       maxLines: 1,
@@ -137,15 +137,15 @@ class PremiumServiceCard extends StatelessWidget {
                           Icon(
                             Icons.currency_rupee,
                             size: 12,
-                            color: AppTheme.lightTextColor,
+                            color: AppTheme.tertiaryText(context),
                           ),
                           Flexible(
                             child: Text(
                               '${service.estimatedPrice.toInt()}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
-                                color: AppTheme.primaryTextColor,
+                                color: AppTheme.primaryText(context),
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -162,9 +162,9 @@ class PremiumServiceCard extends StatelessWidget {
                             children: [
                               Text(
                                 'Progress',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 9,
-                                  color: AppTheme.lightTextColor,
+                                  color: AppTheme.tertiaryText(context),
                                 ),
                               ),
                               Text(
@@ -182,7 +182,7 @@ class PremiumServiceCard extends StatelessWidget {
                             height: 3,
                             child: LinearProgressIndicator(
                               value: service.progress,
-                              backgroundColor: service.accentColor.withOpacity(
+                              backgroundColor: service.accentColor.withValues(alpha: 
                                 0.3,
                               ),
                               valueColor: AlwaysStoppedAnimation<Color>(
@@ -203,10 +203,10 @@ class PremiumServiceCard extends StatelessWidget {
     );
   }
 
-  Color _getStatusColor(ServiceStatus status) {
+  Color _getStatusColor(ServiceStatus status, BuildContext context) {
     switch (status) {
       case ServiceStatus.notStarted:
-        return AppTheme.lightTextColor;
+        return AppTheme.tertiaryText(context);
       case ServiceStatus.inProgress:
         return AppTheme.sacredSaffron;
       case ServiceStatus.completed:

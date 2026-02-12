@@ -25,9 +25,17 @@ dependencies:
   cached_network_image: ^3.3.1
   flutter_staggered_grid_view: ^0.7.0
   
+  # Navigation
+  go_router: ^14.0.0
+
+  # Local Storage (Community Edition - actively maintained, full cross-platform + WASM web)
+  hive_ce: ^2.7.0
+  hive_ce_flutter: ^2.2.0
+
   # Utilities
   intl: ^0.19.0
   shared_preferences: ^2.2.3
+  uuid: ^4.5.1
 
 dev_dependencies:
   flutter_test:

@@ -16,7 +16,7 @@ class ServiceProgressCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -28,12 +28,12 @@ class ServiceProgressCard extends StatelessWidget {
             children: [
               Icon(Icons.track_changes, color: service.primaryColor, size: 24),
               const SizedBox(width: 12),
-              const Text(
+              Text(
                 'Your Progress',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: AppTheme.primaryTextColor,
+                  color: AppTheme.primaryText(context),
                 ),
               ),
             ],
@@ -47,7 +47,7 @@ class ServiceProgressCard extends StatelessWidget {
               Container(
                 height: 8,
                 decoration: BoxDecoration(
-                  color: service.accentColor.withOpacity(0.3),
+                  color: service.accentColor.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
@@ -70,8 +70,8 @@ class ServiceProgressCard extends StatelessWidget {
             children: [
               Text(
                 service.progressText,
-                style: const TextStyle(
-                  color: AppTheme.secondaryTextColor,
+                style: TextStyle(
+                  color: AppTheme.secondaryText(context),
                   fontSize: 14,
                 ),
               ),
@@ -91,7 +91,7 @@ class ServiceProgressCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: service.primaryColor.withOpacity(0.1),
+                color: service.primaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(

@@ -64,7 +64,7 @@ class _VivahaSamskaraHomeScreenState extends State<VivahaSamskaraHomeScreen>
     final overallProgress = PremiumServicesData.getOverallProgress();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F6F3), // Premium warm background
+      backgroundColor: AppTheme.background(context),
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -93,8 +93,8 @@ class _VivahaSamskaraHomeScreenState extends State<VivahaSamskaraHomeScreen>
                     end: Alignment.bottomRight,
                     colors: [
                       AppTheme.deepMaroon,
-                      AppTheme.deepMaroon.withOpacity(0.9),
-                      AppTheme.sacredSaffron.withOpacity(0.8),
+                      AppTheme.deepMaroon.withValues(alpha: 0.9),
+                      AppTheme.sacredSaffron.withValues(alpha: 0.8),
                     ],
                     stops: const [0.0, 0.6, 1.0],
                   ),
@@ -109,7 +109,7 @@ class _VivahaSamskaraHomeScreenState extends State<VivahaSamskaraHomeScreen>
                         angle: 0.2,
                         child: Icon(
                           Icons.auto_awesome,
-                          color: Colors.white.withOpacity(0.15),
+                          color: Colors.white.withValues(alpha: 0.15),
                           size: 80,
                         ),
                       ),
@@ -121,7 +121,7 @@ class _VivahaSamskaraHomeScreenState extends State<VivahaSamskaraHomeScreen>
                         angle: -0.3,
                         child: Icon(
                           Icons.diamond_outlined,
-                          color: Colors.white.withOpacity(0.1),
+                          color: Colors.white.withValues(alpha: 0.1),
                           size: 60,
                         ),
                       ),
@@ -134,7 +134,7 @@ class _VivahaSamskaraHomeScreenState extends State<VivahaSamskaraHomeScreen>
                           end: Alignment.bottomCenter,
                           colors: [
                             Colors.transparent,
-                            Colors.black.withOpacity(0.1),
+                            Colors.black.withValues(alpha: 0.1),
                           ],
                         ),
                       ),
@@ -153,10 +153,10 @@ class _VivahaSamskaraHomeScreenState extends State<VivahaSamskaraHomeScreen>
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.15),
+                              color: Colors.white.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withValues(alpha: 0.2),
                                 width: 1,
                               ),
                             ),
@@ -179,10 +179,10 @@ class _VivahaSamskaraHomeScreenState extends State<VivahaSamskaraHomeScreen>
                                     vertical: 6,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
+                                    color: Colors.white.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(16),
                                     border: Border.all(
-                                      color: Colors.white.withOpacity(0.3),
+                                      color: Colors.white.withValues(alpha: 0.3),
                                       width: 1,
                                     ),
                                   ),
@@ -330,17 +330,17 @@ class _VivahaSamskaraHomeScreenState extends State<VivahaSamskaraHomeScreen>
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardSurface(context),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 20,
             offset: const Offset(0, 8),
             spreadRadius: 0,
           ),
           BoxShadow(
-            color: AppTheme.sacredSaffron.withOpacity(0.1),
+            color: AppTheme.sacredSaffron.withValues(alpha: 0.1),
             blurRadius: 40,
             offset: const Offset(0, 16),
             spreadRadius: -8,
@@ -370,12 +370,12 @@ class _VivahaSamskaraHomeScreenState extends State<VivahaSamskaraHomeScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Your Wedding Journey',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
-                        color: AppTheme.primaryTextColor,
+                        color: AppTheme.primaryText(context),
                         letterSpacing: -0.5,
                       ),
                     ),
@@ -385,7 +385,7 @@ class _VivahaSamskaraHomeScreenState extends State<VivahaSamskaraHomeScreen>
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
-                        color: AppTheme.secondaryTextColor.withOpacity(0.8),
+                        color: AppTheme.secondaryText(context).withValues(alpha: 0.8),
                       ),
                     ),
                   ],
@@ -399,7 +399,7 @@ class _VivahaSamskaraHomeScreenState extends State<VivahaSamskaraHomeScreen>
           Container(
             height: 12,
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
+              color: AppTheme.divider(context),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Stack(
@@ -407,7 +407,7 @@ class _VivahaSamskaraHomeScreenState extends State<VivahaSamskaraHomeScreen>
                 Container(
                   height: 12,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
+                    color: AppTheme.divider(context),
                     borderRadius: BorderRadius.circular(6),
                   ),
                 ),
@@ -420,13 +420,13 @@ class _VivahaSamskaraHomeScreenState extends State<VivahaSamskaraHomeScreen>
                     gradient: LinearGradient(
                       colors: [
                         AppTheme.sacredSaffron,
-                        AppTheme.deepMaroon.withOpacity(0.9),
+                        AppTheme.deepMaroon.withValues(alpha: 0.9),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(6),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.sacredSaffron.withOpacity(0.4),
+                        color: AppTheme.sacredSaffron.withValues(alpha: 0.4),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -448,17 +448,17 @@ class _VivahaSamskaraHomeScreenState extends State<VivahaSamskaraHomeScreen>
                   children: [
                     Text(
                       '${PremiumServicesData.getTotalCompletedTasks()} of ${PremiumServicesData.getTotalTasks()} tasks',
-                      style: const TextStyle(
-                        color: AppTheme.secondaryTextColor,
+                      style: TextStyle(
+                        color: AppTheme.secondaryText(context),
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                     const SizedBox(height: 2),
-                    const Text(
+                    Text(
                       'completed',
                       style: TextStyle(
-                        color: AppTheme.secondaryTextColor,
+                        color: AppTheme.secondaryText(context),
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
@@ -474,13 +474,13 @@ class _VivahaSamskaraHomeScreenState extends State<VivahaSamskaraHomeScreen>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppTheme.sacredSaffron.withOpacity(0.1),
-                      AppTheme.deepMaroon.withOpacity(0.1),
+                      AppTheme.sacredSaffron.withValues(alpha: 0.1),
+                      AppTheme.deepMaroon.withValues(alpha: 0.1),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: AppTheme.sacredSaffron.withOpacity(0.3),
+                    color: AppTheme.sacredSaffron.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -513,7 +513,7 @@ class _VivahaSamskaraHomeScreenState extends State<VivahaSamskaraHomeScreen>
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppTheme.deepMaroon.withOpacity(0.1),
+                color: AppTheme.deepMaroon.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: AppTheme.deepMaroon, size: 20),
@@ -538,7 +538,7 @@ class _VivahaSamskaraHomeScreenState extends State<VivahaSamskaraHomeScreen>
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
-                      color: AppTheme.secondaryTextColor.withOpacity(0.8),
+                      color: AppTheme.secondaryText(context).withValues(alpha: 0.8),
                     ),
                   ),
                 ],
@@ -575,11 +575,9 @@ class _VivahaSamskaraHomeScreenState extends State<VivahaSamskaraHomeScreen>
         return;
     }
 
-    if (targetScreen != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => targetScreen!),
-      );
-    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => targetScreen!),
+    );
   }
 }

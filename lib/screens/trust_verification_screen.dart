@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:testing_flutter/models/trust_verification.dart';
 import 'package:testing_flutter/data/revolutionary_features_data.dart';
 import 'package:testing_flutter/theme/app_theme.dart';
+import 'package:testing_flutter/core/constants/app_colors.dart';
 
 class TrustVerificationScreen extends StatefulWidget {
   const TrustVerificationScreen({super.key});
@@ -55,7 +56,7 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
     final userTrust = RevolutionaryFeaturesData.mockTrustVerifications.first;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F6F3),
+      backgroundColor: AppColors.warmBackground,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -64,7 +65,7 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
             expandedHeight: 200,
             floating: false,
             pinned: true,
-            backgroundColor: const Color(0xFF1A4B84), // Trust blue
+            backgroundColor: AppColors.trustBlue, // Trust blue
             elevation: 0,
             systemOverlayStyle: SystemUiOverlayStyle.light,
             flexibleSpace: FlexibleSpaceBar(
@@ -83,9 +84,9 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Color(0xFF1A4B84), // Deep blue
-                      Color(0xFF2563EB), // Bright blue
-                      Color(0xFF3B82F6), // Light blue
+                      AppColors.trustBlue, // Deep blue
+                      AppColors.infoDark, // Bright blue
+                      AppColors.info, // Light blue
                     ],
                     stops: [0.0, 0.6, 1.0],
                   ),
@@ -100,7 +101,7 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
                         angle: 0.2,
                         child: Icon(
                           Icons.verified_user,
-                          color: Colors.white.withOpacity(0.15),
+                          color: Colors.white.withValues(alpha: 0.15),
                           size: 80,
                         ),
                       ),
@@ -112,7 +113,7 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
                         angle: -0.3,
                         child: Icon(
                           Icons.shield_outlined,
-                          color: Colors.white.withOpacity(0.1),
+                          color: Colors.white.withValues(alpha: 0.1),
                           size: 60,
                         ),
                       ),
@@ -131,10 +132,10 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.15),
+                              color: Colors.white.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withValues(alpha: 0.2),
                                 width: 1,
                               ),
                             ),
@@ -156,10 +157,10 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
                                   vertical: 6,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
+                                  color: Colors.white.withValues(alpha: 0.2),
                                   borderRadius: BorderRadius.circular(16),
                                   border: Border.all(
-                                    color: Colors.white.withOpacity(0.3),
+                                    color: Colors.white.withValues(alpha: 0.3),
                                     width: 1,
                                   ),
                                 ),
@@ -265,10 +266,10 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFF1A4B84).withOpacity(0.1),
+                color: AppColors.trustBlue.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, color: const Color(0xFF1A4B84), size: 20),
+              child: Icon(icon, color: AppColors.trustBlue, size: 20),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -280,7 +281,7 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF1A4B84),
+                      color: AppColors.trustBlue,
                       letterSpacing: -0.5,
                     ),
                   ),
@@ -290,7 +291,7 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
-                      color: AppTheme.secondaryTextColor.withOpacity(0.8),
+                      color: AppTheme.secondaryText(context).withValues(alpha: 0.8),
                     ),
                   ),
                 ],
@@ -310,12 +311,12 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
           BoxShadow(
-            color: const Color(0xFF1A4B84).withOpacity(0.1),
+            color: AppColors.trustBlue.withValues(alpha: 0.1),
             blurRadius: 40,
             offset: const Offset(0, 16),
             spreadRadius: -8,
@@ -330,7 +331,7 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF1A4B84), Color(0xFF2563EB)],
+                    colors: [AppColors.trustBlue, AppColors.infoDark],
                   ),
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -349,17 +350,17 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF1A4B84),
+                        color: AppColors.trustBlue,
                         letterSpacing: -0.5,
                       ),
                     ),
                     const SizedBox(height: 2),
-                    const Text(
+                    Text(
                       'Community verified profile',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
-                        color: AppTheme.secondaryTextColor,
+                        color: AppTheme.secondaryText(context),
                       ),
                     ),
                   ],
@@ -373,20 +374,20 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      const Color(0xFF1A4B84).withOpacity(0.1),
-                      const Color(0xFF2563EB).withOpacity(0.1),
+                      AppColors.trustBlue.withValues(alpha: 0.1),
+                      AppColors.infoDark.withValues(alpha: 0.1),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: const Color(0xFF1A4B84).withOpacity(0.3),
+                    color: AppColors.trustBlue.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
                 child: Text(
                   '${trust.trustScore}/100',
                   style: const TextStyle(
-                    color: Color(0xFF1A4B84),
+                    color: AppColors.trustBlue,
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                   ),
@@ -398,14 +399,14 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF1A4B84).withOpacity(0.05),
+              color: AppColors.trustBlue.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               children: [
                 const Icon(
                   Icons.verified_user,
-                  color: Color(0xFF1A4B84),
+                  color: AppColors.trustBlue,
                   size: 20,
                 ),
                 const SizedBox(width: 12),
@@ -415,7 +416,7 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF1A4B84),
+                      color: AppColors.trustBlue,
                     ),
                   ),
                 ),
@@ -435,7 +436,7 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -487,8 +488,8 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: isVerified
-                ? Colors.green.withOpacity(0.1)
-                : Colors.orange.withOpacity(0.1),
+                ? Colors.green.withValues(alpha: 0.1)
+                : Colors.orange.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
@@ -501,10 +502,10 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
         Expanded(
           child: Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
-              color: AppTheme.primaryTextColor,
+              color: AppTheme.primaryText(context),
             ),
           ),
         ),
@@ -545,11 +546,11 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundColor: const Color(0xFF1A4B84).withOpacity(0.1),
+                backgroundColor: AppColors.trustBlue.withValues(alpha: 0.1),
                 child: Text(
                   endorsement.endorserName.substring(0, 1),
                   style: const TextStyle(
-                    color: Color(0xFF1A4B84),
+                    color: AppColors.trustBlue,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -561,10 +562,10 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
                   children: [
                     Text(
                       endorsement.endorserName,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: AppTheme.primaryTextColor,
+                        color: AppTheme.primaryText(context),
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -577,9 +578,9 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
                         const SizedBox(width: 4),
                         Text(
                           endorsement.relationship,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: AppTheme.secondaryTextColor,
+                            color: AppTheme.secondaryText(context),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -590,9 +591,9 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
               ),
               Text(
                 '${endorsement.yearsKnown} years',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
-                  color: AppTheme.secondaryTextColor,
+                  color: AppTheme.secondaryText(context),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -601,9 +602,9 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
           const SizedBox(height: 12),
           Text(
             endorsement.message,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
-              color: AppTheme.primaryTextColor,
+              color: AppTheme.primaryText(context),
               height: 1.4,
             ),
           ),
@@ -619,7 +620,7 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
           'Invite More Verifiers',
           'Add family friends and colleagues',
           Icons.person_add,
-          const Color(0xFF10B981),
+          AppColors.success,
           () => _showInviteDialog(),
         ),
         const SizedBox(height: 12),
@@ -627,7 +628,7 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
           'Complete Profile Verification',
           'Upload documents and complete all checks',
           Icons.upload_file,
-          const Color(0xFF3B82F6),
+          AppColors.info,
           () => _showVerificationDialog(),
         ),
         const SizedBox(height: 12),
@@ -635,7 +636,7 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
           'View Verification Report',
           'Download your complete trust report',
           Icons.download,
-          const Color(0xFF8B5CF6),
+          AppColors.meetingPurpleLight,
           () => _showReportDialog(),
         ),
       ],
@@ -657,14 +658,14 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.2)),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(icon, color: color, size: 20),
@@ -676,18 +677,18 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: AppTheme.primaryTextColor,
+                      color: AppTheme.primaryText(context),
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
-                      color: AppTheme.secondaryTextColor,
+                      color: AppTheme.secondaryText(context),
                     ),
                   ),
                 ],

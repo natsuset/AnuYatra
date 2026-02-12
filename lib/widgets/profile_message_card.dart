@@ -5,6 +5,7 @@ import 'package:testing_flutter/models/broker.dart';
 import 'package:testing_flutter/screens/profile_detail_screen.dart';
 import 'package:testing_flutter/theme/app_theme.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/common/widgets/molecules/details_grid.dart';
 import 'package:intl/intl.dart';
 
 class ProfileMessageCard extends StatefulWidget {
@@ -174,7 +175,7 @@ class _ProfileMessageCardState extends State<ProfileMessageCard> {
                   widget.profile.displayName,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : AppTheme.primaryTextColor,
+                    color: isDark ? Colors.white : AppTheme.primaryText(context),
                   ),
                 ),
 
@@ -185,8 +186,8 @@ class _ProfileMessageCardState extends State<ProfileMessageCard> {
                   widget.profile.profession,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: isDark
-                        ? Colors.white.withValues(alpha: 0.8)
-                        : AppTheme.secondaryTextColor,
+                        ? Colors.white.withValues(alpha: 0.9)
+                        : AppTheme.secondaryText(context),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -198,8 +199,8 @@ class _ProfileMessageCardState extends State<ProfileMessageCard> {
                   widget.profile.snippet,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: isDark
-                        ? Colors.white.withValues(alpha: 0.7)
-                        : AppTheme.lightTextColor,
+                        ? Colors.white.withValues(alpha: 0.8)
+                        : AppTheme.tertiaryText(context),
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -212,8 +213,8 @@ class _ProfileMessageCardState extends State<ProfileMessageCard> {
                     'Sent by ${widget.broker!.displayName}',
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: isDark
-                          ? Colors.white.withValues(alpha: 0.75)
-                          : AppTheme.secondaryTextColor,
+                          ? Colors.white.withValues(alpha: 0.85)
+                          : AppTheme.secondaryText(context),
                       fontStyle: FontStyle.italic,
                     ),
                   ),
@@ -234,10 +235,10 @@ class _ProfileMessageCardState extends State<ProfileMessageCard> {
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     decoration: BoxDecoration(
-                      color: AppTheme.sacredSaffron.withOpacity(0.1),
+                      color: AppTheme.sacredSaffron.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(
-                        color: AppTheme.sacredSaffron.withOpacity(0.3),
+                        color: AppTheme.sacredSaffron.withValues(alpha: 0.3),
                       ),
                     ),
                     child: Row(
@@ -264,19 +265,19 @@ class _ProfileMessageCardState extends State<ProfileMessageCard> {
 
                 const SizedBox(height: 8),
 
-                // Quick action buttons - NEW!
+                // Quick action buttons
                 Row(
                   children: [
                     Expanded(
                       child: _buildQuickActionButton(
                         context,
                         icon: Icons.favorite,
-                        label: 'Interested',
+                        label: 'Like',
                         color: AppColors.success,
                         onTap: () => _handleAction(context, 'interested'),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 6),
                     Expanded(
                       child: _buildQuickActionButton(
                         context,
@@ -286,7 +287,7 @@ class _ProfileMessageCardState extends State<ProfileMessageCard> {
                         onTap: () => _handleAction(context, 'pending'),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 6),
                     Expanded(
                       child: _buildQuickActionButton(
                         context,
@@ -310,7 +311,7 @@ class _ProfileMessageCardState extends State<ProfileMessageCard> {
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: isDark
                             ? Colors.white.withValues(alpha: 0.6)
-                            : AppTheme.lightTextColor,
+                            : AppTheme.tertiaryText(context),
                         fontSize: 11,
                       ),
                     ),
@@ -336,85 +337,32 @@ class _ProfileMessageCardState extends State<ProfileMessageCard> {
 
   Widget _buildPersonalDetailsSection(BuildContext context) {
     final profile = widget.profile;
-    final details = <MapEntry<String, String>>[
-      MapEntry('Height', profile.height),
-      MapEntry('Religion', profile.religion),
-      MapEntry('Caste', profile.caste),
-      MapEntry('Mother Tongue', profile.motherTongue),
-      MapEntry('Marital Status', profile.maritalStatus),
-    ].where((e) => e.value.trim().isNotEmpty).toList();
-
-    if (details.isEmpty) return const SizedBox.shrink();
-
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Tile background varies based on who sent the card
+    final tileBackground = isDark
+        ? (widget.isSentByBroker
+            ? const Color(0xFF0F1B22) // Darker contrast on broker card
+            : const Color(0xFF003D32)) // Green-tinted dark on user card
+        : null; // null = DetailTile default (0xFFF5F5F5)
+
     final titleStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
-      color: isDark
-          ? Colors.white.withValues(alpha: 0.8)
-          : AppTheme.secondaryTextColor,
+      color: isDark ? Colors.white : AppTheme.secondaryText(context),
       fontWeight: FontWeight.w700,
       letterSpacing: 0.2,
     );
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final itemWidth = (constraints.maxWidth - 12) / 2;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Personal Details', style: titleStyle),
-            const SizedBox(height: 6),
-            Wrap(
-              spacing: 12,
-              runSpacing: 8,
-              children: details.map((e) {
-                return SizedBox(
-                  width: itemWidth,
-                  child: _buildDetailTile(context, e.key, e.value),
-                );
-              }).toList(),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildDetailTile(BuildContext context, String label, String value) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final labelStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
-      color: isDark
-          ? Colors.white.withValues(alpha: 0.7)
-          : AppTheme.lightTextColor,
-    );
-    final valueStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
-      color: isDark ? Colors.white : AppTheme.primaryTextColor,
-      fontWeight: FontWeight.w600,
-    );
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1F2C34) : Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.08)
-              : AppTheme.whatsAppGray.withOpacity(0.6),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: labelStyle),
-          const SizedBox(height: 2),
-          Text(
-            value,
-            style: valueStyle,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
+    return DetailsGrid(
+      title: 'Personal Details',
+      titleStyle: titleStyle,
+      tileBackgroundColor: tileBackground,
+      details: [
+        MapEntry('Height', profile.height),
+        MapEntry('Religion', profile.religion),
+        MapEntry('Caste', profile.caste),
+        MapEntry('Mother Tongue', profile.motherTongue),
+        MapEntry('Marital Status', profile.maritalStatus),
+      ],
     );
   }
 
@@ -443,7 +391,7 @@ class _ProfileMessageCardState extends State<ProfileMessageCard> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 18, color: color),
+            Icon(icon, size: 16, color: color),
             const SizedBox(height: 2),
             Text(
               label,
@@ -453,7 +401,7 @@ class _ProfileMessageCardState extends State<ProfileMessageCard> {
                 fontSize: 10,
               ),
               maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
             ),
           ],
         ),

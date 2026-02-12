@@ -26,7 +26,7 @@ class ProfileListItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(
+              color: Colors.black.withValues(alpha: 
                 Theme.of(context).brightness == Brightness.dark ? 0.2 : 0.08,
               ),
               blurRadius: 8,
@@ -54,7 +54,7 @@ class ProfileListItem extends StatelessWidget {
                           : AppTheme.whatsAppGray,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 4,
                           offset: const Offset(0, 2),
                         ),
@@ -149,7 +149,7 @@ class ProfileListItem extends StatelessWidget {
                               Text(
                                 _formatTime(profile.createdAt),
                                 style: Theme.of(context).textTheme.labelSmall
-                                    ?.copyWith(color: AppTheme.lightTextColor),
+                                    ?.copyWith(color: AppTheme.tertiaryText(context)),
                               ),
                               if (profile.status != ProfileStatus.pending) ...[
                                 const SizedBox(height: 4),
@@ -219,12 +219,12 @@ class ProfileListItem extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: _getStatusColor(
                             profile.status,
-                          ).withOpacity(0.1),
+                          ).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6),
                           border: Border.all(
                             color: _getStatusColor(
                               profile.status,
-                            ).withOpacity(0.3),
+                            ).withValues(alpha: 0.3),
                           ),
                         ),
                         child: Row(
@@ -276,7 +276,7 @@ class ProfileListItem extends StatelessWidget {
     return Text(
       items.join(' • '),
       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: AppTheme.secondaryTextColor,
+            color: AppTheme.secondaryText(context),
             fontWeight: FontWeight.w500,
           ),
       maxLines: 1,
@@ -293,14 +293,14 @@ class ProfileListItem extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 16, color: AppTheme.secondaryTextColor),
+        Icon(icon, size: 16, color: AppTheme.secondaryText(context)),
         const SizedBox(width: 8),
         Flexible(
           flex: 2,
           child: Text(
             '$label: ',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppTheme.lightTextColor,
+              color: AppTheme.tertiaryText(context),
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -310,7 +310,7 @@ class ProfileListItem extends StatelessWidget {
           child: Text(
             value,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppTheme.secondaryTextColor,
+              color: AppTheme.secondaryText(context),
               fontWeight: FontWeight.w500,
             ),
             maxLines: 2,

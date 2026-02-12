@@ -13,16 +13,16 @@ class AppointmentCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardSurface(context),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
         ],
-        border: Border.all(color: AppTheme.sacredSaffron.withOpacity(0.2)),
+        border: Border.all(color: AppTheme.sacredSaffron.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
@@ -30,7 +30,7 @@ class AppointmentCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppTheme.sacredSaffron.withOpacity(0.1),
+              color: AppTheme.sacredSaffron.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Column(
@@ -53,9 +53,9 @@ class AppointmentCard extends StatelessWidget {
                 ),
                 Text(
                   DateFormat('HH:mm').format(appointment.dateTime),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10,
-                    color: AppTheme.secondaryTextColor,
+                    color: AppTheme.secondaryText(context),
                   ),
                 ),
               ],
@@ -72,10 +72,10 @@ class AppointmentCard extends StatelessWidget {
               children: [
                 Text(
                   appointment.title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryTextColor,
+                    color: AppTheme.primaryText(context),
                     height: 1.2,
                   ),
                   maxLines: 1,
@@ -87,15 +87,15 @@ class AppointmentCard extends StatelessWidget {
                     Icon(
                       Icons.person,
                       size: 14,
-                      color: AppTheme.lightTextColor,
+                      color: AppTheme.tertiaryText(context),
                     ),
                     const SizedBox(width: 4),
                     Flexible(
                       child: Text(
                         '${appointment.expertName} - ${appointment.expertRole}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: AppTheme.secondaryTextColor,
+                          color: AppTheme.secondaryText(context),
                           height: 1.2,
                         ),
                         maxLines: 1,
@@ -112,15 +112,15 @@ class AppointmentCard extends StatelessWidget {
                           ? Icons.video_call
                           : Icons.location_on,
                       size: 14,
-                      color: AppTheme.lightTextColor,
+                      color: AppTheme.tertiaryText(context),
                     ),
                     const SizedBox(width: 4),
                     Flexible(
                       child: Text(
                         appointment.location,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
-                          color: AppTheme.lightTextColor,
+                          color: AppTheme.tertiaryText(context),
                           height: 1.2,
                         ),
                         maxLines: 1,
