@@ -1,6 +1,11 @@
 import 'package:testing_flutter/models/profile.dart';
 import 'package:testing_flutter/models/broker.dart';
 
+/// @deprecated This class uses legacy Profile/Broker models.
+/// The GoRouter-based flow now uses CandidateProfile/BrokerProfile from
+/// LocalStorageService. This MockData is only used by legacy screens
+/// (main_new.dart, BrokersListScreen, BrokerScreen, ShortlistScreen,
+/// ProfileDetailScreen) which are not part of the main GoRouter navigation.
 class MockData {
   static final Broker broker = Broker(
     id: '1',

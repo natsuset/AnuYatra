@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:testing_flutter/common/widgets/molecules/photo_manager_widget.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
@@ -38,6 +39,7 @@ class _ProfileCreateEditScreenState
 
   Gender _gender = Gender.bride;
   bool _isSaving = false;
+  List<String> _photos = [];
 
   @override
   void dispose() {
@@ -94,7 +96,7 @@ class _ProfileCreateEditScreenState
       motherOccupation: _motherOccController.text.trim(),
       siblings: _siblingsController.text.trim(),
       interests: interests,
-      photos: [],
+      photos: _photos,
       brokerIds: [authState.user.uid],
       createdAt: now,
       updatedAt: now,
@@ -223,6 +225,16 @@ class _ProfileCreateEditScreenState
             _field(_interestsController, 'Interests (comma-separated)',
                 icon: Icons.interests,
                 hint: 'e.g., Travel, Music, Cooking'),
+            const SizedBox(height: 20),
+
+            // Photos
+            PhotoManagerWidget(
+              initialPhotos: _photos,
+              maxPhotos: 6,
+              onPhotosChanged: (photos) {
+                setState(() => _photos = photos);
+              },
+            ),
             const SizedBox(height: 32),
 
             // Save button

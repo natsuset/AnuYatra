@@ -576,12 +576,16 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
                           style: const TextStyle(fontSize: 12),
                         ),
                         const SizedBox(width: 4),
-                        Text(
-                          endorsement.relationship,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.secondaryText(context),
-                            fontWeight: FontWeight.w500,
+                        Flexible(
+                          child: Text(
+                            endorsement.relationship,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppTheme.secondaryText(context),
+                              fontWeight: FontWeight.w500,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],

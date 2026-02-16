@@ -291,11 +291,15 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                   const SizedBox(height: 2),
                   Row(
                     children: [
-                      Text(
-                        request.type.displayName,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.secondaryText(context),
+                      Flexible(
+                        child: Text(
+                          request.type.displayName,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.secondaryText(context),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       Text(

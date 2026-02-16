@@ -3,12 +3,29 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/services/local_storage_service.dart';
+import 'package:testing_flutter/models/candidate_profile.dart';
 
 
 /// Universal candidate profile detail viewer.
 /// Shows all details of a candidate profile in a beautiful card layout.
 class ProfileViewScreen extends ConsumerWidget {
   const ProfileViewScreen({super.key});
+
+  bool _hasLifestyleInfo(CandidateProfile p) =>
+      p.diet != null ||
+      (p.annualIncome != null && p.annualIncome!.isNotEmpty) ||
+      (p.complexion != null && p.complexion!.isNotEmpty) ||
+      p.smokes != null ||
+      p.drinks != null ||
+      p.ownHouse != null ||
+      p.ownCar != null ||
+      p.willingToRelocate != null;
+
+  bool _hasHoroscopeInfo(CandidateProfile p) =>
+      (p.rashi != null && p.rashi!.isNotEmpty) ||
+      (p.nakshatra != null && p.nakshatra!.isNotEmpty) ||
+      (p.birthPlace != null && p.birthPlace!.isNotEmpty) ||
+      (p.birthTime != null && p.birthTime!.isNotEmpty);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -116,6 +133,13 @@ class ProfileViewScreen extends ConsumerWidget {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 16),
+
+                  // Profile completeness indicator
+                  _ProfileCompletenessBar(
+                    completeness: profile.profileCompleteness,
+                    isDark: isDark,
+                  ),
                   const SizedBox(height: 24),
 
                   // About Me
@@ -166,7 +190,120 @@ class ProfileViewScreen extends ConsumerWidget {
                       value: profile.caste,
                       isDark: isDark,
                     ),
+                  if (profile.gotra != null && profile.gotra!.isNotEmpty)
+                    _DetailRow(
+                      icon: Icons.family_restroom,
+                      label: 'Gotra',
+                      value: profile.gotra!,
+                      isDark: isDark,
+                    ),
+                  if (profile.manglikStatus != null && profile.manglikStatus!.isNotEmpty)
+                    _DetailRow(
+                      icon: Icons.auto_awesome,
+                      label: 'Manglik Status',
+                      value: profile.manglikStatus!,
+                      isDark: isDark,
+                    ),
                   const SizedBox(height: 24),
+
+                  // Lifestyle & Personal
+                  if (_hasLifestyleInfo(profile)) ...[
+                    _SectionTitle('Lifestyle & Personal'),
+                    const SizedBox(height: 12),
+                    if (profile.diet != null)
+                      _DetailRow(
+                        icon: Icons.restaurant,
+                        label: 'Diet',
+                        value: profile.diet!.name[0].toUpperCase() +
+                            profile.diet!.name.substring(1),
+                        isDark: isDark,
+                      ),
+                    if (profile.annualIncome != null && profile.annualIncome!.isNotEmpty)
+                      _DetailRow(
+                        icon: Icons.currency_rupee,
+                        label: 'Annual Income',
+                        value: profile.annualIncome!,
+                        isDark: isDark,
+                      ),
+                    if (profile.complexion != null && profile.complexion!.isNotEmpty)
+                      _DetailRow(
+                        icon: Icons.face,
+                        label: 'Complexion',
+                        value: profile.complexion!,
+                        isDark: isDark,
+                      ),
+                    if (profile.smokes != null)
+                      _DetailRow(
+                        icon: Icons.smoking_rooms,
+                        label: 'Smoking',
+                        value: profile.smokes! ? 'Yes' : 'No',
+                        isDark: isDark,
+                      ),
+                    if (profile.drinks != null)
+                      _DetailRow(
+                        icon: Icons.local_bar,
+                        label: 'Drinking',
+                        value: profile.drinks! ? 'Yes' : 'No',
+                        isDark: isDark,
+                      ),
+                    if (profile.ownHouse != null)
+                      _DetailRow(
+                        icon: Icons.home,
+                        label: 'Own House',
+                        value: profile.ownHouse! ? 'Yes' : 'No',
+                        isDark: isDark,
+                      ),
+                    if (profile.ownCar != null)
+                      _DetailRow(
+                        icon: Icons.directions_car,
+                        label: 'Own Car',
+                        value: profile.ownCar! ? 'Yes' : 'No',
+                        isDark: isDark,
+                      ),
+                    if (profile.willingToRelocate != null)
+                      _DetailRow(
+                        icon: Icons.flight,
+                        label: 'Willing to Relocate',
+                        value: profile.willingToRelocate! ? 'Yes' : 'No',
+                        isDark: isDark,
+                      ),
+                    const SizedBox(height: 24),
+                  ],
+
+                  // Horoscope
+                  if (_hasHoroscopeInfo(profile)) ...[
+                    _SectionTitle('Horoscope Details'),
+                    const SizedBox(height: 12),
+                    if (profile.rashi != null && profile.rashi!.isNotEmpty)
+                      _DetailRow(
+                        icon: Icons.auto_awesome,
+                        label: 'Rashi',
+                        value: profile.rashi!,
+                        isDark: isDark,
+                      ),
+                    if (profile.nakshatra != null && profile.nakshatra!.isNotEmpty)
+                      _DetailRow(
+                        icon: Icons.star_outline,
+                        label: 'Nakshatra',
+                        value: profile.nakshatra!,
+                        isDark: isDark,
+                      ),
+                    if (profile.birthPlace != null && profile.birthPlace!.isNotEmpty)
+                      _DetailRow(
+                        icon: Icons.location_on_outlined,
+                        label: 'Birth Place',
+                        value: profile.birthPlace!,
+                        isDark: isDark,
+                      ),
+                    if (profile.birthTime != null && profile.birthTime!.isNotEmpty)
+                      _DetailRow(
+                        icon: Icons.access_time,
+                        label: 'Birth Time',
+                        value: profile.birthTime!,
+                        isDark: isDark,
+                      ),
+                    const SizedBox(height: 24),
+                  ],
 
                   // Family
                   if (profile.familyBackground.isNotEmpty) ...[
@@ -181,6 +318,22 @@ class ProfileViewScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 12),
                   ],
+                  if (profile.familyType != null)
+                    _DetailRow(
+                      icon: Icons.family_restroom,
+                      label: 'Family Type',
+                      value: profile.familyType!.name[0].toUpperCase() +
+                          profile.familyType!.name.substring(1),
+                      isDark: isDark,
+                    ),
+                  if (profile.familyValues != null)
+                    _DetailRow(
+                      icon: Icons.balance,
+                      label: 'Family Values',
+                      value: profile.familyValues!.name[0].toUpperCase() +
+                          profile.familyValues!.name.substring(1),
+                      isDark: isDark,
+                    ),
                   if (profile.fatherOccupation.isNotEmpty)
                     _DetailRow(
                       icon: Icons.person_outline,
@@ -200,6 +353,20 @@ class ProfileViewScreen extends ConsumerWidget {
                       icon: Icons.people_outline,
                       label: 'Siblings',
                       value: profile.siblings,
+                      isDark: isDark,
+                    ),
+                  if (profile.numberOfBrothers != null)
+                    _DetailRow(
+                      icon: Icons.boy,
+                      label: 'Brothers',
+                      value: '${profile.numberOfBrothers}',
+                      isDark: isDark,
+                    ),
+                  if (profile.numberOfSisters != null)
+                    _DetailRow(
+                      icon: Icons.girl,
+                      label: 'Sisters',
+                      value: '${profile.numberOfSisters}',
                       isDark: isDark,
                     ),
                   const SizedBox(height: 24),
@@ -243,10 +410,14 @@ class ProfileViewScreen extends ConsumerWidget {
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
                         const SizedBox(width: 8),
-                        Text(
-                          'Profile visibility: ${profile.visibility.displayName}',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
+                        Expanded(
+                          child: Text(
+                            'Profile visibility: ${profile.visibility.displayName}',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
@@ -342,6 +513,7 @@ class _InfoChip extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Container(
+      constraints: const BoxConstraints(maxWidth: 180),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
@@ -352,10 +524,79 @@ class _InfoChip extends StatelessWidget {
         children: [
           Icon(icon, size: 14, color: theme.colorScheme.onSurfaceVariant),
           const SizedBox(width: 4),
-          Text(
-            label,
-            style: theme.textTheme.bodySmall?.copyWith(
-              fontWeight: FontWeight.w500,
+          Flexible(
+            child: Text(
+              label,
+              style: theme.textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProfileCompletenessBar extends StatelessWidget {
+  final int completeness;
+  final bool isDark;
+
+  const _ProfileCompletenessBar({
+    required this.completeness,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final color = completeness >= 80
+        ? AppColors.success
+        : completeness >= 50
+            ? AppColors.warning
+            : AppColors.error;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: isDark ? 0.1 : 0.06),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: color.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Profile Completeness',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: color,
+                ),
+              ),
+              Text(
+                '$completeness%',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: completeness / 100.0,
+              backgroundColor: color.withValues(alpha: 0.15),
+              valueColor: AlwaysStoppedAnimation(color),
+              minHeight: 6,
             ),
           ),
         ],

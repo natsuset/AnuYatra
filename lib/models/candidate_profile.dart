@@ -1,4 +1,5 @@
 import 'package:testing_flutter/models/profile.dart';
+import 'package:testing_flutter/models/parent_profile.dart';
 
 enum Gender {
   bride,
@@ -63,6 +64,43 @@ class CandidateProfile {
   final DateTime createdAt;
   final DateTime updatedAt;
 
+  // ─── New enriched fields ───────────────────────────────────
+  final DateTime? dateOfBirth;
+  final String? annualIncome;
+  final String? complexion;
+  final String? weight;
+  final String? bloodGroup;
+  final Diet? diet;
+  final bool? smokes;
+  final bool? drinks;
+  final String? manglikStatus;
+  final String? gotra;
+  final String? rashi;
+  final String? nakshatra;
+  final String? birthTime;
+  final String? birthPlace;
+  final FamilyType? familyType;
+  final FamilyValues? familyValues;
+  final String? familyAffluence;
+  final int? numberOfBrothers;
+  final int? numberOfSisters;
+  final bool? ownHouse;
+  final bool? ownCar;
+  final bool? willingToRelocate;
+  final String? physicalStatus;
+
+  // Partner preferences
+  final int? preferredAgeMin;
+  final int? preferredAgeMax;
+  final String? preferredHeightMin;
+  final String? preferredHeightMax;
+  final String? preferredEducation;
+  final String? preferredProfession;
+  final String? preferredLocation;
+  final String? preferredReligion;
+  final String? preferredCaste;
+  final String? preferredIncomeMin;
+
   const CandidateProfile({
     required this.id,
     required this.createdByUserId,
@@ -94,12 +132,72 @@ class CandidateProfile {
     this.searchTags = const [],
     required this.createdAt,
     required this.updatedAt,
+    // New fields
+    this.dateOfBirth,
+    this.annualIncome,
+    this.complexion,
+    this.weight,
+    this.bloodGroup,
+    this.diet,
+    this.smokes,
+    this.drinks,
+    this.manglikStatus,
+    this.gotra,
+    this.rashi,
+    this.nakshatra,
+    this.birthTime,
+    this.birthPlace,
+    this.familyType,
+    this.familyValues,
+    this.familyAffluence,
+    this.numberOfBrothers,
+    this.numberOfSisters,
+    this.ownHouse,
+    this.ownCar,
+    this.willingToRelocate,
+    this.physicalStatus,
+    this.preferredAgeMin,
+    this.preferredAgeMax,
+    this.preferredHeightMin,
+    this.preferredHeightMax,
+    this.preferredEducation,
+    this.preferredProfession,
+    this.preferredLocation,
+    this.preferredReligion,
+    this.preferredCaste,
+    this.preferredIncomeMin,
   });
 
   String get displayName => '$name, $age';
   String get snippet => '$education, $city';
   String get fullDetails =>
       '$profession \u2022 $education \u2022 $city${community.isNotEmpty ? ' \u2022 $community' : ''}';
+
+  int get profileCompleteness {
+    int filled = 0;
+    int total = 20;
+    if (name.isNotEmpty) filled++;
+    if (profession.isNotEmpty) filled++;
+    if (education.isNotEmpty) filled++;
+    if (city.isNotEmpty) filled++;
+    if (height.isNotEmpty) filled++;
+    if (religion.isNotEmpty) filled++;
+    if (community.isNotEmpty) filled++;
+    if (aboutMe.isNotEmpty) filled++;
+    if (familyBackground.isNotEmpty) filled++;
+    if (fatherOccupation.isNotEmpty) filled++;
+    if (motherOccupation.isNotEmpty) filled++;
+    if (interests.isNotEmpty) filled++;
+    if (photos.isNotEmpty) filled++;
+    if (annualIncome != null && annualIncome!.isNotEmpty) filled++;
+    if (diet != null) filled++;
+    if (manglikStatus != null && manglikStatus!.isNotEmpty) filled++;
+    if (familyType != null) filled++;
+    if (dateOfBirth != null) filled++;
+    if (complexion != null && complexion!.isNotEmpty) filled++;
+    if (gotra != null && gotra!.isNotEmpty) filled++;
+    return ((filled / total) * 100).round();
+  }
 
   /// Convert from legacy Profile model for backward compatibility
   factory CandidateProfile.fromLegacyProfile(Profile profile, {
@@ -162,6 +260,40 @@ class CandidateProfile {
     'searchTags': searchTags,
     'createdAt': createdAt.toIso8601String(),
     'updatedAt': updatedAt.toIso8601String(),
+    // New fields
+    'dateOfBirth': dateOfBirth?.toIso8601String(),
+    'annualIncome': annualIncome,
+    'complexion': complexion,
+    'weight': weight,
+    'bloodGroup': bloodGroup,
+    'diet': diet?.name,
+    'smokes': smokes,
+    'drinks': drinks,
+    'manglikStatus': manglikStatus,
+    'gotra': gotra,
+    'rashi': rashi,
+    'nakshatra': nakshatra,
+    'birthTime': birthTime,
+    'birthPlace': birthPlace,
+    'familyType': familyType?.name,
+    'familyValues': familyValues?.name,
+    'familyAffluence': familyAffluence,
+    'numberOfBrothers': numberOfBrothers,
+    'numberOfSisters': numberOfSisters,
+    'ownHouse': ownHouse,
+    'ownCar': ownCar,
+    'willingToRelocate': willingToRelocate,
+    'physicalStatus': physicalStatus,
+    'preferredAgeMin': preferredAgeMin,
+    'preferredAgeMax': preferredAgeMax,
+    'preferredHeightMin': preferredHeightMin,
+    'preferredHeightMax': preferredHeightMax,
+    'preferredEducation': preferredEducation,
+    'preferredProfession': preferredProfession,
+    'preferredLocation': preferredLocation,
+    'preferredReligion': preferredReligion,
+    'preferredCaste': preferredCaste,
+    'preferredIncomeMin': preferredIncomeMin,
   };
 
   factory CandidateProfile.fromJson(Map<String, dynamic> json) => CandidateProfile(
@@ -197,6 +329,40 @@ class CandidateProfile {
     searchTags: (json['searchTags'] as List<dynamic>?)?.cast<String>() ?? [],
     createdAt: DateTime.parse(json['createdAt'] as String),
     updatedAt: DateTime.parse(json['updatedAt'] as String),
+    // New fields
+    dateOfBirth: json['dateOfBirth'] != null ? DateTime.parse(json['dateOfBirth'] as String) : null,
+    annualIncome: json['annualIncome'] as String?,
+    complexion: json['complexion'] as String?,
+    weight: json['weight'] as String?,
+    bloodGroup: json['bloodGroup'] as String?,
+    diet: json['diet'] != null ? Diet.values.byName(json['diet'] as String) : null,
+    smokes: json['smokes'] as bool?,
+    drinks: json['drinks'] as bool?,
+    manglikStatus: json['manglikStatus'] as String?,
+    gotra: json['gotra'] as String?,
+    rashi: json['rashi'] as String?,
+    nakshatra: json['nakshatra'] as String?,
+    birthTime: json['birthTime'] as String?,
+    birthPlace: json['birthPlace'] as String?,
+    familyType: json['familyType'] != null ? FamilyType.values.byName(json['familyType'] as String) : null,
+    familyValues: json['familyValues'] != null ? FamilyValues.values.byName(json['familyValues'] as String) : null,
+    familyAffluence: json['familyAffluence'] as String?,
+    numberOfBrothers: json['numberOfBrothers'] as int?,
+    numberOfSisters: json['numberOfSisters'] as int?,
+    ownHouse: json['ownHouse'] as bool?,
+    ownCar: json['ownCar'] as bool?,
+    willingToRelocate: json['willingToRelocate'] as bool?,
+    physicalStatus: json['physicalStatus'] as String?,
+    preferredAgeMin: json['preferredAgeMin'] as int?,
+    preferredAgeMax: json['preferredAgeMax'] as int?,
+    preferredHeightMin: json['preferredHeightMin'] as String?,
+    preferredHeightMax: json['preferredHeightMax'] as String?,
+    preferredEducation: json['preferredEducation'] as String?,
+    preferredProfession: json['preferredProfession'] as String?,
+    preferredLocation: json['preferredLocation'] as String?,
+    preferredReligion: json['preferredReligion'] as String?,
+    preferredCaste: json['preferredCaste'] as String?,
+    preferredIncomeMin: json['preferredIncomeMin'] as String?,
   );
 
   CandidateProfile copyWith({
@@ -227,6 +393,40 @@ class CandidateProfile {
     int? listedWithBrokersCount,
     List<String>? searchTags,
     DateTime? updatedAt,
+    // New fields
+    DateTime? dateOfBirth,
+    String? annualIncome,
+    String? complexion,
+    String? weight,
+    String? bloodGroup,
+    Diet? diet,
+    bool? smokes,
+    bool? drinks,
+    String? manglikStatus,
+    String? gotra,
+    String? rashi,
+    String? nakshatra,
+    String? birthTime,
+    String? birthPlace,
+    FamilyType? familyType,
+    FamilyValues? familyValues,
+    String? familyAffluence,
+    int? numberOfBrothers,
+    int? numberOfSisters,
+    bool? ownHouse,
+    bool? ownCar,
+    bool? willingToRelocate,
+    String? physicalStatus,
+    int? preferredAgeMin,
+    int? preferredAgeMax,
+    String? preferredHeightMin,
+    String? preferredHeightMax,
+    String? preferredEducation,
+    String? preferredProfession,
+    String? preferredLocation,
+    String? preferredReligion,
+    String? preferredCaste,
+    String? preferredIncomeMin,
   }) => CandidateProfile(
     id: id,
     createdByUserId: createdByUserId,
@@ -258,5 +458,38 @@ class CandidateProfile {
     searchTags: searchTags ?? this.searchTags,
     createdAt: createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
+    dateOfBirth: dateOfBirth ?? this.dateOfBirth,
+    annualIncome: annualIncome ?? this.annualIncome,
+    complexion: complexion ?? this.complexion,
+    weight: weight ?? this.weight,
+    bloodGroup: bloodGroup ?? this.bloodGroup,
+    diet: diet ?? this.diet,
+    smokes: smokes ?? this.smokes,
+    drinks: drinks ?? this.drinks,
+    manglikStatus: manglikStatus ?? this.manglikStatus,
+    gotra: gotra ?? this.gotra,
+    rashi: rashi ?? this.rashi,
+    nakshatra: nakshatra ?? this.nakshatra,
+    birthTime: birthTime ?? this.birthTime,
+    birthPlace: birthPlace ?? this.birthPlace,
+    familyType: familyType ?? this.familyType,
+    familyValues: familyValues ?? this.familyValues,
+    familyAffluence: familyAffluence ?? this.familyAffluence,
+    numberOfBrothers: numberOfBrothers ?? this.numberOfBrothers,
+    numberOfSisters: numberOfSisters ?? this.numberOfSisters,
+    ownHouse: ownHouse ?? this.ownHouse,
+    ownCar: ownCar ?? this.ownCar,
+    willingToRelocate: willingToRelocate ?? this.willingToRelocate,
+    physicalStatus: physicalStatus ?? this.physicalStatus,
+    preferredAgeMin: preferredAgeMin ?? this.preferredAgeMin,
+    preferredAgeMax: preferredAgeMax ?? this.preferredAgeMax,
+    preferredHeightMin: preferredHeightMin ?? this.preferredHeightMin,
+    preferredHeightMax: preferredHeightMax ?? this.preferredHeightMax,
+    preferredEducation: preferredEducation ?? this.preferredEducation,
+    preferredProfession: preferredProfession ?? this.preferredProfession,
+    preferredLocation: preferredLocation ?? this.preferredLocation,
+    preferredReligion: preferredReligion ?? this.preferredReligion,
+    preferredCaste: preferredCaste ?? this.preferredCaste,
+    preferredIncomeMin: preferredIncomeMin ?? this.preferredIncomeMin,
   );
 }

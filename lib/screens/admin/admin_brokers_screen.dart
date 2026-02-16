@@ -270,6 +270,8 @@ class _BrokerCard extends StatelessWidget {
                         style: theme.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 2),
                       Text(
@@ -279,6 +281,8 @@ class _BrokerCard extends StatelessWidget {
                               ? AppColors.darkTertiaryText
                               : AppColors.lightTertiaryText,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),

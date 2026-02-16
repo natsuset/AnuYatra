@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/core/services/local_storage_service.dart';
 import 'package:testing_flutter/models/link_request.dart';
 import 'package:testing_flutter/models/parent_profile.dart';
@@ -206,13 +208,14 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                                 'Unknown',
                             isDark: isDark,
                             onChat: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Open chat with ${parentUser?.displayName ?? 'client'}',
-                                  ),
-                                  behavior: SnackBarBehavior.floating,
-                                ),
+                              final conversationId =
+                                  storage.getOrCreateConversation(
+                                      user.uid, parentId);
+                              context.pushNamed(
+                                RouteNames.chat,
+                                pathParameters: {
+                                  'conversationId': conversationId
+                                },
                               );
                             },
                           ),
@@ -582,21 +585,21 @@ class _ConnectedClientCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Row(
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
                   children: [
                     _InfoChip(
                       icon: Icons.search_rounded,
                       label: 'Looking for $lookingFor',
                       isDark: isDark,
                     ),
-                    if (location.isNotEmpty) ...[
-                      const SizedBox(width: 8),
+                    if (location.isNotEmpty)
                       _InfoChip(
                         icon: Icons.location_on_outlined,
                         label: location,
                         isDark: isDark,
                       ),
-                    ],
                   ],
                 ),
               ],

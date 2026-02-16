@@ -226,38 +226,37 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
             ],
           ),
           const SizedBox(height: 10),
-          Row(
+          Wrap(
+            spacing: 8,
+            runSpacing: 6,
             children: SearchType.values.map((filter) {
               final isSelected = _selectedFilter == filter;
-              return Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: FilterChip(
-                  label: Text(filter.displayName),
-                  selected: isSelected,
-                  onSelected: (_) => _onFilterChanged(filter),
-                  backgroundColor: isDark
-                      ? AppColors.darkSurfaceVariant
-                      : AppColors.lightSurfaceVariant,
-                  selectedColor: AppColors.sacredSaffron.withValues(alpha: 0.15),
-                  checkmarkColor: AppColors.sacredSaffron,
-                  labelStyle: TextStyle(
-                    fontSize: 13,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    color: isSelected
-                        ? AppColors.sacredSaffron
-                        : AppTheme.secondaryText(context),
-                  ),
-                  side: BorderSide(
-                    color: isSelected
-                        ? AppColors.sacredSaffron.withValues(alpha: 0.5)
-                        : AppTheme.border(context),
-                    width: 1,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+              return FilterChip(
+                label: Text(filter.displayName),
+                selected: isSelected,
+                onSelected: (_) => _onFilterChanged(filter),
+                backgroundColor: isDark
+                    ? AppColors.darkSurfaceVariant
+                    : AppColors.lightSurfaceVariant,
+                selectedColor: AppColors.sacredSaffron.withValues(alpha: 0.15),
+                checkmarkColor: AppColors.sacredSaffron,
+                labelStyle: TextStyle(
+                  fontSize: 13,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  color: isSelected
+                      ? AppColors.sacredSaffron
+                      : AppTheme.secondaryText(context),
                 ),
+                side: BorderSide(
+                  color: isSelected
+                      ? AppColors.sacredSaffron.withValues(alpha: 0.5)
+                      : AppTheme.border(context),
+                  width: 1,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
               );
             }).toList(),
           ),
@@ -500,11 +499,15 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                             color: AppTheme.tertiaryText(context),
                           ),
                           const SizedBox(width: 4),
-                          Text(
-                            '${agency.city}, ${agency.state}',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: AppTheme.secondaryText(context),
+                          Flexible(
+                            child: Text(
+                              '${agency.city}, ${agency.state}',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: AppTheme.secondaryText(context),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -729,19 +732,23 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                               color: AppTheme.primaryText(context),
                             ),
                           ),
-                          const SizedBox(width: 12),
                           if (broker.clientCount > 0) ...[
+                            const SizedBox(width: 12),
                             Icon(
                               Icons.group_outlined,
                               size: 14,
                               color: AppTheme.tertiaryText(context),
                             ),
                             const SizedBox(width: 4),
-                            Text(
-                              '${broker.clientCount} client${broker.clientCount != 1 ? 's' : ''}',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: AppTheme.secondaryText(context),
+                            Flexible(
+                              child: Text(
+                                '${broker.clientCount} client${broker.clientCount != 1 ? 's' : ''}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppTheme.secondaryText(context),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
@@ -866,9 +873,13 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(agency.name,
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis),
                           Text('${agency.city}, ${agency.state}',
-                            style: TextStyle(color: AppTheme.secondaryText(context))),
+                            style: TextStyle(color: AppTheme.secondaryText(context)),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis),
                         ],
                       ),
                     ),

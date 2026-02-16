@@ -51,7 +51,7 @@ class BrokerDashboardScreen extends ConsumerWidget {
               crossAxisCount: 2,
               mainAxisSpacing: 12,
               crossAxisSpacing: 12,
-              childAspectRatio: 1.45,
+              childAspectRatio: 1.25,
               children: [
                 _StatCard(
                   label: 'Active Clients',
@@ -158,50 +158,137 @@ class BrokerDashboardScreen extends ConsumerWidget {
 
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-            sliver: SliverList.list(
-              children: [
-                _ActivityTile(
-                  icon: Icons.visibility_rounded,
-                  iconColor: AppColors.info,
-                  title: 'Ramesh Kumar viewed profile',
-                  subtitle: 'Viewed Priya Sharma\'s profile',
-                  time: '2 hours ago',
-                  isDark: isDark,
-                ),
-                const SizedBox(height: 8),
-                _ActivityTile(
-                  icon: Icons.person_add_rounded,
-                  iconColor: AppColors.sacredSaffron,
-                  title: 'New connection request',
-                  subtitle: 'Suresh Patel wants to connect',
-                  time: '5 hours ago',
-                  isDark: isDark,
-                ),
-                const SizedBox(height: 8),
-                _ActivityTile(
-                  icon: Icons.check_circle_rounded,
-                  iconColor: AppColors.success,
-                  title: 'Profile shared successfully',
-                  subtitle: 'Anita Desai received Meera\'s profile',
-                  time: 'Yesterday',
-                  isDark: isDark,
-                ),
-                const SizedBox(height: 8),
-                _ActivityTile(
-                  icon: Icons.star_rounded,
-                  iconColor: AppColors.warning,
-                  title: 'New review received',
-                  subtitle: 'Mohan Verma left a 5-star review',
-                  time: '2 days ago',
-                  isDark: isDark,
-                ),
-              ],
-            ),
+            sliver: _buildRecentActivityList(storage, user.uid, isDark),
           ),
         ],
       ),
     );
   }
+
+  Widget _buildRecentActivityList(
+      LocalStorageService storage, String brokerUserId, bool isDark) {
+    // Build real activity from shared profiles, link requests, etc.
+    final recentShared = storage.getSharedProfilesByBroker(brokerUserId);
+    final pendingRequests = storage.getPendingRequestsFor(brokerUserId);
+
+    final activities = <_ActivityData>[];
+
+    // Add recent shares
+    for (final sp in recentShared.take(3)) {
+      final profile = storage.getCandidateProfile(sp.profileId);
+      final parent = storage.getUser(sp.sharedWithUserId);
+      if (profile != null) {
+        activities.add(_ActivityData(
+          icon: Icons.share_rounded,
+          iconColor: AppColors.success,
+          title: 'Profile shared',
+          subtitle:
+              '${profile.name} shared with ${parent?.displayName ?? 'client'}',
+          time: _formatTime(sp.sharedAt),
+          timestamp: sp.sharedAt,
+        ));
+      }
+    }
+
+    // Add pending requests
+    for (final req in pendingRequests.take(3)) {
+      activities.add(_ActivityData(
+        icon: Icons.person_add_rounded,
+        iconColor: AppColors.sacredSaffron,
+        title: 'Connection request',
+        subtitle: '${req.fromUserName} wants to connect',
+        time: _formatTime(req.createdAt),
+        timestamp: req.createdAt,
+      ));
+    }
+
+    // Sort by time descending
+    activities.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
+    if (activities.isEmpty) {
+      return SliverToBoxAdapter(
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          child: Center(
+            child: Column(
+              children: [
+                Icon(
+                  Icons.history_rounded,
+                  size: 40,
+                  color: isDark
+                      ? AppColors.darkTertiaryText
+                      : AppColors.lightTertiaryText,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'No recent activity',
+                  style: TextStyle(
+                    color: isDark
+                        ? AppColors.darkSecondaryText
+                        : AppColors.lightSecondaryText,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Activity from shared profiles and connections will appear here',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark
+                        ? AppColors.darkTertiaryText
+                        : AppColors.lightTertiaryText,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return SliverList.separated(
+      itemCount: activities.length.clamp(0, 5),
+      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      itemBuilder: (context, index) {
+        final a = activities[index];
+        return _ActivityTile(
+          icon: a.icon,
+          iconColor: a.iconColor,
+          title: a.title,
+          subtitle: a.subtitle,
+          time: a.time,
+          isDark: isDark,
+        );
+      },
+    );
+  }
+
+  static String _formatTime(DateTime dt) {
+    final diff = DateTime.now().difference(dt);
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    if (diff.inDays == 1) return 'Yesterday';
+    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    return '${dt.day}/${dt.month}/${dt.year}';
+  }
+}
+
+class _ActivityData {
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final String subtitle;
+  final String time;
+  final DateTime timestamp;
+
+  const _ActivityData({
+    required this.icon,
+    required this.iconColor,
+    required this.title,
+    required this.subtitle,
+    required this.time,
+    required this.timestamp,
+  });
 }
 
 // ─── Welcome Header ──────────────────────────────────────────────
@@ -288,7 +375,9 @@ class _WelcomeHeader extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
-              Row(
+              Wrap(
+                spacing: 10,
+                runSpacing: 8,
                 children: [
                   _HeaderBadge(
                     icon: Icons.star_rounded,
@@ -296,7 +385,6 @@ class _WelcomeHeader extends StatelessWidget {
                         ? '${rating.toStringAsFixed(1)} Rating'
                         : 'New Broker',
                   ),
-                  const SizedBox(width: 12),
                   _HeaderBadge(
                     icon: Icons.work_history_rounded,
                     label: experienceYears > 0
@@ -335,12 +423,16 @@ class _HeaderBadge extends StatelessWidget {
         children: [
           Icon(icon, size: 16, color: Colors.white),
           const SizedBox(width: 6),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Colors.white,
-              fontWeight: FontWeight.w500,
+          Flexible(
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.white,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -387,30 +479,40 @@ class _StatCard extends StatelessWidget {
                 ),
               ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: isDark ? 0.15 : 0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, color: color, size: 22),
-            ),
-            Column(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Adapt icon size and padding based on available space
+          final compact = constraints.maxHeight < 120;
+          final iconPad = compact ? 6.0 : 8.0;
+          final iconSize = compact ? 18.0 : 22.0;
+          final pad = compact ? 10.0 : 14.0;
+
+          return Padding(
+            padding: EdgeInsets.all(pad),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '$value',
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: isDark
-                        ? AppColors.darkPrimaryText
-                        : AppColors.lightPrimaryText,
+                Container(
+                  padding: EdgeInsets.all(iconPad),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: isDark ? 0.15 : 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(icon, color: color, size: iconSize),
+                ),
+                const Spacer(),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    '$value',
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: isDark
+                          ? AppColors.darkPrimaryText
+                          : AppColors.lightPrimaryText,
+                    ),
+                    maxLines: 1,
                   ),
                 ),
                 Text(
@@ -421,11 +523,13 @@ class _StatCard extends StatelessWidget {
                         : AppColors.lightSecondaryText,
                     fontWeight: FontWeight.w500,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -541,6 +645,8 @@ class _ActivityTile extends StatelessWidget {
                         ? AppColors.darkPrimaryText
                         : AppColors.lightPrimaryText,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -550,6 +656,8 @@ class _ActivityTile extends StatelessWidget {
                         ? AppColors.darkSecondaryText
                         : AppColors.lightSecondaryText,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),

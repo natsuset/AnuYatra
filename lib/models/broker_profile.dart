@@ -1,3 +1,20 @@
+enum VerificationStatus {
+  unverified,
+  pending,
+  verified;
+
+  String get displayName {
+    switch (this) {
+      case VerificationStatus.unverified:
+        return 'Unverified';
+      case VerificationStatus.pending:
+        return 'Pending';
+      case VerificationStatus.verified:
+        return 'Verified';
+    }
+  }
+}
+
 class BrokerProfile {
   final String userId;
   final String? agencyId;
@@ -15,6 +32,18 @@ class BrokerProfile {
   final DateTime lastSeen;
   final DateTime createdAt;
 
+  // New business fields
+  final String? email;
+  final String? officeAddress;
+  final String? website;
+  final String? licenseNumber;
+  final List<String> languagesSpoken;
+  final int totalSuccessfulMatches;
+  final String? feeStructure;
+  final String? workingHours;
+  final Map<String, String> socialMediaLinks;
+  final VerificationStatus verificationStatus;
+
   const BrokerProfile({
     required this.userId,
     this.agencyId,
@@ -31,9 +60,21 @@ class BrokerProfile {
     this.isOnline = false,
     required this.lastSeen,
     required this.createdAt,
+    // New fields
+    this.email,
+    this.officeAddress,
+    this.website,
+    this.licenseNumber,
+    this.languagesSpoken = const [],
+    this.totalSuccessfulMatches = 0,
+    this.feeStructure,
+    this.workingHours,
+    this.socialMediaLinks = const {},
+    this.verificationStatus = VerificationStatus.unverified,
   });
 
   bool get isIndependent => agencyId == null;
+  bool get isVerified => verificationStatus == VerificationStatus.verified;
 
   String get statusText =>
       isOnline ? 'Online' : 'Last seen ${_formatLastSeen()}';
@@ -61,6 +102,17 @@ class BrokerProfile {
     'isOnline': isOnline,
     'lastSeen': lastSeen.toIso8601String(),
     'createdAt': createdAt.toIso8601String(),
+    // New fields
+    'email': email,
+    'officeAddress': officeAddress,
+    'website': website,
+    'licenseNumber': licenseNumber,
+    'languagesSpoken': languagesSpoken,
+    'totalSuccessfulMatches': totalSuccessfulMatches,
+    'feeStructure': feeStructure,
+    'workingHours': workingHours,
+    'socialMediaLinks': socialMediaLinks,
+    'verificationStatus': verificationStatus.name,
   };
 
   factory BrokerProfile.fromJson(Map<String, dynamic> json) => BrokerProfile(
@@ -79,6 +131,20 @@ class BrokerProfile {
     isOnline: json['isOnline'] as bool? ?? false,
     lastSeen: DateTime.parse(json['lastSeen'] as String),
     createdAt: DateTime.parse(json['createdAt'] as String),
+    // New fields
+    email: json['email'] as String?,
+    officeAddress: json['officeAddress'] as String?,
+    website: json['website'] as String?,
+    licenseNumber: json['licenseNumber'] as String?,
+    languagesSpoken: (json['languagesSpoken'] as List<dynamic>?)?.cast<String>() ?? [],
+    totalSuccessfulMatches: json['totalSuccessfulMatches'] as int? ?? 0,
+    feeStructure: json['feeStructure'] as String?,
+    workingHours: json['workingHours'] as String?,
+    socialMediaLinks: (json['socialMediaLinks'] as Map<String, dynamic>?)
+        ?.map((k, v) => MapEntry(k, v.toString())) ?? {},
+    verificationStatus: json['verificationStatus'] != null
+        ? VerificationStatus.values.byName(json['verificationStatus'] as String)
+        : VerificationStatus.unverified,
   );
 
   BrokerProfile copyWith({
@@ -94,6 +160,17 @@ class BrokerProfile {
     String? bio,
     bool? isOnline,
     DateTime? lastSeen,
+    // New fields
+    String? email,
+    String? officeAddress,
+    String? website,
+    String? licenseNumber,
+    List<String>? languagesSpoken,
+    int? totalSuccessfulMatches,
+    String? feeStructure,
+    String? workingHours,
+    Map<String, String>? socialMediaLinks,
+    VerificationStatus? verificationStatus,
   }) => BrokerProfile(
     userId: userId,
     agencyId: agencyId ?? this.agencyId,
@@ -110,5 +187,15 @@ class BrokerProfile {
     isOnline: isOnline ?? this.isOnline,
     lastSeen: lastSeen ?? this.lastSeen,
     createdAt: createdAt,
+    email: email ?? this.email,
+    officeAddress: officeAddress ?? this.officeAddress,
+    website: website ?? this.website,
+    licenseNumber: licenseNumber ?? this.licenseNumber,
+    languagesSpoken: languagesSpoken ?? this.languagesSpoken,
+    totalSuccessfulMatches: totalSuccessfulMatches ?? this.totalSuccessfulMatches,
+    feeStructure: feeStructure ?? this.feeStructure,
+    workingHours: workingHours ?? this.workingHours,
+    socialMediaLinks: socialMediaLinks ?? this.socialMediaLinks,
+    verificationStatus: verificationStatus ?? this.verificationStatus,
   );
 }

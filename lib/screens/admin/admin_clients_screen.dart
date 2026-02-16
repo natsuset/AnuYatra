@@ -176,6 +176,8 @@ class AdminClientsScreen extends ConsumerWidget {
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: 6),
                             Wrap(

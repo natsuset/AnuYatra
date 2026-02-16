@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
@@ -10,31 +11,57 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/data/seed_data.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  // Wrap everything in error handling to prevent silent crashes
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Hive local storage
-  await Hive.initFlutter();
+    try {
+      // Initialize Hive local storage
+      await Hive.initFlutter();
 
-  // Initialize storage service and seed data
-  final storage = LocalStorageService();
-  await storage.init();
-  await seedDemoData(storage);
+      // Initialize storage service
+      final storage = LocalStorageService();
+      await storage.init();
 
-  // Allow runtime font fetching — on devices with network access,
-  // Inter and Poppins will load from Google Fonts CDN.
-  // On restricted environments (sandboxed simulators), they gracefully
-  // fall back to system default fonts.
-  GoogleFonts.config.allowRuntimeFetching = true;
+      // Seed demo data ONLY on first launch (when database is empty)
+      // This only runs once - subsequent app opens skip this entirely
+      if (storage.isFirstLaunch) {
+        debugPrint('First launch detected - seeding demo data...');
+        await seedDemoData(storage);
+        debugPrint('Demo data seeded successfully');
+      }
 
-  runApp(
-    ProviderScope(
-      overrides: [
-        // Provide the already-initialized storage service
-        localStorageServiceProvider.overrideWithValue(storage),
-      ],
-      child: const AnuyatraApp(),
-    ),
-  );
+      // Allow runtime font fetching — on devices with network access,
+      // Inter and Poppins will load from Google Fonts CDN.
+      // On restricted environments (sandboxed simulators), they gracefully
+      // fall back to system default fonts.
+      GoogleFonts.config.allowRuntimeFetching = true;
+
+      runApp(
+        ProviderScope(
+          overrides: [
+            // Provide the already-initialized storage service
+            localStorageServiceProvider.overrideWithValue(storage),
+          ],
+          child: const AnuyatraApp(),
+        ),
+      );
+    } catch (error, stackTrace) {
+      debugPrint('Error initializing app: $error');
+      debugPrint('Stack trace: $stackTrace');
+      // Show error screen
+      runApp(MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: Text('Error initializing app: $error'),
+          ),
+        ),
+      ));
+    }
+  }, (error, stackTrace) {
+    debugPrint('Uncaught error: $error');
+    debugPrint('Stack trace: $stackTrace');
+  });
 }
 
 class AnuyatraApp extends ConsumerStatefulWidget {
@@ -48,9 +75,13 @@ class _AnuyatraAppState extends ConsumerState<AnuyatraApp> {
   @override
   void initState() {
     super.initState();
-    // Check auth status on app start
-    Future.microtask(() {
-      ref.read(authProvider.notifier).checkAuthStatus();
+    // Check auth status on app start - defer to avoid router race condition
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ref.read(authProvider.notifier).checkAuthStatus().catchError((error) {
+          debugPrint('Error checking auth status: $error');
+        });
+      }
     });
   }
 

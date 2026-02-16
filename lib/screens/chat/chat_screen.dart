@@ -149,6 +149,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   const Text(
                     'online',

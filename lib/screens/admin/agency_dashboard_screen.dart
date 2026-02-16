@@ -91,6 +91,8 @@ class AgencyDashboardScreen extends ConsumerWidget {
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                     ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                   if (agency != null)
                                     Text(
@@ -99,6 +101,8 @@ class AgencyDashboardScreen extends ConsumerWidget {
                                         color: Colors.white70,
                                         fontSize: 14,
                                       ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                 ],
                               ),
@@ -267,6 +271,8 @@ class AgencyDashboardScreen extends ConsumerWidget {
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w500,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 subtitle: Text(
                   '${broker.clientCount} clients \u2022 ${broker.profilesManaged} profiles',

@@ -70,6 +70,8 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
       final updated = agency.copyWith(
         name: _nameController.text.trim(),
         description: _descController.text.trim(),
+        city: _cityController.text.trim(),
+        state: _stateController.text.trim(),
       );
       await storage.saveAgency(updated);
     }
@@ -179,11 +181,11 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: _buildField('City', _cityController, false),
+                      child: _buildField('City', _cityController, _editing),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: _buildField('State', _stateController, false),
+                      child: _buildField('State', _stateController, _editing),
                     ),
                   ],
                 ),
