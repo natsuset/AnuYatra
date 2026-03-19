@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
-import 'package:testing_flutter/core/services/local_storage_service.dart';
+import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/link_request.dart';
 import 'package:testing_flutter/models/user_role.dart';
 
@@ -30,11 +30,12 @@ class _LinkToParentScreenState extends ConsumerState<LinkToParentScreen> {
     super.dispose();
   }
 
-  void _searchParent() {
-    final storage = ref.read(localStorageServiceProvider);
+  Future<void> _searchParent() async {
+    final userRepo = ref.read(userRepositoryProvider);
     final phone = '+91${_phoneController.text.trim()}';
-    final user = storage.getUserByPhone(phone);
+    final user = await userRepo.getUserByPhone(phone);
 
+    if (!mounted) return;
     setState(() {
       if (user != null && user.role == UserRole.parent) {
         _searchResult = 'found';
@@ -52,14 +53,14 @@ class _LinkToParentScreenState extends ConsumerState<LinkToParentScreen> {
     });
   }
 
-  void _sendLinkRequest() async {
-    final storage = ref.read(localStorageServiceProvider);
+  Future<void> _sendLinkRequest() async {
+    final linkRepo = ref.read(linkRepositoryProvider);
     final authState = ref.read(authProvider);
     if (authState is! AuthAuthenticated || _foundParentId == null) return;
 
     final user = authState.user;
 
-    await storage.sendLinkRequest(
+    await linkRepo.sendLinkRequest(
       fromUserId: user.uid,
       toUserId: _foundParentId!,
       fromUserName: user.displayName,

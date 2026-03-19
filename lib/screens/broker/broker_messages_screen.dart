@@ -4,28 +4,80 @@ import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
-import 'package:testing_flutter/core/services/local_storage_service.dart';
-
+import 'package:testing_flutter/models/app_user.dart';
+import 'package:testing_flutter/models/chat_message.dart';
 
 /// WhatsApp-style conversation list for brokers.
 /// Shows all conversations with last message preview.
-class BrokerMessagesScreen extends ConsumerWidget {
+class BrokerMessagesScreen extends ConsumerStatefulWidget {
   const BrokerMessagesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<BrokerMessagesScreen> createState() =>
+      _BrokerMessagesScreenState();
+}
+
+class _BrokerMessagesScreenState extends ConsumerState<BrokerMessagesScreen> {
+  List<Conversation> _conversations = [];
+  Map<String, AppUser?> _otherUsersByUserId = {};
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
+  }
+
+  Future<void> _loadData() async {
+    final authState = ref.read(authProvider);
+    if (authState is! AuthAuthenticated) return;
+
+    final user = authState.user;
+    final messagingRepo = ref.read(messagingRepositoryProvider);
+    final userRepo = ref.read(userRepositoryProvider);
+
+    final conversations =
+        await messagingRepo.getConversationsForUser(user.uid);
+    final otherUsersByUserId = <String, AppUser?>{};
+    for (final conv in conversations) {
+      final otherUserId = conv.participantIds.firstWhere(
+        (id) => id != user.uid,
+        orElse: () => '',
+      );
+      if (otherUserId.isNotEmpty) {
+        otherUsersByUserId[otherUserId] =
+            await userRepo.getUser(otherUserId);
+      }
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _conversations = conversations;
+      _otherUsersByUserId = otherUsersByUserId;
+      _isLoading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final authState = ref.watch(authProvider);
-    final storage = ref.watch(localStorageServiceProvider);
 
     if (authState is! AuthAuthenticated) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     final user = authState.user;
-    final conversations = storage.getConversationsForUser(user.uid);
+    final conversations = _conversations;
+
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -53,14 +105,16 @@ class BrokerMessagesScreen extends ConsumerWidget {
                   (id) => id != user.uid,
                   orElse: () => '',
                 );
-                final otherUser = storage.getUser(otherUserId);
+                final otherUser = _otherUsersByUserId[otherUserId];
                 final otherName = otherUser?.displayName ?? 'Unknown';
-                final initial = otherName.isNotEmpty ? otherName[0].toUpperCase() : '?';
+                final initial =
+                    otherName.isNotEmpty ? otherName[0].toUpperCase() : '?';
 
                 // Format time
                 String timeStr = '';
                 if (conv.lastMessageAt != null) {
-                  final diff = DateTime.now().difference(conv.lastMessageAt!);
+                  final diff =
+                      DateTime.now().difference(conv.lastMessageAt!);
                   if (diff.inMinutes < 60) {
                     timeStr = '${diff.inMinutes}m ago';
                   } else if (diff.inHours < 24) {
@@ -73,7 +127,8 @@ class BrokerMessagesScreen extends ConsumerWidget {
                 return ListTile(
                   leading: CircleAvatar(
                     radius: 26,
-                    backgroundColor: AppColors.sacredSaffron.withValues(alpha: 0.15),
+                    backgroundColor:
+                        AppColors.sacredSaffron.withValues(alpha: 0.15),
                     child: Text(
                       initial,
                       style: TextStyle(

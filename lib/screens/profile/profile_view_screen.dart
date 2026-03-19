@@ -2,14 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
-import 'package:testing_flutter/core/services/local_storage_service.dart';
+import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/candidate_profile.dart';
 
 
 /// Universal candidate profile detail viewer.
 /// Shows all details of a candidate profile in a beautiful card layout.
-class ProfileViewScreen extends ConsumerWidget {
+class ProfileViewScreen extends ConsumerStatefulWidget {
   const ProfileViewScreen({super.key});
+
+  @override
+  ConsumerState<ProfileViewScreen> createState() => _ProfileViewScreenState();
+}
+
+class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
+  CandidateProfile? _profile;
+  bool _loading = true;
 
   bool _hasLifestyleInfo(CandidateProfile p) =>
       p.diet != null ||
@@ -28,16 +36,39 @@ class ProfileViewScreen extends ConsumerWidget {
       (p.birthTime != null && p.birthTime!.isNotEmpty);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadProfile());
+  }
+
+  Future<void> _loadProfile() async {
+    final profileId = GoRouterState.of(context).pathParameters['id'];
+    if (profileId == null) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+      return;
+    }
+    final profileRepo = ref.read(profileRepositoryProvider);
+    final profile = await profileRepo.getCandidateProfile(profileId);
+    if (!mounted) return;
+    setState(() {
+      _profile = profile;
+      _loading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final storage = ref.watch(localStorageServiceProvider);
+    final profile = _profile;
 
-    // Get profile ID from route params
-    final profileId = GoRouterState.of(context).pathParameters['id'];
-    final profile = profileId != null
-        ? storage.getCandidateProfile(profileId)
-        : null;
+    if (_loading) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Profile')),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
 
     if (profile == null) {
       return Scaffold(

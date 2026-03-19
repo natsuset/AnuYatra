@@ -4,14 +4,57 @@ import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
-import 'package:testing_flutter/core/services/local_storage_service.dart';
+import 'package:testing_flutter/models/app_user.dart';
+import 'package:testing_flutter/models/parent_profile.dart';
 
-class ParentProfileScreen extends ConsumerWidget {
+class ParentProfileScreen extends ConsumerStatefulWidget {
   const ParentProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ParentProfileScreen> createState() =>
+      _ParentProfileScreenState();
+}
+
+class _ParentProfileScreenState extends ConsumerState<ParentProfileScreen> {
+  ParentProfile? _parentProfile;
+  List<String> _connectedBrokerIds = [];
+  AppUser? _linkedChild;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
+  }
+
+  Future<void> _loadData() async {
+    final authState = ref.read(authProvider);
+    if (authState is! AuthAuthenticated) return;
+
+    final uid = authState.user.uid;
+    final profileRepo = ref.read(profileRepositoryProvider);
+    final linkRepo = ref.read(linkRepositoryProvider);
+    final userRepo = ref.read(userRepositoryProvider);
+
+    final parentProfile = await profileRepo.getParentProfile(uid);
+    final connectedBrokerIds = await linkRepo.getConnectedBrokerIds(uid);
+    final linkedChildId = await linkRepo.getLinkedChildId(uid);
+    final linkedChild =
+        linkedChildId != null ? await userRepo.getUser(linkedChildId) : null;
+
+    if (!mounted) return;
+    setState(() {
+      _parentProfile = parentProfile;
+      _connectedBrokerIds = connectedBrokerIds;
+      _linkedChild = linkedChild;
+      _loading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     if (authState is! AuthAuthenticated) {
       return const Scaffold(
@@ -20,16 +63,14 @@ class ParentProfileScreen extends ConsumerWidget {
     }
 
     final user = authState.user;
-    final storage = ref.read(localStorageServiceProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final theme = Theme.of(context);
 
-    // Parent profile data
-    final parentProfile = storage.getParentProfile(user.uid);
-    final connectedBrokerIds = storage.getConnectedBrokerIds(user.uid);
-    final linkedChildId = storage.getLinkedChildId(user.uid);
-    final linkedChild =
-        linkedChildId != null ? storage.getUser(linkedChildId) : null;
+    if (_loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -123,12 +164,12 @@ class ParentProfileScreen extends ConsumerWidget {
             color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
             child: Column(
               children: [
-                if (parentProfile != null) ...[
+                if (_parentProfile != null) ...[
                   ListTile(
                     leading: const Icon(Icons.search),
                     title: const Text('Looking For'),
                     trailing: Text(
-                      parentProfile.lookingForDisplay,
+                      _parentProfile!.lookingForDisplay,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w500,
                         color: AppColors.deepMaroon,
@@ -140,8 +181,8 @@ class ParentProfileScreen extends ConsumerWidget {
                     leading: const Icon(Icons.location_city_outlined),
                     title: const Text('City'),
                     trailing: Text(
-                      parentProfile.city.isNotEmpty
-                          ? parentProfile.city
+                      _parentProfile!.city.isNotEmpty
+                          ? _parentProfile!.city
                           : 'Not set',
                       style: theme.textTheme.bodyMedium,
                     ),
@@ -151,8 +192,8 @@ class ParentProfileScreen extends ConsumerWidget {
                     leading: const Icon(Icons.map_outlined),
                     title: const Text('State'),
                     trailing: Text(
-                      parentProfile.state.isNotEmpty
-                          ? parentProfile.state
+                      _parentProfile!.state.isNotEmpty
+                          ? _parentProfile!.state
                           : 'Not set',
                       style: theme.textTheme.bodyMedium,
                     ),
@@ -163,7 +204,7 @@ class ParentProfileScreen extends ConsumerWidget {
                   leading: const Icon(Icons.handshake_outlined),
                   title: const Text('Connected Brokers'),
                   trailing: Text(
-                    '${connectedBrokerIds.length}',
+                    '${_connectedBrokerIds.length}',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                       color: AppColors.info,
@@ -174,17 +215,17 @@ class ParentProfileScreen extends ConsumerWidget {
                 ListTile(
                   leading: Icon(
                     Icons.family_restroom,
-                    color: linkedChild != null
+                    color: _linkedChild != null
                         ? AppColors.success
                         : AppColors.lightTertiaryText,
                   ),
                   title: const Text('Linked Child'),
                   trailing: Text(
-                    linkedChild != null
-                        ? linkedChild.displayName
+                    _linkedChild != null
+                        ? _linkedChild!.displayName
                         : 'Not linked',
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: linkedChild != null
+                      color: _linkedChild != null
                           ? AppColors.success
                           : (isDark
                               ? AppColors.darkTertiaryText

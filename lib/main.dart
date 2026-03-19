@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:testing_flutter/core/providers/theme_provider.dart';
+import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/theme/app_theme.dart';
 import 'package:testing_flutter/core/routing/app_router.dart';
+import 'package:testing_flutter/core/data/app_data_module.dart';
 import 'package:testing_flutter/core/services/local_storage_service.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/data/seed_data.dart';
@@ -19,7 +21,12 @@ void main() async {
       // Initialize Hive local storage
       await Hive.initFlutter();
 
-      // Initialize storage service
+      // Initialize the repository layer (opens all Hive boxes internally)
+      final dataModule = await AppDataModule.initLocal();
+
+      // Initialize legacy storage service (shares the same Hive boxes).
+      // Screens will be migrated to repository providers incrementally;
+      // until then, both coexist reading from the same underlying boxes.
       final storage = LocalStorageService();
       await storage.init();
 
@@ -40,8 +47,25 @@ void main() async {
       runApp(
         ProviderScope(
           overrides: [
-            // Provide the already-initialized storage service
+            // Legacy storage provider (screens still use this)
             localStorageServiceProvider.overrideWithValue(storage),
+            // New repository providers
+            authRepositoryProvider
+                .overrideWithValue(dataModule.authRepository),
+            userRepositoryProvider
+                .overrideWithValue(dataModule.userRepository),
+            agencyRepositoryProvider
+                .overrideWithValue(dataModule.agencyRepository),
+            brokerRepositoryProvider
+                .overrideWithValue(dataModule.brokerRepository),
+            profileRepositoryProvider
+                .overrideWithValue(dataModule.profileRepository),
+            linkRepositoryProvider
+                .overrideWithValue(dataModule.linkRepository),
+            sharedProfileRepositoryProvider
+                .overrideWithValue(dataModule.sharedProfileRepository),
+            messagingRepositoryProvider
+                .overrideWithValue(dataModule.messagingRepository),
           ],
           child: const AnuyatraApp(),
         ),

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
-import 'package:testing_flutter/core/services/local_storage_service.dart';
+import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/parent_profile.dart';
 import 'package:testing_flutter/models/user_role.dart';
 
@@ -166,11 +166,14 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   }
 
   Future<void> _saveEnrichedFields(String uid, UserRole role) async {
-    final storage = ref.read(localStorageServiceProvider);
+    final profileRepo = ref.read(profileRepositoryProvider);
+    final brokerRepo = ref.read(brokerRepositoryProvider);
+    final userRepo = ref.read(userRepositoryProvider);
+    final agencyRepo = ref.read(agencyRepositoryProvider);
 
     switch (role) {
       case UserRole.parent:
-        final existing = storage.getParentProfile(uid);
+        final existing = await profileRepo.getParentProfile(uid);
         if (existing != null) {
           final updated = existing.copyWith(
             email: _parentEmailController.text.trim().isNotEmpty
@@ -200,12 +203,12 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                 : null,
             familyType: _familyType,
           );
-          await storage.saveParentProfile(updated);
+          await profileRepo.saveParentProfile(updated);
         }
         break;
 
       case UserRole.broker:
-        final existing = storage.getBrokerProfile(uid);
+        final existing = await brokerRepo.getBrokerProfile(uid);
         if (existing != null) {
           final updated = existing.copyWith(
             email: _brokerEmailController.text.trim().isNotEmpty
@@ -224,16 +227,14 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                 ? _brokerLanguages.split(',').map((s) => s.trim()).toList()
                 : null,
           );
-          await storage.saveBrokerProfile(updated);
+          await brokerRepo.saveBrokerProfile(updated);
         }
         break;
 
       case UserRole.agencyAdmin:
-        // Agency enriched fields are saved by auth provider via createAgency
-        // Additional fields can be saved to agency here
-        final user = storage.getUser(uid);
+        final user = await userRepo.getUser(uid);
         if (user?.agencyId != null) {
-          final agency = storage.getAgency(user!.agencyId!);
+          final agency = await agencyRepo.getAgency(user!.agencyId!);
           if (agency != null) {
             final updated = agency.copyWith(
               email: _agencyEmailController.text.trim().isNotEmpty
@@ -246,7 +247,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   ? _agencyWebsiteController.text.trim()
                   : null,
             );
-            await storage.saveAgency(updated);
+            await agencyRepo.saveAgency(updated);
           }
         }
         break;

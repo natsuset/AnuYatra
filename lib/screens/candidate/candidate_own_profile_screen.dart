@@ -4,14 +4,58 @@ import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
-import 'package:testing_flutter/core/services/local_storage_service.dart';
+import 'package:testing_flutter/models/app_user.dart';
+import 'package:testing_flutter/models/candidate_profile.dart';
 
-class CandidateOwnProfileScreen extends ConsumerWidget {
+class CandidateOwnProfileScreen extends ConsumerStatefulWidget {
   const CandidateOwnProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CandidateOwnProfileScreen> createState() =>
+      _CandidateOwnProfileScreenState();
+}
+
+class _CandidateOwnProfileScreenState
+    extends ConsumerState<CandidateOwnProfileScreen> {
+  AppUser? _linkedParent;
+  CandidateProfile? _candidateProfile;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
+  }
+
+  Future<void> _loadData() async {
+    final authState = ref.read(authProvider);
+    if (authState is! AuthAuthenticated) return;
+
+    final uid = authState.user.uid;
+    final linkRepo = ref.read(linkRepositoryProvider);
+    final userRepo = ref.read(userRepositoryProvider);
+    final profileRepo = ref.read(profileRepositoryProvider);
+
+    final linkedParentId = await linkRepo.getLinkedParentId(uid);
+    final linkedParent =
+        linkedParentId != null ? await userRepo.getUser(linkedParentId) : null;
+    final allCandidates = await profileRepo.getAllCandidateProfiles();
+    final candidateProfile = allCandidates
+        .where((c) => c.candidateUserId == uid)
+        .firstOrNull;
+
+    if (!mounted) return;
+    setState(() {
+      _linkedParent = linkedParent;
+      _candidateProfile = candidateProfile;
+      _loading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     if (authState is! AuthAuthenticated) {
       return const Scaffold(
@@ -20,20 +64,14 @@ class CandidateOwnProfileScreen extends ConsumerWidget {
     }
 
     final user = authState.user;
-    final storage = ref.read(localStorageServiceProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final theme = Theme.of(context);
 
-    // Link status
-    final linkedParentId = storage.getLinkedParentId(user.uid);
-    final linkedParent =
-        linkedParentId != null ? storage.getUser(linkedParentId) : null;
-
-    // Try to find candidate profile data (if available)
-    final allCandidates = storage.getAllCandidateProfiles();
-    final candidateProfile = allCandidates
-        .where((c) => c.candidateUserId == user.uid)
-        .firstOrNull;
+    if (_loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -81,10 +119,10 @@ class CandidateOwnProfileScreen extends ConsumerWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  if (candidateProfile != null) ...[
+                  if (_candidateProfile != null) ...[
                     const SizedBox(height: 4),
                     Text(
-                      '${candidateProfile.age} years \u2022 ${candidateProfile.gender.displayName}',
+                      '${_candidateProfile!.age} years \u2022 ${_candidateProfile!.gender.displayName}',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: isDark
                             ? AppColors.darkSecondaryText
@@ -122,7 +160,7 @@ class CandidateOwnProfileScreen extends ConsumerWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
               side: BorderSide(
-                color: linkedParent != null
+                color: _linkedParent != null
                     ? AppColors.success.withValues(alpha: 0.3)
                     : AppColors.warning.withValues(alpha: 0.3),
                 width: 1,
@@ -136,28 +174,28 @@ class CandidateOwnProfileScreen extends ConsumerWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: (linkedParent != null
+                  color: (_linkedParent != null
                           ? AppColors.success
                           : AppColors.warning)
                       .withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
-                  linkedParent != null ? Icons.link : Icons.link_off,
-                  color: linkedParent != null
+                  _linkedParent != null ? Icons.link : Icons.link_off,
+                  color: _linkedParent != null
                       ? AppColors.success
                       : AppColors.warning,
                 ),
               ),
               title: Text(
-                linkedParent != null ? 'Linked to Parent' : 'Not Linked',
+                _linkedParent != null ? 'Linked to Parent' : 'Not Linked',
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
               ),
               subtitle: Text(
-                linkedParent != null
-                    ? linkedParent.displayName
+                _linkedParent != null
+                    ? _linkedParent!.displayName
                     : 'No parent linked to your account',
               ),
             ),

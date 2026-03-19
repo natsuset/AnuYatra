@@ -4,38 +4,49 @@ import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
-import 'package:testing_flutter/core/services/local_storage_service.dart';
 
 /// Shows all clients (parents) connected to any broker in the agency.
-class AdminClientsScreen extends ConsumerWidget {
+class AdminClientsScreen extends ConsumerStatefulWidget {
   const AdminClientsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final authState = ref.watch(authProvider);
-    final storage = ref.watch(localStorageServiceProvider);
+  ConsumerState<AdminClientsScreen> createState() => _AdminClientsScreenState();
+}
 
-    if (authState is! AuthAuthenticated) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+class _AdminClientsScreenState extends ConsumerState<AdminClientsScreen> {
+  List<_ClientInfo> _clients = [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
+  }
+
+  Future<void> _loadData() async {
+    final authState = ref.read(authProvider);
+    if (authState is! AuthAuthenticated || authState.user.agencyId == null) {
+      if (mounted) setState(() => _clients = []);
+      return;
     }
 
-    final user = authState.user;
-    final agencyId = user.agencyId;
+    final agencyId = authState.user.agencyId!;
+    final brokerRepo = ref.read(brokerRepositoryProvider);
+    final linkRepo = ref.read(linkRepositoryProvider);
+    final profileRepo = ref.read(profileRepositoryProvider);
+    final userRepo = ref.read(userRepositoryProvider);
 
-    // Gather all clients across all brokers in the agency
-    final brokers =
-        agencyId != null ? storage.getBrokersByAgency(agencyId) : [];
+    final brokers = await brokerRepo.getBrokersByAgency(agencyId);
     final clientMap = <String, _ClientInfo>{};
 
     for (final broker in brokers) {
-      final parentIds = storage.getConnectedParentIds(broker.userId);
+      final parentIds = await linkRepo.getConnectedParentIds(broker.userId);
       for (final parentId in parentIds) {
         if (!clientMap.containsKey(parentId)) {
-          final parent = storage.getParentProfile(parentId);
-          final parentUser = storage.getUser(parentId);
+          final parent = await profileRepo.getParentProfile(parentId);
+          final parentUser = await userRepo.getUser(parentId);
           if (parent != null && parentUser != null) {
             clientMap[parentId] = _ClientInfo(
               userId: parentId,
@@ -52,7 +63,30 @@ class AdminClientsScreen extends ConsumerWidget {
       }
     }
 
-    final clients = clientMap.values.toList();
+    if (!mounted) return;
+    setState(() {
+      _clients = clientMap.values.toList();
+      _loading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final authState = ref.watch(authProvider);
+
+    if (authState is! AuthAuthenticated) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    final user = authState.user;
+
+    if (_loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -69,7 +103,7 @@ class AdminClientsScreen extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  '${clients.length}',
+                  '${_clients.length}',
                   style: TextStyle(
                     color: AppColors.sacredSaffron,
                     fontWeight: FontWeight.w700,
@@ -80,7 +114,7 @@ class AdminClientsScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: clients.isEmpty
+      body: _clients.isEmpty
           ? Center(
               child: Padding(
                 padding: const EdgeInsets.all(32),
@@ -114,18 +148,19 @@ class AdminClientsScreen extends ConsumerWidget {
             )
           : ListView.separated(
               padding: const EdgeInsets.all(16),
-              itemCount: clients.length,
+              itemCount: _clients.length,
               separatorBuilder: (_, __) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
-                final client = clients[index];
+                final client = _clients[index];
                 return Material(
                   color: Colors.transparent,
                   child: InkWell(
                   borderRadius: BorderRadius.circular(14),
-                  onTap: () {
-                    // Navigate to chat with this parent
-                    final convId = storage.getOrCreateConversation(
+                  onTap: () async {
+                    final messagingRepo = ref.read(messagingRepositoryProvider);
+                    final convId = await messagingRepo.getOrCreateConversation(
                       user.uid, client.userId);
+                    if (!context.mounted) return;
                     context.pushNamed(
                       RouteNames.chat,
                       pathParameters: {'conversationId': convId},

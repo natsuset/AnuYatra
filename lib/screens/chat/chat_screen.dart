@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
-import 'package:testing_flutter/core/services/local_storage_service.dart';
+import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/chat_message.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
@@ -41,30 +41,33 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     super.dispose();
   }
 
-  void _loadMessages() {
-    final storage = ref.read(localStorageServiceProvider);
+  Future<void> _loadMessages() async {
+    final messagingRepo = ref.read(messagingRepositoryProvider);
+    final userRepo = ref.read(userRepositoryProvider);
     final authState = ref.read(authProvider);
 
     if (authState is AuthAuthenticated) {
       _currentUserId = authState.user.uid;
     }
 
-    final conversation = storage.getConversation(_conversationId);
+    final conversation = await messagingRepo.getConversation(_conversationId);
     if (conversation != null && _currentUserId != null) {
       final otherUserId = conversation.participantIds
           .where((id) => id != _currentUserId)
           .firstOrNull;
       if (otherUserId != null) {
-        final otherUser = storage.getUser(otherUserId);
+        final otherUser = await userRepo.getUser(otherUserId);
         if (otherUser != null) {
           _contactName = otherUser.displayName;
         }
       }
-      storage.markMessagesAsRead(_conversationId, _currentUserId!);
+      await messagingRepo.markMessagesAsRead(_conversationId, _currentUserId!);
     }
 
+    final messages = await messagingRepo.getMessages(_conversationId);
+    if (!mounted) return;
     setState(() {
-      _messages = storage.getMessages(_conversationId);
+      _messages = messages;
     });
 
     _scrollToBottom();
@@ -74,8 +77,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final text = _messageController.text.trim();
     if (text.isEmpty || _currentUserId == null) return;
 
-    final storage = ref.read(localStorageServiceProvider);
-    final conversation = storage.getConversation(_conversationId);
+    final messagingRepo = ref.read(messagingRepositoryProvider);
+    final conversation = await messagingRepo.getConversation(_conversationId);
     if (conversation == null) return;
 
     final recipientId = conversation.participantIds
@@ -85,15 +88,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     _messageController.clear();
 
-    await storage.sendMessage(
+    await messagingRepo.sendMessage(
       conversationId: _conversationId,
       senderId: _currentUserId!,
       recipientId: recipientId,
       content: text,
     );
 
+    final messages = await messagingRepo.getMessages(_conversationId);
+    if (!mounted) return;
     setState(() {
-      _messages = storage.getMessages(_conversationId);
+      _messages = messages;
     });
 
     _scrollToBottom();

@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
-import 'package:testing_flutter/core/services/local_storage_service.dart';
+import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/link_request.dart';
 
 class LinkRequestsScreen extends ConsumerWidget {
@@ -68,17 +68,19 @@ class _ReceivedTabState extends ConsumerState<_ReceivedTab> {
     _loadRequests();
   }
 
-  void _loadRequests() {
-    final storage = ref.read(localStorageServiceProvider);
+  Future<void> _loadRequests() async {
+    final linkRepo = ref.read(linkRepositoryProvider);
+    final requests = await linkRepo.getLinkRequestsReceivedBy(widget.userId);
+    if (!mounted) return;
     setState(() {
-      _requests = storage.getLinkRequestsReceivedBy(widget.userId);
+      _requests = requests;
     });
   }
 
   Future<void> _acceptRequest(String requestId) async {
-    final storage = ref.read(localStorageServiceProvider);
-    await storage.acceptLinkRequest(requestId);
-    _loadRequests();
+    final linkRepo = ref.read(linkRepositoryProvider);
+    await linkRepo.acceptLinkRequest(requestId);
+    await _loadRequests();
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -90,9 +92,9 @@ class _ReceivedTabState extends ConsumerState<_ReceivedTab> {
   }
 
   Future<void> _declineRequest(String requestId) async {
-    final storage = ref.read(localStorageServiceProvider);
-    await storage.declineLinkRequest(requestId);
-    _loadRequests();
+    final linkRepo = ref.read(linkRepositoryProvider);
+    await linkRepo.declineLinkRequest(requestId);
+    await _loadRequests();
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -139,16 +141,35 @@ class _ReceivedTabState extends ConsumerState<_ReceivedTab> {
 // ---------------------------------------------------------------------------
 // Sent tab
 // ---------------------------------------------------------------------------
-class _SentTab extends ConsumerWidget {
+class _SentTab extends ConsumerStatefulWidget {
   final String userId;
   const _SentTab({required this.userId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final storage = ref.read(localStorageServiceProvider);
-    final requests = storage.getLinkRequestsSentBy(userId);
+  ConsumerState<_SentTab> createState() => _SentTabState();
+}
 
-    if (requests.isEmpty) {
+class _SentTabState extends ConsumerState<_SentTab> {
+  List<LinkRequest> _requests = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRequests();
+  }
+
+  Future<void> _loadRequests() async {
+    final linkRepo = ref.read(linkRepositoryProvider);
+    final requests = await linkRepo.getLinkRequestsSentBy(widget.userId);
+    if (!mounted) return;
+    setState(() {
+      _requests = requests;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_requests.isEmpty) {
       return _buildEmptyState(
         context: context,
         icon: Icons.send_outlined,
@@ -159,10 +180,10 @@ class _SentTab extends ConsumerWidget {
 
     return ListView.separated(
       padding: const EdgeInsets.all(16),
-      itemCount: requests.length,
+      itemCount: _requests.length,
       separatorBuilder: (_, __) => const SizedBox(height: 10),
       itemBuilder: (context, index) {
-        final request = requests[index];
+        final request = _requests[index];
         return _RequestCard(
           request: request,
           isReceived: false,

@@ -4,7 +4,8 @@ import 'package:testing_flutter/common/widgets/molecules/photo_manager_widget.da
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
-import 'package:testing_flutter/core/services/local_storage_service.dart';
+import 'package:testing_flutter/core/providers/repository_providers.dart';
+import 'package:uuid/uuid.dart';
 import 'package:testing_flutter/models/candidate_profile.dart';
 
 /// Form for brokers to create or edit a candidate profile.
@@ -67,7 +68,7 @@ class _ProfileCreateEditScreenState
 
     setState(() => _isSaving = true);
 
-    final storage = ref.read(localStorageServiceProvider);
+    final profileRepo = ref.read(profileRepositoryProvider);
     final authState = ref.read(authProvider);
     if (authState is! AuthAuthenticated) return;
 
@@ -77,7 +78,7 @@ class _ProfileCreateEditScreenState
         : <String>[];
 
     final profile = CandidateProfile(
-      id: storage.generateId(),
+      id: const Uuid().v4(),
       createdByUserId: authState.user.uid,
       name: _nameController.text.trim(),
       age: int.tryParse(_ageController.text.trim()) ?? 25,
@@ -102,7 +103,7 @@ class _ProfileCreateEditScreenState
       updatedAt: now,
     );
 
-    await storage.saveCandidateProfile(profile);
+    await profileRepo.saveCandidateProfile(profile);
 
     setState(() => _isSaving = false);
 

@@ -5,14 +5,54 @@ import 'package:testing_flutter/common/widgets/molecules/branded_app_bar.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
-import 'package:testing_flutter/core/services/local_storage_service.dart';
+import 'package:testing_flutter/models/app_user.dart';
+import 'package:testing_flutter/models/shared_profile.dart';
 
-class CandidateHomeScreen extends ConsumerWidget {
+class CandidateHomeScreen extends ConsumerStatefulWidget {
   const CandidateHomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CandidateHomeScreen> createState() =>
+      _CandidateHomeScreenState();
+}
+
+class _CandidateHomeScreenState extends ConsumerState<CandidateHomeScreen> {
+  AppUser? _linkedParent;
+  List<SharedProfile> _sharedProfiles = [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
+  }
+
+  Future<void> _loadData() async {
+    final authState = ref.read(authProvider);
+    if (authState is! AuthAuthenticated) return;
+
+    final uid = authState.user.uid;
+    final linkRepo = ref.read(linkRepositoryProvider);
+    final userRepo = ref.read(userRepositoryProvider);
+    final sharedProfileRepo = ref.read(sharedProfileRepositoryProvider);
+
+    final linkedParentId = await linkRepo.getLinkedParentId(uid);
+    final linkedParent =
+        linkedParentId != null ? await userRepo.getUser(linkedParentId) : null;
+    final sharedProfiles = await sharedProfileRepo.getSharedProfilesForUser(uid);
+
+    if (!mounted) return;
+    setState(() {
+      _linkedParent = linkedParent;
+      _sharedProfiles = sharedProfiles;
+      _loading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     if (authState is! AuthAuthenticated) {
       return const Scaffold(
@@ -21,17 +61,14 @@ class CandidateHomeScreen extends ConsumerWidget {
     }
 
     final user = authState.user;
-    final storage = ref.read(localStorageServiceProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final theme = Theme.of(context);
 
-    // Link status
-    final linkedParentId = storage.getLinkedParentId(user.uid);
-    final linkedParent =
-        linkedParentId != null ? storage.getUser(linkedParentId) : null;
-
-    // Shared profiles forwarded to this candidate's parent then to them
-    final sharedProfiles = storage.getSharedProfilesForUser(user.uid);
+    if (_loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       appBar: const BrandedAppBar(),
@@ -79,7 +116,7 @@ class CandidateHomeScreen extends ConsumerWidget {
                   context: context,
                   isDark: isDark,
                   theme: theme,
-                  linkedParent: linkedParent,
+                  linkedParent: _linkedParent,
                 ),
 
                 const SizedBox(height: 16),
@@ -89,7 +126,7 @@ class CandidateHomeScreen extends ConsumerWidget {
                   context: context,
                   isDark: isDark,
                   theme: theme,
-                  sharedCount: sharedProfiles.length,
+                  sharedCount: _sharedProfiles.length,
                 ),
 
                 const SizedBox(height: 16),
@@ -108,7 +145,7 @@ class CandidateHomeScreen extends ConsumerWidget {
     required BuildContext context,
     required bool isDark,
     required ThemeData theme,
-    dynamic linkedParent,
+    AppUser? linkedParent,
   }) {
     final isLinked = linkedParent != null;
 

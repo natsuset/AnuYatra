@@ -5,7 +5,7 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
-import 'package:testing_flutter/core/services/local_storage_service.dart';
+import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/candidate_profile.dart';
 import 'package:testing_flutter/models/shared_profile.dart';
 import 'package:testing_flutter/screens/parent/forward_to_child_sheet.dart';
@@ -32,20 +32,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
   }
 
-  void _loadData() {
+  Future<void> _loadData() async {
     final authState = ref.read(authProvider);
     if (authState is! AuthAuthenticated) return;
 
-    final storage = ref.read(localStorageServiceProvider);
+    final sharedProfileRepo = ref.read(sharedProfileRepositoryProvider);
+    final profileRepo = ref.read(profileRepositoryProvider);
+    final brokerRepo = ref.read(brokerRepositoryProvider);
+    final linkRepo = ref.read(linkRepositoryProvider);
+    final userRepo = ref.read(userRepositoryProvider);
     final uid = authState.user.uid;
 
     // Get shared profiles for this parent
-    final sharedProfiles = storage.getSharedProfilesForUser(uid);
+    final sharedProfiles = await sharedProfileRepo.getSharedProfilesForUser(uid);
     final items = <_SharedProfileItem>[];
     for (final sp in sharedProfiles) {
-      final profile = storage.getCandidateProfile(sp.profileId);
+      final profile = await profileRepo.getCandidateProfile(sp.profileId);
       if (profile != null) {
-        final sharedBy = storage.getBrokerProfile(sp.sharedByUserId);
+        final sharedBy = await brokerRepo.getBrokerProfile(sp.sharedByUserId);
         items.add(_SharedProfileItem(
           shared: sp,
           profile: profile,
@@ -55,11 +59,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
 
     // Get stats
-    final brokerIds = storage.getConnectedBrokerIds(uid);
-    final pendingRequests = storage.getPendingRequestsFor(uid);
-    final childId = storage.getLinkedChildId(uid);
-    final childUser = childId != null ? storage.getUser(childId) : null;
+    final brokerIds = await linkRepo.getConnectedBrokerIds(uid);
+    final pendingRequests = await linkRepo.getPendingRequestsFor(uid);
+    final childId = await linkRepo.getLinkedChildId(uid);
+    final childUser = childId != null ? await userRepo.getUser(childId) : null;
 
+    if (!mounted) return;
     setState(() {
       _items = items;
       _connectedBrokerCount = brokerIds.length;
@@ -70,10 +75,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Future<void> _respondToProfile(
       SharedProfile shared, SharedProfileResponse response) async {
-    final storage = ref.read(localStorageServiceProvider);
+    final sharedProfileRepo = ref.read(sharedProfileRepositoryProvider);
     final updated = shared.copyWith(parentResponse: response);
-    await storage.updateSharedProfile(updated);
-    _loadData();
+    await sharedProfileRepo.updateSharedProfile(updated);
+    await _loadData();
 
     if (mounted) {
       final label = switch (response) {

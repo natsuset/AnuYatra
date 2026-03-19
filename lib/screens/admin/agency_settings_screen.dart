@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
-import 'package:testing_flutter/core/services/local_storage_service.dart';
+import 'package:testing_flutter/core/providers/repository_providers.dart';
+import 'package:testing_flutter/models/agency.dart';
 import 'package:testing_flutter/core/providers/theme_provider.dart';
 
 /// Agency settings screen for admin users.
@@ -23,6 +24,7 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
   late TextEditingController _stateController;
   bool _editing = false;
   bool _saving = false;
+  Agency? _agency;
 
   @override
   void initState() {
@@ -38,34 +40,36 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
     });
   }
 
-  void _loadAgencyData() {
-    final storage = ref.read(localStorageServiceProvider);
+  Future<void> _loadAgencyData() async {
+    final agencyRepo = ref.read(agencyRepositoryProvider);
     final authState = ref.read(authProvider);
     if (authState is! AuthAuthenticated) return;
 
     final agencyId = authState.user.agencyId;
     if (agencyId == null) return;
 
-    final agency = storage.getAgency(agencyId);
+    final agency = await agencyRepo.getAgency(agencyId);
+    if (!mounted) return;
     if (agency != null) {
       _nameController.text = agency.name;
       _descController.text = agency.description;
       _cityController.text = agency.city;
       _stateController.text = agency.state;
+      setState(() => _agency = agency);
     }
   }
 
   Future<void> _saveChanges() async {
     setState(() => _saving = true);
 
-    final storage = ref.read(localStorageServiceProvider);
+    final agencyRepo = ref.read(agencyRepositoryProvider);
     final authState = ref.read(authProvider);
     if (authState is! AuthAuthenticated) return;
 
     final agencyId = authState.user.agencyId;
     if (agencyId == null) return;
 
-    final agency = storage.getAgency(agencyId);
+    final agency = await agencyRepo.getAgency(agencyId);
     if (agency != null) {
       final updated = agency.copyWith(
         name: _nameController.text.trim(),
@@ -73,9 +77,10 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
         city: _cityController.text.trim(),
         state: _stateController.text.trim(),
       );
-      await storage.saveAgency(updated);
+      await agencyRepo.saveAgency(updated);
     }
 
+    if (!mounted) return;
     setState(() {
       _saving = false;
       _editing = false;
@@ -105,16 +110,13 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final authState = ref.watch(authProvider);
-    final storage = ref.watch(localStorageServiceProvider);
     final themeMode = ref.watch(themeModeProvider);
 
     if (authState is! AuthAuthenticated) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final user = authState.user;
-    final agencyId = user.agencyId;
-    final agency = agencyId != null ? storage.getAgency(agencyId) : null;
+    final agency = _agency;
 
     return Scaffold(
       appBar: AppBar(

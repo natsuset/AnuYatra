@@ -5,17 +5,67 @@ import 'package:testing_flutter/common/widgets/molecules/branded_app_bar.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
-import 'package:testing_flutter/core/services/local_storage_service.dart';
 import 'package:testing_flutter/models/agency.dart';
+import 'package:testing_flutter/models/app_user.dart';
+import 'package:testing_flutter/models/broker_profile.dart';
 import 'package:testing_flutter/models/link_request.dart';
 import 'package:testing_flutter/models/user_role.dart';
 
-class AgencyDashboardScreen extends ConsumerWidget {
+class AgencyDashboardScreen extends ConsumerStatefulWidget {
   const AgencyDashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AgencyDashboardScreen> createState() => _AgencyDashboardScreenState();
+}
+
+class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
+  Agency? _agency;
+  Map<String, int> _stats = {'totalBrokers': 0, 'totalClients': 0, 'totalProfiles': 0};
+  List<BrokerProfile> _brokers = [];
+  Map<String, AppUser?> _brokerUsers = {};
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
+  }
+
+  Future<void> _loadData() async {
+    final authState = ref.read(authProvider);
+    if (authState is! AuthAuthenticated || authState.user.agencyId == null) {
+      if (mounted) setState(() => _loading = false);
+      return;
+    }
+
+    final agencyId = authState.user.agencyId!;
+    final agencyRepo = ref.read(agencyRepositoryProvider);
+    final brokerRepo = ref.read(brokerRepositoryProvider);
+    final userRepo = ref.read(userRepositoryProvider);
+
+    final agency = await agencyRepo.getAgency(agencyId);
+    final stats = await brokerRepo.getAgencyStats(agencyId);
+    final brokers = await brokerRepo.getBrokersByAgency(agencyId);
+    final brokerUsers = <String, AppUser?>{};
+
+    for (final broker in brokers) {
+      brokerUsers[broker.userId] = await userRepo.getUser(broker.userId);
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _agency = agency;
+      _stats = stats;
+      _brokers = brokers;
+      _brokerUsers = brokerUsers;
+      _loading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     if (authState is! AuthAuthenticated) {
       return const Scaffold(
@@ -24,25 +74,14 @@ class AgencyDashboardScreen extends ConsumerWidget {
     }
 
     final user = authState.user;
-    final storage = ref.read(localStorageServiceProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final theme = Theme.of(context);
 
-    // Get agency
-    Agency? agency;
-    if (user.agencyId != null) {
-      agency = storage.getAgency(user.agencyId!);
+    if (_loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
     }
-
-    // Get stats
-    final stats = user.agencyId != null
-        ? storage.getAgencyStats(user.agencyId!)
-        : <String, int>{'totalBrokers': 0, 'totalClients': 0, 'totalProfiles': 0};
-
-    // Get broker list preview
-    final brokers = user.agencyId != null
-        ? storage.getBrokersByAgency(user.agencyId!)
-        : [];
 
     return Scaffold(
       appBar: const BrandedAppBar(),
@@ -86,7 +125,7 @@ class AgencyDashboardScreen extends ConsumerWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    agency?.name ?? 'My Agency',
+                                    _agency?.name ?? 'My Agency',
                                     style: theme.textTheme.titleLarge?.copyWith(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
@@ -94,9 +133,9 @@ class AgencyDashboardScreen extends ConsumerWidget {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  if (agency != null)
+                                  if (_agency != null)
                                     Text(
-                                      '${agency.city}, ${agency.state}',
+                                      '${_agency!.city}, ${_agency!.state}',
                                       style: const TextStyle(
                                         color: Colors.white70,
                                         fontSize: 14,
@@ -123,12 +162,12 @@ class AgencyDashboardScreen extends ConsumerWidget {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // Stat cards row
-                _buildStatCards(stats, isDark, theme),
+                _buildStatCards(_stats, isDark, theme),
 
                 const SizedBox(height: 20),
 
                 // Broker roster preview
-                _buildBrokerRoster(context, brokers, isDark, theme, storage),
+                _buildBrokerRoster(context, _brokers, _brokerUsers, isDark, theme),
 
                 const SizedBox(height: 16),
 
@@ -184,10 +223,10 @@ class AgencyDashboardScreen extends ConsumerWidget {
 
   Widget _buildBrokerRoster(
     BuildContext context,
-    List brokers,
+    List<BrokerProfile> brokers,
+    Map<String, AppUser?> brokerUsers,
     bool isDark,
     ThemeData theme,
-    LocalStorageService storage,
   ) {
     return Card(
       elevation: 0,
@@ -251,7 +290,7 @@ class AgencyDashboardScreen extends ConsumerWidget {
             )
           else
             ...brokers.take(4).map((broker) {
-              final user = storage.getUser(broker.userId);
+              final user = brokerUsers[broker.userId];
               return ListTile(
                 leading: CircleAvatar(
                   backgroundColor:
@@ -387,8 +426,9 @@ class AgencyDashboardScreen extends ConsumerWidget {
               if (phone.isEmpty) return;
               Navigator.pop(ctx);
 
-              final storage = ref.read(localStorageServiceProvider);
-              final brokerUser = storage.getUserByPhone(phone);
+              final userRepo = ref.read(userRepositoryProvider);
+              final linkRepo = ref.read(linkRepositoryProvider);
+              final brokerUser = await userRepo.getUserByPhone(phone);
 
               if (brokerUser == null) {
                 if (context.mounted) {
@@ -414,7 +454,7 @@ class AgencyDashboardScreen extends ConsumerWidget {
                 return;
               }
 
-              await storage.sendLinkRequest(
+              await linkRepo.sendLinkRequest(
                 fromUserId: currentUserId,
                 toUserId: brokerUser.uid,
                 fromUserName: currentUserName,

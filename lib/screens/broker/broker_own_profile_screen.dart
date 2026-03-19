@@ -4,14 +4,61 @@ import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
-import 'package:testing_flutter/core/services/local_storage_service.dart';
+import 'package:testing_flutter/models/agency.dart';
+import 'package:testing_flutter/models/broker_profile.dart';
 
-class BrokerOwnProfileScreen extends ConsumerWidget {
+class BrokerOwnProfileScreen extends ConsumerStatefulWidget {
   const BrokerOwnProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<BrokerOwnProfileScreen> createState() =>
+      _BrokerOwnProfileScreenState();
+}
+
+class _BrokerOwnProfileScreenState extends ConsumerState<BrokerOwnProfileScreen> {
+  BrokerProfile? _brokerProfile;
+  Agency? _agency;
+  int _clientCount = 0;
+  int _profileCount = 0;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
+  }
+
+  Future<void> _loadData() async {
+    final authState = ref.read(authProvider);
+    if (authState is! AuthAuthenticated) return;
+
+    final user = authState.user;
+    final brokerRepo = ref.read(brokerRepositoryProvider);
+    final agencyRepo = ref.read(agencyRepositoryProvider);
+    final linkRepo = ref.read(linkRepositoryProvider);
+    final profileRepo = ref.read(profileRepositoryProvider);
+
+    final brokerProfile = await brokerRepo.getBrokerProfile(user.uid);
+    final agency = user.agencyId != null
+        ? await agencyRepo.getAgency(user.agencyId!)
+        : null;
+    final parentIds = await linkRepo.getConnectedParentIds(user.uid);
+    final candidates = await profileRepo.getCandidatesByBroker(user.uid);
+
+    if (!mounted) return;
+    setState(() {
+      _brokerProfile = brokerProfile;
+      _agency = agency;
+      _clientCount = parentIds.length;
+      _profileCount = candidates.length;
+      _isLoading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     if (authState is! AuthAuthenticated) {
       return const Scaffold(
@@ -20,16 +67,19 @@ class BrokerOwnProfileScreen extends ConsumerWidget {
     }
 
     final user = authState.user;
-    final storage = ref.read(localStorageServiceProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final theme = Theme.of(context);
 
-    final brokerProfile = storage.getBrokerProfile(user.uid);
-    final agency = user.agencyId != null
-        ? storage.getAgency(user.agencyId!)
-        : null;
-    final clientCount = storage.getConnectedParentIds(user.uid).length;
-    final profileCount = storage.getCandidatesByBroker(user.uid).length;
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    final brokerProfile = _brokerProfile;
+    final agency = _agency;
+    final clientCount = _clientCount;
+    final profileCount = _profileCount;
 
     return Scaffold(
       appBar: AppBar(

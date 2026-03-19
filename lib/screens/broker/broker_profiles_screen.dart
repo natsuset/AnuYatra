@@ -5,27 +5,41 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
-import 'package:testing_flutter/core/services/local_storage_service.dart';
+import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/candidate_profile.dart';
+import 'package:testing_flutter/models/app_user.dart';
 
-class BrokerProfilesScreen extends ConsumerWidget {
+class BrokerProfilesScreen extends ConsumerStatefulWidget {
   const BrokerProfilesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authProvider);
-    final storage = ref.watch(localStorageServiceProvider);
+  ConsumerState<BrokerProfilesScreen> createState() =>
+      _BrokerProfilesScreenState();
+}
+
+class _BrokerProfilesScreenState extends ConsumerState<BrokerProfilesScreen> {
+  List<CandidateProfile> _profiles = [];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
+  }
+
+  Future<void> _loadData() async {
+    final authState = ref.read(authProvider);
+    if (authState is! AuthAuthenticated) return;
+
+    final profileRepo = ref.read(profileRepositoryProvider);
+    final profiles = await profileRepo.getCandidatesByBroker(authState.user.uid);
+    if (!mounted) return;
+    setState(() => _profiles = profiles);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-
-    if (authState is! AuthAuthenticated) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    final user = authState.user;
-    final profiles = storage.getCandidatesByBroker(user.uid);
 
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
@@ -40,11 +54,10 @@ class BrokerProfilesScreen extends ConsumerWidget {
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
       ),
-      body: profiles.isEmpty
+      body: _profiles.isEmpty
           ? _EmptyState(isDark: isDark)
           : CustomScrollView(
               slivers: [
-                // -- Header with count --
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
@@ -85,7 +98,7 @@ class BrokerProfilesScreen extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            '${profiles.length}',
+                            '${_profiles.length}',
                             style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
@@ -98,13 +111,12 @@ class BrokerProfilesScreen extends ConsumerWidget {
                   ),
                 ),
 
-                // -- Profile Cards List --
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 88),
                   sliver: SliverList.builder(
-                    itemCount: profiles.length,
+                    itemCount: _profiles.length,
                     itemBuilder: (context, index) {
-                      final profile = profiles[index];
+                      final profile = _profiles[index];
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: _ProfileCard(
@@ -117,7 +129,7 @@ class BrokerProfilesScreen extends ConsumerWidget {
                             );
                           },
                           onShare: () {
-                            _showShareDialog(context, ref, profile);
+                            _showShareDialog(context, profile);
                           },
                         ),
                       );
@@ -129,16 +141,19 @@ class BrokerProfilesScreen extends ConsumerWidget {
     );
   }
 
-  /// Shows dialog to pick a connected parent to share profile with
-  void _showShareDialog(
-      BuildContext context, WidgetRef ref, CandidateProfile profile) {
-    final storage = ref.read(localStorageServiceProvider);
+  Future<void> _showShareDialog(
+      BuildContext context, CandidateProfile profile) async {
     final authState = ref.read(authProvider);
     if (authState is! AuthAuthenticated) return;
 
-    final parentIds = storage.getConnectedParentIds(authState.user.uid);
+    final linkRepo = ref.read(linkRepositoryProvider);
+    final userRepo = ref.read(userRepositoryProvider);
+    final sharedProfileRepo = ref.read(sharedProfileRepositoryProvider);
+
+    final parentIds = await linkRepo.getConnectedParentIds(authState.user.uid);
 
     if (parentIds.isEmpty) {
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('No connected parents to share with'),
@@ -148,6 +163,12 @@ class BrokerProfilesScreen extends ConsumerWidget {
       return;
     }
 
+    final parentUsers = <String, AppUser?>{};
+    for (final parentId in parentIds) {
+      parentUsers[parentId] = await userRepo.getUser(parentId);
+    }
+
+    if (!context.mounted) return;
     showModalBottomSheet(
       context: context,
       builder: (ctx) {
@@ -164,8 +185,7 @@ class BrokerProfilesScreen extends ConsumerWidget {
               ),
               const Divider(height: 1),
               ...parentIds.map((parentId) {
-                final parentUser = storage.getUser(parentId);
-                final name = parentUser?.displayName ?? parentId;
+                final name = parentUsers[parentId]?.displayName ?? parentId;
                 return ListTile(
                   leading: CircleAvatar(
                     backgroundColor:
@@ -176,14 +196,15 @@ class BrokerProfilesScreen extends ConsumerWidget {
                     ),
                   ),
                   title: Text(name),
-                  onTap: () {
-                    storage.shareProfile(
+                  onTap: () async {
+                    await sharedProfileRepo.shareProfile(
                       profileId: profile.id,
                       sharedByUserId: authState.user.uid,
                       sharedWithUserId: parentId,
                     );
+                    if (!ctx.mounted) return;
                     Navigator.pop(ctx);
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    ScaffoldMessenger.of(ctx).showSnackBar(
                       SnackBar(
                         content:
                             Text('${profile.name}\'s profile shared with $name'),

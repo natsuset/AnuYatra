@@ -3,16 +3,63 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
-import 'package:testing_flutter/core/services/local_storage_service.dart';
+import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/broker_profile.dart';
 import 'package:testing_flutter/models/link_request.dart';
 import 'package:testing_flutter/models/user_role.dart';
 
-class AdminBrokersScreen extends ConsumerWidget {
+class AdminBrokersScreen extends ConsumerStatefulWidget {
   const AdminBrokersScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AdminBrokersScreen> createState() => _AdminBrokersScreenState();
+}
+
+class _AdminBrokersScreenState extends ConsumerState<AdminBrokersScreen> {
+  List<BrokerProfile> _brokers = [];
+  Map<String, ({int clientCount, int profileCount})> _brokerStats = {};
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
+  }
+
+  Future<void> _loadData() async {
+    final authState = ref.read(authProvider);
+    if (authState is! AuthAuthenticated || authState.user.agencyId == null) {
+      if (mounted) setState(() => _brokers = []);
+      return;
+    }
+
+    final agencyId = authState.user.agencyId!;
+    final brokerRepo = ref.read(brokerRepositoryProvider);
+    final linkRepo = ref.read(linkRepositoryProvider);
+    final profileRepo = ref.read(profileRepositoryProvider);
+
+    final brokers = await brokerRepo.getBrokersByAgency(agencyId);
+    final stats = <String, ({int clientCount, int profileCount})>{};
+
+    for (final broker in brokers) {
+      final parentIds = await linkRepo.getConnectedParentIds(broker.userId);
+      final candidates = await profileRepo.getCandidatesByBroker(broker.userId);
+      stats[broker.userId] = (
+        clientCount: parentIds.length,
+        profileCount: candidates.length,
+      );
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _brokers = brokers;
+      _brokerStats = stats;
+      _loading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     if (authState is! AuthAuthenticated) {
       return const Scaffold(
@@ -21,13 +68,14 @@ class AdminBrokersScreen extends ConsumerWidget {
     }
 
     final user = authState.user;
-    final storage = ref.read(localStorageServiceProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final theme = Theme.of(context);
 
-    final brokers = user.agencyId != null
-        ? storage.getBrokersByAgency(user.agencyId!)
-        : <BrokerProfile>[];
+    if (_loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -40,19 +88,21 @@ class AdminBrokersScreen extends ConsumerWidget {
         icon: const Icon(Icons.person_add),
         label: const Text('Invite Broker'),
       ),
-      body: brokers.isEmpty
+      body: _brokers.isEmpty
           ? _buildEmptyState(context, isDark, theme, ref, user.uid, user.displayName)
           : ListView.separated(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
-              itemCount: brokers.length,
+              itemCount: _brokers.length,
               separatorBuilder: (_, __) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
-                final broker = brokers[index];
+                final broker = _brokers[index];
+                final s = _brokerStats[broker.userId] ?? (clientCount: 0, profileCount: 0);
                 return _BrokerCard(
                   broker: broker,
+                  clientCount: s.clientCount,
+                  profileCount: s.profileCount,
                   isDark: isDark,
                   theme: theme,
-                  storage: storage,
                 );
               },
             ),
@@ -150,8 +200,9 @@ class AdminBrokersScreen extends ConsumerWidget {
               if (phone.isEmpty) return;
               Navigator.pop(ctx);
 
-              final storage = ref.read(localStorageServiceProvider);
-              final brokerUser = storage.getUserByPhone(phone);
+              final userRepo = ref.read(userRepositoryProvider);
+              final linkRepo = ref.read(linkRepositoryProvider);
+              final brokerUser = await userRepo.getUserByPhone(phone);
 
               if (brokerUser == null) {
                 if (context.mounted) {
@@ -177,7 +228,7 @@ class AdminBrokersScreen extends ConsumerWidget {
                 return;
               }
 
-              await storage.sendLinkRequest(
+              await linkRepo.sendLinkRequest(
                 fromUserId: currentUserId,
                 toUserId: brokerUser.uid,
                 fromUserName: currentUserName,
@@ -211,22 +262,21 @@ class AdminBrokersScreen extends ConsumerWidget {
 // ---------------------------------------------------------------------------
 class _BrokerCard extends StatelessWidget {
   final BrokerProfile broker;
+  final int clientCount;
+  final int profileCount;
   final bool isDark;
   final ThemeData theme;
-  final LocalStorageService storage;
 
   const _BrokerCard({
     required this.broker,
+    required this.clientCount,
+    required this.profileCount,
     required this.isDark,
     required this.theme,
-    required this.storage,
   });
 
   @override
   Widget build(BuildContext context) {
-    final clientCount = storage.getConnectedParentIds(broker.userId).length;
-    final profileCount = storage.getCandidatesByBroker(broker.userId).length;
-
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(

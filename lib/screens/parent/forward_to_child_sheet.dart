@@ -3,19 +3,53 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
-import 'package:testing_flutter/core/services/local_storage_service.dart';
+import 'package:testing_flutter/core/providers/repository_providers.dart';
+import 'package:testing_flutter/models/app_user.dart';
 
 /// Bottom sheet that lets a parent forward a shared profile to their linked child.
-class ForwardToChildSheet extends ConsumerWidget {
+class ForwardToChildSheet extends ConsumerStatefulWidget {
   /// The shared-profile ID to forward.
   final String sharedProfileId;
 
   const ForwardToChildSheet({super.key, required this.sharedProfileId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ForwardToChildSheet> createState() =>
+      _ForwardToChildSheetState();
+}
+
+class _ForwardToChildSheetState extends ConsumerState<ForwardToChildSheet> {
+  AppUser? _childUser;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
+  }
+
+  Future<void> _loadData() async {
+    final authState = ref.read(authProvider);
+    if (authState is! AuthAuthenticated) return;
+
+    final parentUserId = authState.user.uid;
+    final linkRepo = ref.read(linkRepositoryProvider);
+    final userRepo = ref.read(userRepositoryProvider);
+
+    final childId = await linkRepo.getLinkedChildId(parentUserId);
+    final childUser =
+        childId != null ? await userRepo.getUser(childId) : null;
+
+    if (!mounted) return;
+    setState(() {
+      _childUser = childUser;
+      _loading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
-    final storage = ref.read(localStorageServiceProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final theme = Theme.of(context);
 
@@ -23,9 +57,20 @@ class ForwardToChildSheet extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    final parentUserId = authState.user.uid;
-    final childId = storage.getLinkedChildId(parentUserId);
-    final childUser = childId != null ? storage.getUser(childId) : null;
+    if (_loading) {
+      return Container(
+        padding: const EdgeInsets.all(24.0),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(16),
+          ),
+        ),
+        child: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    final childUser = _childUser;
 
     return Container(
       padding: const EdgeInsets.all(24.0),
@@ -141,17 +186,18 @@ class ForwardToChildSheet extends ConsumerWidget {
               width: double.infinity,
               child: FilledButton.icon(
                 onPressed: () async {
-                  await storage.forwardProfileToChild(sharedProfileId);
-                  if (context.mounted) {
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Profile forwarded to ${childUser.displayName}'),
-                        behavior: SnackBarBehavior.floating,
-                        backgroundColor: AppColors.success,
-                      ),
-                    );
-                  }
+                  await ref
+                      .read(sharedProfileRepositoryProvider)
+                      .forwardProfileToChild(widget.sharedProfileId);
+                  if (!context.mounted) return;
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Profile forwarded to ${childUser.displayName}'),
+                      behavior: SnackBarBehavior.floating,
+                      backgroundColor: AppColors.success,
+                    ),
+                  );
                 },
                 icon: const Icon(Icons.send_rounded, size: 18),
                 label: const Text('Forward Profile'),

@@ -5,7 +5,7 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
-import 'package:testing_flutter/core/services/local_storage_service.dart';
+import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/link_request.dart';
 import 'package:testing_flutter/models/parent_profile.dart';
 
@@ -17,35 +17,70 @@ class BrokerClientsScreen extends ConsumerStatefulWidget {
       _BrokerClientsScreenState();
 }
 
-class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
-  @override
-  Widget build(BuildContext context) {
-    final authState = ref.watch(authProvider);
-    final storage = ref.watch(localStorageServiceProvider);
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+class _ClientData {
+  final ParentProfile? profile;
+  final String name;
+  const _ClientData({this.profile, required this.name});
+}
 
-    if (authState is! AuthAuthenticated) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
+  List<LinkRequest> _pendingRequests = [];
+  List<String> _connectedParentIds = [];
+  Map<String, _ClientData> _clientDataMap = {};
+  String? _currentUserId;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
+  }
+
+  Future<void> _loadData() async {
+    final authState = ref.read(authProvider);
+    if (authState is! AuthAuthenticated) return;
+
+    final linkRepo = ref.read(linkRepositoryProvider);
+    final profileRepo = ref.read(profileRepositoryProvider);
+    final userRepo = ref.read(userRepositoryProvider);
+    final uid = authState.user.uid;
+    _currentUserId = uid;
+
+    final pending = (await linkRepo.getPendingRequestsFor(uid))
+        .where((r) => r.type == LinkRequestType.parentToBroker)
+        .toList();
+    final parentIds = await linkRepo.getConnectedParentIds(uid);
+
+    final clientData = <String, _ClientData>{};
+    for (final parentId in parentIds) {
+      final parentProfile = await profileRepo.getParentProfile(parentId);
+      final parentUser = await userRepo.getUser(parentId);
+      clientData[parentId] = _ClientData(
+        profile: parentProfile,
+        name: parentUser?.displayName ?? parentProfile?.name ?? 'Unknown',
       );
     }
 
-    final user = authState.user;
-    final pendingRequests = storage
-        .getPendingRequestsFor(user.uid)
-        .where((r) => r.type == LinkRequestType.parentToBroker)
-        .toList();
-    final connectedParentIds = storage.getConnectedParentIds(user.uid);
+    if (!mounted) return;
+    setState(() {
+      _pendingRequests = pending;
+      _connectedParentIds = parentIds;
+      _clientDataMap = clientData;
+    });
+  }
 
-    final hasContent = pendingRequests.isNotEmpty || connectedParentIds.isNotEmpty;
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final hasContent =
+        _pendingRequests.isNotEmpty || _connectedParentIds.isNotEmpty;
 
     return Scaffold(
       body: hasContent
           ? CustomScrollView(
               slivers: [
-                // -- Pending Requests Section --
-                if (pendingRequests.isNotEmpty) ...[
+                if (_pendingRequests.isNotEmpty) ...[
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -85,7 +120,7 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
-                              '${pendingRequests.length}',
+                              '${_pendingRequests.length}',
                               style: const TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -100,16 +135,16 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                   SliverPadding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     sliver: SliverList.builder(
-                      itemCount: pendingRequests.length,
+                      itemCount: _pendingRequests.length,
                       itemBuilder: (context, index) {
-                        final request = pendingRequests[index];
+                        final request = _pendingRequests[index];
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 10),
                           child: _PendingRequestCard(
                             request: request,
                             isDark: isDark,
-                            onAccept: () => _handleAccept(request, storage),
-                            onDecline: () => _handleDecline(request, storage),
+                            onAccept: () => _handleAccept(request),
+                            onDecline: () => _handleDecline(request),
                           ),
                         );
                       },
@@ -117,7 +152,6 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                   ),
                 ],
 
-                // -- Connected Clients Section --
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
@@ -158,7 +192,7 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            '${connectedParentIds.length}',
+                            '${_connectedParentIds.length}',
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
@@ -170,7 +204,7 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                     ),
                   ),
                 ),
-                if (connectedParentIds.isEmpty)
+                if (_connectedParentIds.isEmpty)
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
@@ -192,39 +226,24 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     sliver: SliverList.builder(
-                      itemCount: connectedParentIds.length,
+                      itemCount: _connectedParentIds.length,
                       itemBuilder: (context, index) {
-                        final parentId = connectedParentIds[index];
-                        final parentProfile =
-                            storage.getParentProfile(parentId);
-                        final parentUser = storage.getUser(parentId);
+                        final parentId = _connectedParentIds[index];
+                        final data = _clientDataMap[parentId];
 
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 10),
                           child: _ConnectedClientCard(
-                            parentProfile: parentProfile,
-                            parentName: parentUser?.displayName ??
-                                parentProfile?.name ??
-                                'Unknown',
+                            parentProfile: data?.profile,
+                            parentName: data?.name ?? 'Unknown',
                             isDark: isDark,
-                            onChat: () {
-                              final conversationId =
-                                  storage.getOrCreateConversation(
-                                      user.uid, parentId);
-                              context.pushNamed(
-                                RouteNames.chat,
-                                pathParameters: {
-                                  'conversationId': conversationId
-                                },
-                              );
-                            },
+                            onChat: () => _openChat(parentId),
                           ),
                         );
                       },
                     ),
                   ),
 
-                // Bottom padding
                 const SliverToBoxAdapter(
                   child: SizedBox(height: 24),
                 ),
@@ -234,12 +253,24 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
     );
   }
 
-  Future<void> _handleAccept(
-      LinkRequest request, LocalStorageService storage) async {
+  Future<void> _openChat(String parentId) async {
+    if (_currentUserId == null) return;
+    final messagingRepo = ref.read(messagingRepositoryProvider);
+    final conversationId =
+        await messagingRepo.getOrCreateConversation(_currentUserId!, parentId);
+    if (!mounted) return;
+    context.pushNamed(
+      RouteNames.chat,
+      pathParameters: {'conversationId': conversationId},
+    );
+  }
+
+  Future<void> _handleAccept(LinkRequest request) async {
     try {
-      await storage.acceptLinkRequest(request.id);
+      final linkRepo = ref.read(linkRepositoryProvider);
+      await linkRepo.acceptLinkRequest(request.id);
+      await _loadData();
       if (mounted) {
-        setState(() {});
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Accepted request from ${request.fromUserName}'),
@@ -261,12 +292,12 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
     }
   }
 
-  Future<void> _handleDecline(
-      LinkRequest request, LocalStorageService storage) async {
+  Future<void> _handleDecline(LinkRequest request) async {
     try {
-      await storage.declineLinkRequest(request.id);
+      final linkRepo = ref.read(linkRepositoryProvider);
+      await linkRepo.declineLinkRequest(request.id);
+      await _loadData();
       if (mounted) {
-        setState(() {});
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Declined request from ${request.fromUserName}'),

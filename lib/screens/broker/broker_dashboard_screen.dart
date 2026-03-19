@@ -6,15 +6,94 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
-import 'package:testing_flutter/core/services/local_storage_service.dart';
+import 'package:testing_flutter/core/providers/repository_providers.dart';
+import 'package:testing_flutter/models/broker_profile.dart';
 
-class BrokerDashboardScreen extends ConsumerWidget {
+class BrokerDashboardScreen extends ConsumerStatefulWidget {
   const BrokerDashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<BrokerDashboardScreen> createState() =>
+      _BrokerDashboardScreenState();
+}
+
+class _BrokerDashboardScreenState
+    extends ConsumerState<BrokerDashboardScreen> {
+  Map<String, int> _stats = {};
+  BrokerProfile? _brokerProfile;
+  List<_ActivityData> _activities = [];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
+  }
+
+  Future<void> _loadData() async {
+    final authState = ref.read(authProvider);
+    if (authState is! AuthAuthenticated) return;
+
+    final brokerRepo = ref.read(brokerRepositoryProvider);
+    final sharedProfileRepo = ref.read(sharedProfileRepositoryProvider);
+    final linkRepo = ref.read(linkRepositoryProvider);
+    final profileRepo = ref.read(profileRepositoryProvider);
+    final userRepo = ref.read(userRepositoryProvider);
+    final uid = authState.user.uid;
+
+    final stats = await brokerRepo.getBrokerStats(uid);
+    final brokerProfile = await brokerRepo.getBrokerProfile(uid);
+
+    final recentShared = await sharedProfileRepo.getSharedProfilesByBroker(uid);
+    final pendingRequests = await linkRepo.getPendingRequestsFor(uid);
+
+    final activities = <_ActivityData>[];
+    for (final sp in recentShared.take(3)) {
+      final profile = await profileRepo.getCandidateProfile(sp.profileId);
+      final parent = await userRepo.getUser(sp.sharedWithUserId);
+      if (profile != null) {
+        activities.add(_ActivityData(
+          icon: Icons.share_rounded,
+          iconColor: AppColors.success,
+          title: 'Profile shared',
+          subtitle:
+              '${profile.name} shared with ${parent?.displayName ?? 'client'}',
+          time: _formatTime(sp.sharedAt),
+          timestamp: sp.sharedAt,
+        ));
+      }
+    }
+    for (final req in pendingRequests.take(3)) {
+      activities.add(_ActivityData(
+        icon: Icons.person_add_rounded,
+        iconColor: AppColors.sacredSaffron,
+        title: 'Connection request',
+        subtitle: '${req.fromUserName} wants to connect',
+        time: _formatTime(req.createdAt),
+        timestamp: req.createdAt,
+      ));
+    }
+    activities.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
+    if (!mounted) return;
+    setState(() {
+      _stats = stats;
+      _brokerProfile = brokerProfile;
+      _activities = activities;
+    });
+  }
+
+  static String _formatTime(DateTime dt) {
+    final diff = DateTime.now().difference(dt);
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    if (diff.inDays == 1) return 'Yesterday';
+    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    return '${dt.day}/${dt.month}/${dt.year}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
-    final storage = ref.watch(localStorageServiceProvider);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -25,26 +104,22 @@ class BrokerDashboardScreen extends ConsumerWidget {
     }
 
     final user = authState.user;
-    final stats = storage.getBrokerStats(user.uid);
-    final brokerProfile = storage.getBrokerProfile(user.uid);
 
     return Scaffold(
       appBar: const BrandedAppBar(),
       body: CustomScrollView(
         slivers: [
-          // -- Welcome Header --
           SliverToBoxAdapter(
             child: _WelcomeHeader(
               displayName: user.displayName.isNotEmpty
                   ? user.displayName
                   : 'Broker',
-              rating: brokerProfile?.rating ?? 0.0,
-              experienceYears: brokerProfile?.experienceYears ?? 0,
+              rating: _brokerProfile?.rating ?? 0.0,
+              experienceYears: _brokerProfile?.experienceYears ?? 0,
               isDark: isDark,
             ),
           ),
 
-          // -- Stat Cards Grid --
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
             sliver: SliverGrid.count(
@@ -55,28 +130,28 @@ class BrokerDashboardScreen extends ConsumerWidget {
               children: [
                 _StatCard(
                   label: 'Active Clients',
-                  value: stats['activeClients'] ?? 0,
+                  value: _stats['activeClients'] ?? 0,
                   icon: Icons.people_alt_rounded,
                   color: AppColors.info,
                   isDark: isDark,
                 ),
                 _StatCard(
                   label: 'Profiles Managed',
-                  value: stats['profilesManaged'] ?? 0,
+                  value: _stats['profilesManaged'] ?? 0,
                   icon: Icons.badge_rounded,
                   color: AppColors.success,
                   isDark: isDark,
                 ),
                 _StatCard(
                   label: 'Profiles Shared',
-                  value: stats['profilesShared'] ?? 0,
+                  value: _stats['profilesShared'] ?? 0,
                   icon: Icons.share_rounded,
                   color: AppColors.sacredSaffron,
                   isDark: isDark,
                 ),
                 _StatCard(
                   label: 'Pending Requests',
-                  value: stats['pendingRequests'] ?? 0,
+                  value: _stats['pendingRequests'] ?? 0,
                   icon: Icons.pending_actions_rounded,
                   color: AppColors.warning,
                   isDark: isDark,
@@ -85,7 +160,6 @@ class BrokerDashboardScreen extends ConsumerWidget {
             ),
           ),
 
-          // -- Quick Actions Section --
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
@@ -140,7 +214,6 @@ class BrokerDashboardScreen extends ConsumerWidget {
             ),
           ),
 
-          // -- Recent Activity Section --
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
@@ -158,54 +231,15 @@ class BrokerDashboardScreen extends ConsumerWidget {
 
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-            sliver: _buildRecentActivityList(storage, user.uid, isDark),
+            sliver: _buildRecentActivityList(isDark),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildRecentActivityList(
-      LocalStorageService storage, String brokerUserId, bool isDark) {
-    // Build real activity from shared profiles, link requests, etc.
-    final recentShared = storage.getSharedProfilesByBroker(brokerUserId);
-    final pendingRequests = storage.getPendingRequestsFor(brokerUserId);
-
-    final activities = <_ActivityData>[];
-
-    // Add recent shares
-    for (final sp in recentShared.take(3)) {
-      final profile = storage.getCandidateProfile(sp.profileId);
-      final parent = storage.getUser(sp.sharedWithUserId);
-      if (profile != null) {
-        activities.add(_ActivityData(
-          icon: Icons.share_rounded,
-          iconColor: AppColors.success,
-          title: 'Profile shared',
-          subtitle:
-              '${profile.name} shared with ${parent?.displayName ?? 'client'}',
-          time: _formatTime(sp.sharedAt),
-          timestamp: sp.sharedAt,
-        ));
-      }
-    }
-
-    // Add pending requests
-    for (final req in pendingRequests.take(3)) {
-      activities.add(_ActivityData(
-        icon: Icons.person_add_rounded,
-        iconColor: AppColors.sacredSaffron,
-        title: 'Connection request',
-        subtitle: '${req.fromUserName} wants to connect',
-        time: _formatTime(req.createdAt),
-        timestamp: req.createdAt,
-      ));
-    }
-
-    // Sort by time descending
-    activities.sort((a, b) => b.timestamp.compareTo(a.timestamp));
-
-    if (activities.isEmpty) {
+  Widget _buildRecentActivityList(bool isDark) {
+    if (_activities.isEmpty) {
       return SliverToBoxAdapter(
         child: Container(
           padding: const EdgeInsets.all(24),
@@ -247,10 +281,10 @@ class BrokerDashboardScreen extends ConsumerWidget {
     }
 
     return SliverList.separated(
-      itemCount: activities.length.clamp(0, 5),
+      itemCount: _activities.length.clamp(0, 5),
       separatorBuilder: (_, __) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
-        final a = activities[index];
+        final a = _activities[index];
         return _ActivityTile(
           icon: a.icon,
           iconColor: a.iconColor,
@@ -261,15 +295,6 @@ class BrokerDashboardScreen extends ConsumerWidget {
         );
       },
     );
-  }
-
-  static String _formatTime(DateTime dt) {
-    final diff = DateTime.now().difference(dt);
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-    if (diff.inHours < 24) return '${diff.inHours}h ago';
-    if (diff.inDays == 1) return 'Yesterday';
-    if (diff.inDays < 7) return '${diff.inDays}d ago';
-    return '${dt.day}/${dt.month}/${dt.year}';
   }
 }
 

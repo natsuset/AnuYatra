@@ -5,7 +5,7 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
-import 'package:testing_flutter/core/services/local_storage_service.dart';
+import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/candidate_profile.dart';
 import 'package:testing_flutter/models/shared_profile.dart';
 
@@ -27,34 +27,35 @@ class _CandidateSharedProfilesScreenState
     _loadProfiles();
   }
 
-  void _loadProfiles() {
+  Future<void> _loadProfiles() async {
     final authState = ref.read(authProvider);
     if (authState is! AuthAuthenticated) return;
 
-    final storage = ref.read(localStorageServiceProvider);
+    final sharedProfileRepo = ref.read(sharedProfileRepositoryProvider);
+    final profileRepo = ref.read(profileRepositoryProvider);
     final uid = authState.user.uid;
 
-    // Get profiles that have been forwarded to the candidate
-    final sharedProfiles = storage.getSharedProfilesForUser(uid);
+    final sharedProfiles = await sharedProfileRepo.getSharedProfilesForUser(uid);
 
     final items = <_SharedProfileItem>[];
     for (final sp in sharedProfiles) {
-      final profile = storage.getCandidateProfile(sp.profileId);
+      final profile = await profileRepo.getCandidateProfile(sp.profileId);
       if (profile != null) {
         items.add(_SharedProfileItem(shared: sp, profile: profile));
       }
     }
 
+    if (!mounted) return;
     setState(() {
       _items = items;
     });
   }
 
   Future<void> _respond(SharedProfile shared, SharedProfileResponse response) async {
-    final storage = ref.read(localStorageServiceProvider);
+    final sharedProfileRepo = ref.read(sharedProfileRepositoryProvider);
     final updated = shared.copyWith(childResponse: response);
-    await storage.updateSharedProfile(updated);
-    _loadProfiles();
+    await sharedProfileRepo.updateSharedProfile(updated);
+    await _loadProfiles();
 
     if (mounted) {
       final label = response == SharedProfileResponse.interested

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
-import 'package:testing_flutter/core/services/local_storage_service.dart';
+import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/agency.dart';
 import 'package:testing_flutter/models/broker_profile.dart';
 import 'package:testing_flutter/models/link_request.dart';
@@ -22,6 +22,8 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
   SearchType _selectedFilter = SearchType.all;
   List<Agency> _agencies = [];
   List<BrokerProfile> _brokers = [];
+  Map<String, int> _agencyBrokerCounts = {};
+  Map<String, String?> _brokerAgencyNames = {};
   bool _isLoading = false;
   bool _hasSearched = false;
 
@@ -38,28 +40,39 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
     super.dispose();
   }
 
-  void _performSearch() {
-    final storage = ref.read(localStorageServiceProvider);
+  Future<void> _performSearch() async {
     setState(() {
       _isLoading = true;
     });
 
+    final agencyRepo = ref.read(agencyRepositoryProvider);
+    final brokerRepo = ref.read(brokerRepositoryProvider);
     final query = _searchController.text.trim();
-    final results = storage.searchBrokersAndAgencies(
-      query: query.isEmpty ? null : query,
-      searchType: _selectedFilter.name,
-    );
+    final q = query.isEmpty ? null : query;
 
-    final agencyResults = results['agencies'];
-    final brokerResults = results['brokers'];
+    final agencies = await agencyRepo.searchAgencies(query: q);
+    final brokers = await brokerRepo.searchBrokers(query: q);
 
+    final agencyBrokerCounts = <String, int>{};
+    for (final agency in agencies) {
+      final brokerList = await brokerRepo.getBrokersByAgency(agency.id);
+      agencyBrokerCounts[agency.id] = brokerList.length;
+    }
+
+    final brokerAgencyNames = <String, String?>{};
+    for (final broker in brokers) {
+      if (broker.agencyId != null) {
+        final agency = await agencyRepo.getAgency(broker.agencyId!);
+        brokerAgencyNames[broker.userId] = agency?.name;
+      }
+    }
+
+    if (!mounted) return;
     setState(() {
-      _agencies = agencyResults != null
-          ? List<Agency>.from(agencyResults)
-          : [];
-      _brokers = brokerResults != null
-          ? List<BrokerProfile>.from(brokerResults)
-          : [];
+      _agencies = agencies;
+      _brokers = brokers;
+      _agencyBrokerCounts = agencyBrokerCounts;
+      _brokerAgencyNames = brokerAgencyNames;
       _isLoading = false;
       _hasSearched = true;
     });
@@ -408,8 +421,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
   }
 
   Widget _buildAgencyCard(BuildContext context, bool isDark, Agency agency) {
-    final storage = ref.read(localStorageServiceProvider);
-    final brokerCount = storage.getBrokersByAgency(agency.id).length;
+    final brokerCount = _agencyBrokerCounts[agency.id] ?? 0;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
@@ -582,12 +594,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
   }
 
   Widget _buildBrokerCard(BuildContext context, bool isDark, BrokerProfile broker) {
-    final storage = ref.read(localStorageServiceProvider);
-    String? agencyName;
-    if (broker.agencyId != null) {
-      final agency = storage.getAgency(broker.agencyId!);
-      agencyName = agency?.name;
-    }
+    final agencyName = _brokerAgencyNames[broker.userId];
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
@@ -817,9 +824,10 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
     );
   }
 
-  void _showAgencyDetail(BuildContext context, Agency agency) {
-    final storage = ref.read(localStorageServiceProvider);
-    final brokers = storage.getBrokersByAgency(agency.id);
+  Future<void> _showAgencyDetail(BuildContext context, Agency agency) async {
+    final brokerRepo = ref.read(brokerRepositoryProvider);
+    final brokers = await brokerRepo.getBrokersByAgency(agency.id);
+    if (!context.mounted) return;
 
     showModalBottomSheet(
       context: context,
@@ -954,12 +962,13 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
     );
   }
 
-  void _showBrokerDetail(BuildContext context, BrokerProfile broker) {
-    final storage = ref.read(localStorageServiceProvider);
+  Future<void> _showBrokerDetail(BuildContext context, BrokerProfile broker) async {
     String? agencyName;
     if (broker.agencyId != null) {
-      agencyName = storage.getAgency(broker.agencyId!)?.name;
+      final agencyRepo = ref.read(agencyRepositoryProvider);
+      agencyName = (await agencyRepo.getAgency(broker.agencyId!))?.name;
     }
+    if (!context.mounted) return;
 
     showModalBottomSheet(
       context: context,
@@ -1048,10 +1057,13 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
     );
   }
 
-  void _sendLinkRequest(BuildContext context, {String? agencyId, String? brokerId}) {
-    final storage = ref.read(localStorageServiceProvider);
+  Future<void> _sendLinkRequest(BuildContext context, {String? agencyId, String? brokerId}) async {
     final authState = ref.read(authProvider);
     if (authState is! AuthAuthenticated) return;
+
+    final agencyRepo = ref.read(agencyRepositoryProvider);
+    final brokerRepo = ref.read(brokerRepositoryProvider);
+    final linkRepo = ref.read(linkRepositoryProvider);
 
     final currentUser = authState.user;
     final type = agencyId != null
@@ -1059,15 +1071,14 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
         : LinkRequestType.parentToBroker;
     final toUserId = agencyId ?? brokerId ?? '';
 
-    // Get recipient name
     String toUserName = '';
     if (agencyId != null) {
-      toUserName = storage.getAgency(agencyId)?.name ?? 'Agency';
+      toUserName = (await agencyRepo.getAgency(agencyId))?.name ?? 'Agency';
     } else if (brokerId != null) {
-      toUserName = storage.getBrokerProfile(brokerId)?.name ?? 'Broker';
+      toUserName = (await brokerRepo.getBrokerProfile(brokerId))?.name ?? 'Broker';
     }
 
-    storage.sendLinkRequest(
+    await linkRepo.sendLinkRequest(
       fromUserId: currentUser.uid,
       toUserId: toUserId,
       fromUserName: currentUser.displayName,
@@ -1075,6 +1086,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
       type: type,
     );
 
+    if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Connection request sent!'),

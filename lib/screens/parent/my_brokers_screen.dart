@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
-import 'package:testing_flutter/core/services/local_storage_service.dart';
 import 'package:testing_flutter/models/broker_profile.dart';
 import 'package:testing_flutter/models/link_request.dart';
 import 'package:testing_flutter/theme/app_theme.dart';
@@ -18,10 +18,89 @@ class MyBrokersScreen extends ConsumerStatefulWidget {
 }
 
 class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
+  List<LinkRequest> _incomingPending = [];
+  List<LinkRequest> _sentPending = [];
+  List<BrokerProfile> _connectedBrokers = [];
+  Map<String, String> _displayNamesByUserId = {};
+  Map<String, String> _agencyNamesByBrokerId = {};
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
+  }
+
+  Future<void> _loadData() async {
+    final authState = ref.read(authProvider);
+    if (authState is! AuthAuthenticated) return;
+
+    final uid = authState.user.uid;
+    final linkRepo = ref.read(linkRepositoryProvider);
+    final userRepo = ref.read(userRepositoryProvider);
+    final brokerRepo = ref.read(brokerRepositoryProvider);
+    final agencyRepo = ref.read(agencyRepositoryProvider);
+
+    final allPending = await linkRepo.getPendingRequestsFor(uid);
+    final incomingPending = allPending
+        .where((r) =>
+            r.type == LinkRequestType.parentToBroker ||
+            r.type == LinkRequestType.parentToAgency)
+        .toList();
+
+    final allSent = await linkRepo.getLinkRequestsSentBy(uid);
+    final sentPending = allSent
+        .where((r) =>
+            r.status == LinkRequestStatus.pending &&
+            (r.type == LinkRequestType.parentToBroker ||
+                r.type == LinkRequestType.parentToAgency))
+        .toList();
+
+    final connectedBrokerIds = await linkRepo.getConnectedBrokerIds(uid);
+    final connectedBrokers = <BrokerProfile>[];
+    final displayNamesByUserId = <String, String>{};
+    final agencyNamesByBrokerId = <String, String>{};
+
+    for (final id in connectedBrokerIds) {
+      final profile = await brokerRepo.getBrokerProfile(id);
+      if (profile != null) {
+        connectedBrokers.add(profile);
+        if (profile.agencyId != null) {
+          final agency = await agencyRepo.getAgency(profile.agencyId!);
+          if (agency != null) {
+            agencyNamesByBrokerId[profile.userId] = agency.name;
+          }
+        }
+      }
+    }
+
+    for (final r in incomingPending) {
+      final user = await userRepo.getUser(r.fromUserId);
+      if (user != null) {
+        displayNamesByUserId[r.fromUserId] = user.displayName;
+      }
+    }
+    for (final r in sentPending) {
+      final user = await userRepo.getUser(r.toUserId);
+      if (user != null) {
+        displayNamesByUserId[r.toUserId] = user.displayName;
+      }
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _incomingPending = incomingPending;
+      _sentPending = sentPending;
+      _connectedBrokers = connectedBrokers;
+      _displayNamesByUserId = displayNamesByUserId;
+      _agencyNamesByBrokerId = agencyNamesByBrokerId;
+      _loading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
-    final storage = ref.watch(localStorageServiceProvider);
     final isDark = AppTheme.isDark(context);
 
     if (authState is! AuthAuthenticated) {
@@ -31,62 +110,44 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
       );
     }
 
+    if (_loading) {
+      return Scaffold(
+        backgroundColor: AppTheme.background(context),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     final currentUser = authState.user;
-
-    // Only show broker/agency related INCOMING pending requests (not childToParent)
-    final incomingPending = storage
-        .getPendingRequestsFor(currentUser.uid)
-        .where((r) =>
-            r.type == LinkRequestType.parentToBroker ||
-            r.type == LinkRequestType.parentToAgency)
-        .toList();
-
-    // Sent requests (outgoing) that are still pending — to brokers/agencies
-    final sentPending = storage
-        .getLinkRequestsSentBy(currentUser.uid)
-        .where((r) =>
-            r.status == LinkRequestStatus.pending &&
-            (r.type == LinkRequestType.parentToBroker ||
-             r.type == LinkRequestType.parentToAgency))
-        .toList();
-
-    // Connected brokers
-    final connectedBrokerIds = storage.getConnectedBrokerIds(currentUser.uid);
-    final connectedBrokers = connectedBrokerIds
-        .map((id) => storage.getBrokerProfile(id))
-        .whereType<BrokerProfile>()
-        .toList();
 
     return Scaffold(
       backgroundColor: AppTheme.background(context),
       body: CustomScrollView(
         slivers: [
-          _buildAppBar(context, isDark, connectedBrokers.length),
+          _buildAppBar(context, isDark, _connectedBrokers.length),
 
-          // Incoming pending requests (from brokers/agencies TO parent)
-          if (incomingPending.isNotEmpty)
+          if (_incomingPending.isNotEmpty)
             SliverToBoxAdapter(
               child: _buildIncomingRequestsSection(
-                context, isDark, incomingPending, storage,
+                context, isDark, _incomingPending,
               ),
             ),
 
-          // Sent pending requests (parent TO brokers/agencies)
-          if (sentPending.isNotEmpty)
+          if (_sentPending.isNotEmpty)
             SliverToBoxAdapter(
               child: _buildSentRequestsSection(
-                context, isDark, sentPending, storage, currentUser.uid,
+                context, isDark, _sentPending, currentUser.uid,
               ),
             ),
 
-          // Connected brokers
-          if (connectedBrokers.isEmpty && sentPending.isEmpty && incomingPending.isEmpty)
+          if (_connectedBrokers.isEmpty &&
+              _sentPending.isEmpty &&
+              _incomingPending.isEmpty)
             SliverFillRemaining(
               child: _buildEmptyState(context, isDark),
             )
-          else if (connectedBrokers.isNotEmpty)
+          else if (_connectedBrokers.isNotEmpty)
             _buildConnectedBrokersList(
-              context, isDark, connectedBrokers, storage, currentUser.uid,
+              context, isDark, _connectedBrokers, currentUser.uid,
             ),
 
           const SliverToBoxAdapter(child: SizedBox(height: 24)),
@@ -136,7 +197,8 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(12),
@@ -167,7 +229,6 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
     BuildContext context,
     bool isDark,
     List<LinkRequest> requests,
-    LocalStorageService storage,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -217,7 +278,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
           ),
         ),
         ...requests.map((request) =>
-            _buildIncomingRequestCard(context, isDark, request, storage)),
+            _buildIncomingRequestCard(context, isDark, request)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Divider(color: AppTheme.divider(context), height: 32),
@@ -230,10 +291,9 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
     BuildContext context,
     bool isDark,
     LinkRequest request,
-    LocalStorageService storage,
   ) {
-    final fromUser = storage.getUser(request.fromUserId);
-    final displayName = fromUser?.displayName ?? request.fromUserName;
+    final displayName =
+        _displayNamesByUserId[request.fromUserId] ?? request.fromUserName;
     final timeAgo = _formatTimeAgo(request.createdAt);
 
     return Padding(
@@ -268,7 +328,8 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: isDark ? AppColors.warningLight : AppColors.warningDark,
+                    color:
+                        isDark ? AppColors.warningLight : AppColors.warningDark,
                   ),
                 ),
               ),
@@ -334,9 +395,12 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                   height: 32,
                   child: ElevatedButton(
                     onPressed: () async {
-                      await storage.acceptLinkRequest(request.id);
+                      await ref
+                          .read(linkRepositoryProvider)
+                          .acceptLinkRequest(request.id);
                       if (!context.mounted) return;
                       setState(() {});
+                      _loadData();
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text('Connected with $displayName'),
@@ -369,9 +433,12 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                   height: 32,
                   child: OutlinedButton(
                     onPressed: () async {
-                      await storage.declineLinkRequest(request.id);
+                      await ref
+                          .read(linkRepositoryProvider)
+                          .declineLinkRequest(request.id);
                       if (!context.mounted) return;
                       setState(() {});
+                      _loadData();
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text('Declined request from $displayName'),
@@ -413,7 +480,6 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
     BuildContext context,
     bool isDark,
     List<LinkRequest> requests,
-    LocalStorageService storage,
     String currentUserId,
   ) {
     return Column(
@@ -464,7 +530,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
           ),
         ),
         ...requests.map((request) =>
-            _buildSentRequestCard(context, isDark, request, storage, currentUserId)),
+            _buildSentRequestCard(context, isDark, request, currentUserId)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Divider(color: AppTheme.divider(context), height: 32),
@@ -477,11 +543,10 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
     BuildContext context,
     bool isDark,
     LinkRequest request,
-    LocalStorageService storage,
     String currentUserId,
   ) {
-    final toUser = storage.getUser(request.toUserId);
-    final displayName = toUser?.displayName ?? request.toUserName;
+    final displayName =
+        _displayNamesByUserId[request.toUserId] ?? request.toUserName;
     final timeAgo = _formatTimeAgo(request.createdAt);
     final isBrokerRequest = request.type == LinkRequestType.parentToBroker;
 
@@ -540,7 +605,8 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 1),
                             decoration: BoxDecoration(
                               color: AppColors.warning.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(4),
@@ -569,7 +635,6 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
               ],
             ),
             const SizedBox(height: 10),
-            // Chat/Call buttons — even before linking
             Row(
               children: [
                 Expanded(
@@ -577,7 +642,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Call ${toUser?.phoneNumber ?? displayName}'),
+                          content: Text('Call $displayName'),
                           behavior: SnackBarBehavior.floating,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
@@ -604,11 +669,14 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () {
-                      final convId = storage.getOrCreateConversation(
-                        currentUserId,
-                        request.toUserId,
-                      );
+                    onPressed: () async {
+                      final convId = await ref
+                          .read(messagingRepositoryProvider)
+                          .getOrCreateConversation(
+                            currentUserId,
+                            request.toUserId,
+                          );
+                      if (!context.mounted) return;
                       context.pushNamed(
                         RouteNames.chat,
                         pathParameters: {'conversationId': convId},
@@ -717,7 +785,6 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
     BuildContext context,
     bool isDark,
     List<BrokerProfile> brokers,
-    LocalStorageService storage,
     String currentUserId,
   ) {
     return SliverList(
@@ -755,7 +822,8 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
           }
 
           final broker = brokers[index - 1];
-          return _buildConnectedBrokerCard(context, isDark, broker, storage, currentUserId);
+          return _buildConnectedBrokerCard(
+              context, isDark, broker, currentUserId);
         },
         childCount: brokers.length + 1,
       ),
@@ -766,14 +834,9 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
     BuildContext context,
     bool isDark,
     BrokerProfile broker,
-    LocalStorageService storage,
     String currentUserId,
   ) {
-    String? agencyName;
-    if (broker.agencyId != null) {
-      final agency = storage.getAgency(broker.agencyId!);
-      agencyName = agency?.name;
-    }
+    final agencyName = _agencyNamesByBrokerId[broker.userId];
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
@@ -784,7 +847,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () {
-            _showBrokerDetailSheet(context, broker, storage);
+            _showBrokerDetailSheet(context, broker, agencyName);
           },
           child: Container(
             padding: const EdgeInsets.all(16),
@@ -987,11 +1050,14 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: ElevatedButton.icon(
-                        onPressed: () {
-                          final convId = storage.getOrCreateConversation(
-                            currentUserId,
-                            broker.userId,
-                          );
+                        onPressed: () async {
+                          final convId = await ref
+                              .read(messagingRepositoryProvider)
+                              .getOrCreateConversation(
+                                currentUserId,
+                                broker.userId,
+                              );
+                          if (!context.mounted) return;
                           context.pushNamed(
                             RouteNames.chat,
                             pathParameters: {'conversationId': convId},
@@ -1050,13 +1116,8 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
   void _showBrokerDetailSheet(
     BuildContext context,
     BrokerProfile broker,
-    LocalStorageService storage,
+    String? agencyName,
   ) {
-    String? agencyName;
-    if (broker.agencyId != null) {
-      agencyName = storage.getAgency(broker.agencyId!)?.name;
-    }
-
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(

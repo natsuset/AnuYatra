@@ -1,28 +1,51 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
-import 'package:testing_flutter/core/services/local_storage_service.dart';
+import 'package:testing_flutter/core/data/repositories/auth_repository.dart';
+import 'package:testing_flutter/core/data/repositories/user_repository.dart';
+import 'package:testing_flutter/core/data/repositories/profile_repository.dart';
+import 'package:testing_flutter/core/data/repositories/agency_repository.dart';
+import 'package:testing_flutter/core/data/repositories/broker_repository.dart';
+import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/user_role.dart';
 import 'package:testing_flutter/models/broker_profile.dart';
 import 'package:testing_flutter/models/parent_profile.dart';
 
-/// Mock OTP code that always works
-const _mockOtpCode = '123456';
-
-/// Auth notifier that manages login/logout via local Hive storage.
-/// No real backend — phone + OTP "123456" always works.
+/// Auth notifier that manages login/logout via repository interfaces.
+///
+/// Uses [AuthRepository] for OTP verification, [UserRepository] for
+/// user CRUD/session, and role-specific repositories for profile setup.
 class AuthNotifier extends StateNotifier<AuthState> {
-  final LocalStorageService _storage;
+  final AuthRepository _authRepo;
+  final UserRepository _userRepo;
+  final ProfileRepository _profileRepo;
+  final AgencyRepository _agencyRepo;
+  final BrokerRepository _brokerRepo;
 
-  AuthNotifier(this._storage) : super(const AuthInitial());
+  AuthNotifier({
+    required AuthRepository authRepo,
+    required UserRepository userRepo,
+    required ProfileRepository profileRepo,
+    required AgencyRepository agencyRepo,
+    required BrokerRepository brokerRepo,
+  })  : _authRepo = authRepo,
+        _userRepo = userRepo,
+        _profileRepo = profileRepo,
+        _agencyRepo = agencyRepo,
+        _brokerRepo = brokerRepo,
+        super(const AuthInitial());
 
   /// Check if user is already logged in (on app start)
   Future<void> checkAuthStatus() async {
     state = const AuthLoading();
 
-    final user = _storage.currentUser;
-    if (user != null) {
-      state = AuthAuthenticated(user: user);
-    } else {
+    try {
+      final user = await _userRepo.getCurrentUser();
+      if (user != null) {
+        state = AuthAuthenticated(user: user);
+      } else {
+        state = const AuthInitial();
+      }
+    } catch (e) {
       state = const AuthInitial();
     }
   }
@@ -34,10 +57,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }) async {
     state = const AuthLoading();
 
-    // Mock: simulate network delay
-    await Future.delayed(const Duration(milliseconds: 500));
+    await _authRepo.sendOtp(
+      phoneNumber: phoneNumber,
+      selectedRole: selectedRole,
+    );
 
-    // Store the OTP (mock: always "123456")
     state = AuthOtpSent(
       phoneNumber: phoneNumber,
       selectedRole: selectedRole,
@@ -52,13 +76,17 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }) async {
     state = const AuthLoading();
 
-    // Mock: simulate network delay
-    await Future.delayed(const Duration(milliseconds: 500));
+    final isValid = await _authRepo.verifyOtp(
+      phoneNumber: phoneNumber,
+      otpCode: otpCode,
+    );
 
-    // Mock OTP verification
-    if (otpCode != _mockOtpCode) {
+    if (!isValid) {
+      final hint = _authRepo.demoOtpCode;
       state = AuthError(
-        message: 'Invalid OTP. Use "$_mockOtpCode" for demo.',
+        message: hint != null
+            ? 'Invalid OTP. Use "$hint" for demo.'
+            : 'Invalid OTP. Please try again.',
         previousState: AuthOtpSent(
           phoneNumber: phoneNumber,
           selectedRole: selectedRole,
@@ -68,16 +96,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
 
     // Check if user already exists with this phone number
-    final existingUser = _storage.getUserByPhone(phoneNumber);
+    final existingUser = await _userRepo.getUserByPhone(phoneNumber);
 
     if (existingUser != null) {
       // Existing user → log them in
-      await _storage.setCurrentUser(existingUser.uid);
+      await _userRepo.setCurrentUser(existingUser.uid);
       state = AuthAuthenticated(user: existingUser);
     } else {
       // New user → needs to complete profile
       // Pre-register with minimal info
-      final user = await _storage.registerUser(
+      final user = await _userRepo.registerUser(
         phoneNumber: phoneNumber,
         displayName: '',
         role: selectedRole,
@@ -118,16 +146,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     try {
       // Update the user's display name
-      final user = _storage.getUser(uid);
+      final user = await _userRepo.getUser(uid);
       if (user == null) throw Exception('User not found');
 
       final updatedUser = user.copyWith(displayName: displayName);
-      await _storage.saveUser(updatedUser);
+      await _userRepo.saveUser(updatedUser);
 
       // Create role-specific profile
       switch (role) {
         case UserRole.agencyAdmin:
-          final agency = await _storage.createAgency(
+          final agency = await _agencyRepo.createAgency(
             adminUserId: uid,
             name: agencyName ?? '$displayName\'s Agency',
             city: agencyCity ?? '',
@@ -135,11 +163,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
             description: agencyDescription ?? '',
             specializations: agencySpecializations ?? [],
           );
-          await _storage.saveUser(updatedUser.copyWith(agencyId: agency.id));
+          await _userRepo.saveUser(
+              updatedUser.copyWith(agencyId: agency.id));
           break;
 
         case UserRole.broker:
-          await _storage.saveBrokerProfile(BrokerProfile(
+          await _brokerRepo.saveBrokerProfile(BrokerProfile(
             userId: uid,
             name: displayName,
             phoneNumber: user.phoneNumber,
@@ -156,7 +185,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
           final looking = lookingFor == 'groom'
               ? LookingFor.groom
               : LookingFor.bride;
-          await _storage.saveParentProfile(ParentProfile(
+          await _profileRepo.saveParentProfile(ParentProfile(
             userId: uid,
             name: displayName,
             lookingFor: looking,
@@ -167,13 +196,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
           break;
 
         case UserRole.candidate:
-          // Minimal profile at setup — can be enhanced later
           break;
       }
 
       // Log the user in
-      final finalUser = _storage.getUser(uid)!;
-      await _storage.setCurrentUser(uid);
+      final finalUser = (await _userRepo.getUser(uid))!;
+      await _userRepo.setCurrentUser(uid);
       state = AuthAuthenticated(user: finalUser);
     } catch (e) {
       state = AuthError(message: 'Profile setup failed: $e');
@@ -182,7 +210,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   /// Logout
   Future<void> logout() async {
-    await _storage.clearSession();
+    await _userRepo.clearSession();
     state = const AuthInitial();
   }
 
@@ -207,6 +235,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
 /// Riverpod provider for AuthNotifier
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
-  final storage = ref.watch(localStorageServiceProvider);
-  return AuthNotifier(storage);
+  return AuthNotifier(
+    authRepo: ref.watch(authRepositoryProvider),
+    userRepo: ref.watch(userRepositoryProvider),
+    profileRepo: ref.watch(profileRepositoryProvider),
+    agencyRepo: ref.watch(agencyRepositoryProvider),
+    brokerRepo: ref.watch(brokerRepositoryProvider),
+  );
 });
