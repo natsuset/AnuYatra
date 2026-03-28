@@ -140,15 +140,31 @@ class HiveMessagingRepository implements MessagingRepository {
     await _saveMessage(message);
   }
 
+  static String _msgKey(String convId, String msgId) => '${convId}_$msgId';
+  static String _idxKey(String convId) => '_idx_$convId';
+
   Future<void> _saveMessage(ChatMessage message) async {
-    final key = message.conversationId;
-    final existing = _messages.get(key);
-    List<dynamic> messageList = [];
-    if (existing != null) {
-      messageList = jsonDecode(existing) as List<dynamic>;
-    }
-    messageList.add(message.toJson());
-    await _messages.put(key, jsonEncode(messageList));
+    await _messages.put(
+      _msgKey(message.conversationId, message.id),
+      jsonEncode(message.toJson()),
+    );
+    await _appendToIndex(message.conversationId, message.id);
+  }
+
+  Future<void> _appendToIndex(String conversationId, String messageId) async {
+    final key = _idxKey(conversationId);
+    final raw = _messages.get(key);
+    final List<String> ids = raw != null
+        ? (jsonDecode(raw) as List<dynamic>).cast<String>()
+        : [];
+    ids.add(messageId);
+    await _messages.put(key, jsonEncode(ids));
+  }
+
+  List<String> _readIndex(String conversationId) {
+    final raw = _messages.get(_idxKey(conversationId));
+    if (raw == null) return [];
+    return (jsonDecode(raw) as List<dynamic>).cast<String>();
   }
 
   @override
@@ -157,13 +173,20 @@ class HiveMessagingRepository implements MessagingRepository {
     int? limit,
     int? offset,
   }) async {
-    final raw = _messages.get(conversationId);
-    if (raw == null) return [];
-    var results = (jsonDecode(raw) as List<dynamic>)
-        .map((m) => ChatMessage.fromJson(m as Map<String, dynamic>))
-        .toList()
-      ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    final ids = _readIndex(conversationId);
+    if (ids.isEmpty) return [];
 
+    final messages = <ChatMessage>[];
+    for (final id in ids) {
+      final raw = _messages.get(_msgKey(conversationId, id));
+      if (raw != null) {
+        messages
+            .add(ChatMessage.fromJson(jsonDecode(raw) as Map<String, dynamic>));
+      }
+    }
+    messages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+
+    var results = messages;
     if (offset != null && offset > 0) {
       results = results.skip(offset).toList();
     }
@@ -177,16 +200,18 @@ class HiveMessagingRepository implements MessagingRepository {
   @override
   Future<void> markMessagesAsRead(
       String conversationId, String userId) async {
-    final messages = await getMessages(conversationId);
-    final updated = messages.map((m) {
-      if (m.recipientId == userId && !m.isRead) {
-        return m.copyWith(isRead: true);
+    final ids = _readIndex(conversationId);
+    for (final id in ids) {
+      final key = _msgKey(conversationId, id);
+      final raw = _messages.get(key);
+      if (raw == null) continue;
+      final msg =
+          ChatMessage.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+      if (msg.recipientId == userId && !msg.isRead) {
+        final updated = msg.copyWith(isRead: true);
+        await _messages.put(key, jsonEncode(updated.toJson()));
       }
-      return m;
-    }).toList();
-
-    final encoded = jsonEncode(updated.map((m) => m.toJson()).toList());
-    await _messages.put(conversationId, encoded);
+    }
 
     final conv = await getConversation(conversationId);
     if (conv != null) {

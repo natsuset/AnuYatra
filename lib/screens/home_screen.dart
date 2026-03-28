@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/constants/app_strings.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/candidate_profile.dart';
@@ -105,7 +107,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: AppSpacing.borderRadiusLg),
       ),
       builder: (_) => ForwardToChildSheet(sharedProfileId: sharedProfileId),
     ).then((_) => _loadData());
@@ -126,14 +128,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               height: 32,
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: AppSpacing.roundedSm,
               ),
               child:
                   const Icon(Icons.favorite, color: Colors.white, size: 20),
             ),
-            const SizedBox(width: 12),
+            AppSpacing.gapW12,
             Text(
-              'Anuyātrā',
+              AppStrings.appNameStyled,
               style: theme.appBarTheme.titleTextStyle,
             ),
           ],
@@ -165,22 +167,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             // Section header
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.md,
+                  AppSpacing.md,
+                  AppSpacing.md,
+                  AppSpacing.xs,
+                ),
                 child: Row(
                   children: [
                     Icon(Icons.people_alt_outlined,
                         size: 20, color: AppColors.sacredSaffron),
-                    const SizedBox(width: 8),
+                    AppSpacing.gapW8,
                     Text(
-                      'Shared Profiles',
+                      AppStrings.sharedProfiles,
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    AppSpacing.gapW8,
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 2),
+                          horizontal: AppSpacing.xs, vertical: 2),
                       decoration: BoxDecoration(
                         color: AppColors.sacredSaffron.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
@@ -208,13 +215,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             else
               SliverPadding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
                 sliver: SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
                       final item = _items[index];
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                         child: _ParentProfileCard(
                           item: item,
                           isDark: isDark,
@@ -248,7 +255,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
 
             // Bottom padding
-            const SliverToBoxAdapter(child: SizedBox(height: 24)),
+            const SliverToBoxAdapter(child: AppSpacing.gapH24),
           ],
         ),
       ),
@@ -257,8 +264,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildDashboardSummary(bool isDark, ThemeData theme) {
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(16),
+      margin: AppSpacing.allMd,
+      padding: AppSpacing.allMd,
       decoration: BoxDecoration(
         gradient: isDark
             ? LinearGradient(
@@ -270,13 +277,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 end: Alignment.bottomRight,
               )
             : AppColors.primaryGradient,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppSpacing.roundedLg,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Dashboard',
+            AppStrings.dashboard,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w700,
               color: Colors.white,
@@ -287,18 +294,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             children: [
               _DashboardStat(
                 icon: Icons.people,
-                label: 'Brokers',
+                label: AppStrings.activeBrokers,
                 value: '$_connectedBrokerCount',
                 color: Colors.white,
               ),
-              const SizedBox(width: 16),
+              AppSpacing.gapW16,
               _DashboardStat(
                 icon: Icons.person_search,
-                label: 'Profiles',
+                label: AppStrings.profilesManaged,
                 value: '${_items.length}',
                 color: Colors.white,
               ),
-              const SizedBox(width: 16),
+              AppSpacing.gapW16,
               _DashboardStat(
                 icon: Icons.child_care,
                 label: 'Child',
@@ -315,7 +322,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildEmptyState(bool isDark, ThemeData theme) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(48),
+        padding: AppSpacing.allXxl,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -332,14 +339,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 color: AppColors.sacredSaffron,
               ),
             ),
-            const SizedBox(height: 24),
+            AppSpacing.gapH24,
             Text(
-              'No profiles shared yet',
+              AppStrings.noProfilesShared,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 8),
+            AppSpacing.gapH8,
             Text(
               _connectedBrokerCount == 0
                   ? 'Connect with brokers from the Search tab to start receiving profiles'
@@ -351,7 +358,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
             if (_connectedBrokerCount == 0) ...[
-              const SizedBox(height: 24),
+              AppSpacing.gapH24,
               FilledButton.icon(
                 onPressed: () {
                   // Navigate to Search tab (index 1)
@@ -359,7 +366,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   shell.goBranch(1);
                 },
                 icon: const Icon(Icons.search, size: 18),
-                label: const Text('Find Brokers'),
+                label: const Text(AppStrings.findBrokers),
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.sacredSaffron,
                   shape: RoundedRectangleBorder(
@@ -480,7 +487,7 @@ class _ParentProfileCard extends StatelessWidget {
           );
         },
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: AppSpacing.allMd,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -535,7 +542,7 @@ class _ParentProfileCard extends StatelessWidget {
 
               // Broker info
               if (item.brokerName != null) ...[
-                const SizedBox(height: 8),
+                AppSpacing.gapH8,
                 Row(
                   children: [
                     Icon(Icons.person_outline,
@@ -543,7 +550,7 @@ class _ParentProfileCard extends StatelessWidget {
                         color: isDark
                             ? AppColors.darkTertiaryText
                             : AppColors.lightTertiaryText),
-                    const SizedBox(width: 4),
+                    AppSpacing.gapW4,
                     Flexible(
                       child: Text(
                         'Shared by ${item.brokerName}',
@@ -566,12 +573,12 @@ class _ParentProfileCard extends StatelessWidget {
                           color: AppColors.info.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(Icons.forward_to_inbox,
                                 size: 12, color: AppColors.info),
-                            SizedBox(width: 4),
+                            AppSpacing.gapW4,
                             Text(
                               'Forwarded',
                               style: TextStyle(
@@ -617,7 +624,7 @@ class _ParentProfileCard extends StatelessWidget {
                         ? AppColors.success.withValues(alpha: 0.08)
                         : AppColors.lightSecondaryText
                             .withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: AppSpacing.roundedSm,
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -669,14 +676,15 @@ class _ParentProfileCard extends StatelessWidget {
                                 : AppColors.lightBorder,
                           ),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: AppSpacing.roundedSm,
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
                         ),
-                        child: const Text('Pass', style: TextStyle(fontSize: 13)),
+                        child: const Text(AppStrings.pass,
+                            style: TextStyle(fontSize: 13)),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    AppSpacing.gapW8,
                     // Maybe
                     Expanded(
                       child: OutlinedButton(
@@ -687,14 +695,15 @@ class _ParentProfileCard extends StatelessWidget {
                             color: AppColors.warning.withValues(alpha: 0.5),
                           ),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: AppSpacing.roundedSm,
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
                         ),
-                        child: const Text('Maybe', style: TextStyle(fontSize: 13)),
+                        child: const Text(AppStrings.maybe,
+                            style: TextStyle(fontSize: 13)),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    AppSpacing.gapW8,
                     // Interested
                     Expanded(
                       child: FilledButton(
@@ -702,11 +711,11 @@ class _ParentProfileCard extends StatelessWidget {
                         style: FilledButton.styleFrom(
                           backgroundColor: AppColors.success,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: AppSpacing.roundedSm,
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
                         ),
-                        child: const Text('Interested',
+                        child: const Text(AppStrings.interested,
                             style: TextStyle(fontSize: 13)),
                       ),
                     ),
@@ -722,16 +731,16 @@ class _ParentProfileCard extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: onForward,
                     icon: const Icon(Icons.forward_to_inbox, size: 16),
-                    label: const Text('Forward to Child'),
+                    label: const Text(AppStrings.forwardToChild),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.sacredSaffron,
                       side: BorderSide(
                         color: AppColors.sacredSaffron.withValues(alpha: 0.5),
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: AppSpacing.roundedSm,
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
                     ),
                   ),
                 ),
@@ -752,7 +761,7 @@ class _ParentProfileCard extends StatelessWidget {
     };
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: AppSpacing.xxs),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(6),

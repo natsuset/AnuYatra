@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/constants/app_strings.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/parent_profile.dart';
 import 'package:testing_flutter/models/user_role.dart';
@@ -272,7 +274,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Complete Your Profile'),
+        title: const Text(AppStrings.completeProfile),
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: _currentStep > 0
@@ -301,7 +303,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
 
               // Navigation buttons
               Padding(
-                padding: const EdgeInsets.all(24),
+                padding: AppSpacing.allLg,
                 child: Row(
                   children: [
                     if (_currentStep > 0)
@@ -311,13 +313,13 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: AppSpacing.roundedMd,
                             ),
                           ),
-                          child: const Text('Back'),
+                          child: const Text(AppStrings.back),
                         ),
                       ),
-                    if (_currentStep > 0) const SizedBox(width: 12),
+                    if (_currentStep > 0) AppSpacing.gapW12,
                     Expanded(
                       flex: 2,
                       child: FilledButton(
@@ -334,7 +336,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                           backgroundColor: AppColors.sacredSaffron,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: AppSpacing.roundedMd,
                           ),
                         ),
                         child: isLoading
@@ -348,8 +350,8 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                               )
                             : Text(
                                 _currentStep < _totalSteps - 1
-                                    ? 'Next'
-                                    : 'Get Started',
+                                    ? AppStrings.next
+                                    : AppStrings.getStarted,
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -378,7 +380,12 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
     };
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+      padding: AppSpacing.only(
+        left: AppSpacing.lg,
+        top: AppSpacing.xs,
+        right: AppSpacing.lg,
+        bottom: AppSpacing.md,
+      ),
       child: Column(
         children: [
           // Step dots with connecting lines
@@ -423,7 +430,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
               );
             }),
           ),
-          const SizedBox(height: 8),
+          AppSpacing.gapH8,
           // Step label
           Text(
             stepLabels[_currentStep],
@@ -464,32 +471,32 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   // Step 1: Common name + role-specific basic fields
   Widget _buildStep1Common(ThemeData theme, UserRole role) {
     return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 6),
           decoration: BoxDecoration(
             color: AppColors.sacredSaffron.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: AppSpacing.roundedSm,
           ),
           child: Text(
-            'Setting up as: ${role.displayName}',
+            AppStrings.settingUpAs(role.displayName),
             style: theme.textTheme.bodySmall?.copyWith(
               color: AppColors.sacredSaffron,
               fontWeight: FontWeight.w600,
             ),
           ),
         ),
-        const SizedBox(height: 24),
+        AppSpacing.gapH24,
         _buildTextField(
           controller: _nameController,
           label: 'Your Name',
           hint: 'Enter your full name',
           icon: Icons.person_outline,
           validator: (v) =>
-              v == null || v.isEmpty ? 'Name is required' : null,
+              v == null || v.isEmpty ? AppStrings.nameRequired : null,
         ),
-        const SizedBox(height: 16),
+        AppSpacing.gapH16,
         // Role-specific basic fields
         ...switch (role) {
           UserRole.agencyAdmin => [
@@ -499,9 +506,9 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                 hint: 'e.g., Shubh Vivah Matrimony',
                 icon: Icons.business,
                 validator: (v) =>
-                    v == null || v.isEmpty ? 'Agency name is required' : null,
+                    v == null || v.isEmpty ? AppStrings.agencyNameRequired : null,
               ),
-              const SizedBox(height: 16),
+              AppSpacing.gapH16,
               Row(
                 children: [
                   Expanded(
@@ -512,7 +519,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                       icon: Icons.location_city,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  AppSpacing.gapW12,
                   Expanded(
                     child: _buildTextField(
                       controller: _agencyStateController,
@@ -532,7 +539,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                 icon: Icons.info_outline,
                 maxLines: 3,
               ),
-              const SizedBox(height: 16),
+              AppSpacing.gapH16,
               _buildTextField(
                 controller: _brokerExpController,
                 label: 'Years of Experience',
@@ -548,7 +555,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 8),
+              AppSpacing.gapH8,
               Row(
                 children: [
                   Expanded(
@@ -559,7 +566,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                       onTap: () => setState(() => _lookingFor = 'bride'),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  AppSpacing.gapW12,
                   Expanded(
                     child: _RadioCard(
                       label: 'Groom',
@@ -570,7 +577,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              AppSpacing.gapH16,
               Row(
                 children: [
                   Expanded(
@@ -581,7 +588,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                       icon: Icons.location_city,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  AppSpacing.gapW12,
                   Expanded(
                     child: _buildTextField(
                       controller: _parentStateController,
@@ -600,7 +607,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 8),
+              AppSpacing.gapH8,
               Row(
                 children: [
                   Expanded(
@@ -612,7 +619,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                           setState(() => _candidateGender = 'bride'),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  AppSpacing.gapW12,
                   Expanded(
                     child: _RadioCard(
                       label: 'Groom',
@@ -624,7 +631,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              AppSpacing.gapH16,
               _buildTextField(
                 controller: _candidateAgeController,
                 label: 'Your Age',
@@ -641,10 +648,10 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   // Agency Step 2: Description and specializations
   Widget _buildAgencyStep2(ThemeData theme) {
     return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       children: [
         _buildSectionHeader(theme, 'Agency Details'),
-        const SizedBox(height: 16),
+        AppSpacing.gapH16,
         _buildTextField(
           controller: _agencyDescController,
           label: 'Description',
@@ -652,7 +659,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
           icon: Icons.description,
           maxLines: 4,
         ),
-        const SizedBox(height: 16),
+        AppSpacing.gapH16,
         _buildTextField(
           controller: TextEditingController(),
           label: 'Specializations (comma-separated)',
@@ -667,10 +674,10 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   // Agency Step 3: Contact info
   Widget _buildAgencyStep3(ThemeData theme) {
     return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       children: [
         _buildSectionHeader(theme, 'Contact Information'),
-        const SizedBox(height: 16),
+        AppSpacing.gapH16,
         _buildTextField(
           controller: _agencyEmailController,
           label: 'Email',
@@ -678,7 +685,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
           icon: Icons.email_outlined,
           keyboardType: TextInputType.emailAddress,
         ),
-        const SizedBox(height: 16),
+        AppSpacing.gapH16,
         _buildTextField(
           controller: _agencyPhoneController,
           label: 'Office Phone',
@@ -686,14 +693,14 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
           icon: Icons.phone_outlined,
           keyboardType: TextInputType.phone,
         ),
-        const SizedBox(height: 16),
+        AppSpacing.gapH16,
         _buildTextField(
           controller: _agencyWebsiteController,
           label: 'Website (optional)',
           hint: 'https://www.example.com',
           icon: Icons.language,
         ),
-        const SizedBox(height: 16),
+        AppSpacing.gapH16,
         Text(
           'You can add more details later from Agency Settings',
           style: theme.textTheme.bodySmall?.copyWith(
@@ -708,10 +715,10 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   // Broker Step 2: Areas and specializations
   Widget _buildBrokerStep2(ThemeData theme) {
     return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       children: [
         _buildSectionHeader(theme, 'Experience & Expertise'),
-        const SizedBox(height: 16),
+        AppSpacing.gapH16,
         _buildTextField(
           controller: TextEditingController(),
           label: 'Areas Served (comma-separated)',
@@ -719,7 +726,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
           icon: Icons.location_on_outlined,
           onChanged: (v) => _brokerAreasServed = v,
         ),
-        const SizedBox(height: 16),
+        AppSpacing.gapH16,
         _buildTextField(
           controller: TextEditingController(),
           label: 'Specializations (comma-separated)',
@@ -727,7 +734,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
           icon: Icons.category_outlined,
           onChanged: (v) => _brokerSpecializations = v,
         ),
-        const SizedBox(height: 16),
+        AppSpacing.gapH16,
         _buildTextField(
           controller: TextEditingController(),
           label: 'Languages Spoken (comma-separated)',
@@ -742,10 +749,10 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   // Broker Step 3: Business details
   Widget _buildBrokerStep3(ThemeData theme) {
     return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       children: [
         _buildSectionHeader(theme, 'Business Details'),
-        const SizedBox(height: 16),
+        AppSpacing.gapH16,
         _buildTextField(
           controller: _brokerEmailController,
           label: 'Email',
@@ -753,7 +760,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
           icon: Icons.email_outlined,
           keyboardType: TextInputType.emailAddress,
         ),
-        const SizedBox(height: 16),
+        AppSpacing.gapH16,
         _buildTextField(
           controller: _brokerOfficeAddrController,
           label: 'Office Address (optional)',
@@ -761,14 +768,14 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
           icon: Icons.location_on_outlined,
           maxLines: 2,
         ),
-        const SizedBox(height: 16),
+        AppSpacing.gapH16,
         _buildTextField(
           controller: _brokerFeeController,
           label: 'Fee Structure (optional)',
           hint: 'e.g., Free consultation, Rs. 5000 registration',
           icon: Icons.currency_rupee,
         ),
-        const SizedBox(height: 16),
+        AppSpacing.gapH16,
         _buildTextField(
           controller: _brokerWorkingHoursController,
           label: 'Working Hours (optional)',
@@ -782,24 +789,24 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   // Parent Step 2: Child details
   Widget _buildParentStep2(ThemeData theme) {
     return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       children: [
         _buildSectionHeader(theme, "Your Child's Details"),
-        const SizedBox(height: 8),
+        AppSpacing.gapH8,
         Text(
           'This information helps brokers find suitable matches',
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),
         ),
-        const SizedBox(height: 16),
+        AppSpacing.gapH16,
         _buildTextField(
           controller: _childNameController,
           label: "Child's Name",
           hint: 'Full name',
           icon: Icons.person_outline,
         ),
-        const SizedBox(height: 16),
+        AppSpacing.gapH16,
         Row(
           children: [
             Expanded(
@@ -810,18 +817,18 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                 icon: Icons.height,
               ),
             ),
-            const SizedBox(width: 12),
+            AppSpacing.gapW12,
             Expanded(
               child: DropdownButtonFormField<Diet>(
                 initialValue: _childDiet,
-                decoration: InputDecoration(
+                  decoration: InputDecoration(
                   labelText: 'Diet',
                   prefixIcon: const Icon(Icons.restaurant_outlined, size: 20),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: AppSpacing.roundedMd,
                   ),
-                  contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 14),
+                  contentPadding: EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md, vertical: 14),
                 ),
                 items: Diet.values.map((d) {
                   final label = switch (d) {
@@ -838,21 +845,21 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        AppSpacing.gapH16,
         _buildTextField(
           controller: _childEducationController,
           label: 'Education',
           hint: 'e.g., B.Tech, MBA, MBBS',
           icon: Icons.school_outlined,
         ),
-        const SizedBox(height: 16),
+        AppSpacing.gapH16,
         _buildTextField(
           controller: _childProfessionController,
           label: 'Profession',
           hint: 'e.g., Software Engineer, Doctor',
           icon: Icons.work_outline,
         ),
-        const SizedBox(height: 16),
+        AppSpacing.gapH16,
         _buildTextField(
           controller: _parentEmailController,
           label: 'Your Email (optional)',
@@ -867,20 +874,20 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   // Parent Step 3: Family details
   Widget _buildParentStep3(ThemeData theme) {
     return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       children: [
         _buildSectionHeader(theme, 'Family Information'),
-        const SizedBox(height: 16),
+        AppSpacing.gapH16,
         DropdownButtonFormField<FamilyType>(
           initialValue: _familyType,
           decoration: InputDecoration(
             labelText: 'Family Type',
             prefixIcon: const Icon(Icons.family_restroom, size: 20),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppSpacing.roundedMd,
             ),
-            contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16, vertical: 14),
+            contentPadding: EdgeInsets.symmetric(
+                horizontal: AppSpacing.md, vertical: 14),
           ),
           items: FamilyType.values.map((t) {
             final label = t == FamilyType.joint ? 'Joint Family' : 'Nuclear Family';
@@ -888,7 +895,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
           }).toList(),
           onChanged: (v) => setState(() => _familyType = v),
         ),
-        const SizedBox(height: 16),
+        AppSpacing.gapH16,
         Row(
           children: [
             Expanded(
@@ -899,7 +906,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                 icon: Icons.person_outline,
               ),
             ),
-            const SizedBox(width: 12),
+            AppSpacing.gapW12,
             Expanded(
               child: _buildTextField(
                 controller: _motherOccController,
@@ -910,7 +917,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        AppSpacing.gapH16,
         _buildTextField(
           controller: _aboutFamilyController,
           label: 'About Family',
@@ -918,7 +925,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
           icon: Icons.info_outline,
           maxLines: 3,
         ),
-        const SizedBox(height: 16),
+        AppSpacing.gapH16,
         Text(
           'You can complete more details from your profile later',
           style: theme.textTheme.bodySmall?.copyWith(
@@ -933,22 +940,22 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   // Candidate Step 2: Personal details
   Widget _buildCandidateStep2(ThemeData theme) {
     return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       children: [
         _buildSectionHeader(theme, 'Personal Information'),
-        const SizedBox(height: 8),
+        AppSpacing.gapH8,
         Text(
           'You can link to your parent later and they can fill detailed profile information',
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),
         ),
-        const SizedBox(height: 24),
+        AppSpacing.gapH24,
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: AppSpacing.allMd,
           decoration: BoxDecoration(
             color: AppColors.info.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppSpacing.roundedMd,
             border: Border.all(
               color: AppColors.info.withValues(alpha: 0.2),
             ),
@@ -956,7 +963,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
           child: Row(
             children: [
               const Icon(Icons.info_outline, color: AppColors.info, size: 20),
-              const SizedBox(width: 12),
+              AppSpacing.gapW12,
               Expanded(
                 child: Text(
                   'After creating your account, link to your parent from the Home screen. Your parent and broker will manage detailed profile information.',
@@ -1016,10 +1023,10 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
         hintText: hint,
         prefixIcon: Icon(icon, size: 20),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: AppSpacing.roundedMd,
         ),
         contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 14),
       ),
     );
   }
@@ -1046,14 +1053,14 @@ class _RadioCard extends StatelessWidget {
       color: isSelected
           ? AppColors.sacredSaffron.withValues(alpha: 0.1)
           : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: AppSpacing.roundedMd,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppSpacing.roundedMd,
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: AppSpacing.verticalMd,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppSpacing.roundedMd,
             border: Border.all(
               color: isSelected ? AppColors.sacredSaffron : Colors.transparent,
               width: 2,
@@ -1068,7 +1075,7 @@ class _RadioCard extends StatelessWidget {
                     ? AppColors.sacredSaffron
                     : theme.colorScheme.onSurfaceVariant,
               ),
-              const SizedBox(height: 8),
+              AppSpacing.gapH8,
               Text(
                 label,
                 style: theme.textTheme.bodyMedium?.copyWith(

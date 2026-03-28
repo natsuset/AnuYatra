@@ -54,12 +54,15 @@ class SharedProfile {
   };
 
   factory SharedProfile.fromJson(Map<String, dynamic> json) => SharedProfile(
-    id: json['id'] as String,
-    profileId: json['profileId'] as String,
-    sharedByUserId: json['sharedByUserId'] as String,
-    sharedWithUserId: json['sharedWithUserId'] as String,
-    sharedAt: DateTime.parse(json['sharedAt'] as String),
-    parentResponse: SharedProfileResponse.values.byName(json['parentResponse'] as String),
+    id: json['id'] as String? ?? '',
+    profileId: json['profileId'] as String? ?? '',
+    sharedByUserId: json['sharedByUserId'] as String? ?? '',
+    sharedWithUserId: json['sharedWithUserId'] as String? ?? '',
+    sharedAt: DateTime.tryParse(json['sharedAt'] as String? ?? '') ?? DateTime.now(),
+    parentResponse: SharedProfileResponse.values.firstWhere(
+      (e) => e.name == (json['parentResponse'] as String?),
+      orElse: () => SharedProfileResponse.pending,
+    ),
     forwardedToChild: json['forwardedToChild'] as bool? ?? false,
     childResponse: json['childResponse'] != null
         ? SharedProfileResponse.values.byName(json['childResponse'] as String)

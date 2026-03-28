@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/constants/app_strings.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/agency.dart';
 import 'package:testing_flutter/models/broker_profile.dart';
@@ -140,7 +142,12 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
           ),
           child: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              padding: AppSpacing.only(
+                left: AppSpacing.md,
+                top: AppSpacing.xs,
+                right: AppSpacing.md,
+                bottom: AppSpacing.md,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -152,7 +159,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                       color: Colors.white,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  AppSpacing.gapH12,
                   _buildSearchBar(context, isDark),
                 ],
               ),
@@ -170,7 +177,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
         color: isDark
             ? AppColors.darkSurfaceVariant.withValues(alpha: 0.8)
             : Colors.white.withValues(alpha: 0.95),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: AppSpacing.roundedXxl,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),
@@ -210,7 +217,8 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                 )
               : null,
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          contentPadding:
+              EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 14),
         ),
         textInputAction: TextInputAction.search,
         onSubmitted: (_) => _performSearch(),
@@ -221,7 +229,10 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
 
   Widget _buildFilterChips(BuildContext context, bool isDark) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -267,9 +278,12 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                   width: 1,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: AppSpacing.roundedXl,
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppSpacing.xxs,
+                  vertical: 0,
+                ),
               );
             }).toList(),
           ),
@@ -281,7 +295,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
   Widget _buildEmptyState(BuildContext context, bool isDark) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(48),
+        padding: AppSpacing.allXxl,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -298,16 +312,16 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                 color: AppColors.sacredSaffron,
               ),
             ),
-            const SizedBox(height: 24),
+            AppSpacing.gapH24,
             Text(
-              'No results found',
+              AppStrings.noResultsFound,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
                 color: AppTheme.primaryText(context),
               ),
             ),
-            const SizedBox(height: 8),
+            AppSpacing.gapH8,
             Text(
               'Try adjusting your search or filters to find brokers and agencies',
               textAlign: TextAlign.center,
@@ -317,7 +331,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                 height: 1.5,
               ),
             ),
-            const SizedBox(height: 24),
+            AppSpacing.gapH24,
             TextButton.icon(
               onPressed: () {
                 _searchController.clear();
@@ -359,7 +373,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
         context,
         isDark,
         icon: Icons.person_search_rounded,
-        title: 'Brokers',
+        title: AppStrings.activeBrokers,
         count: _brokers.length,
       ));
       for (final broker in _brokers) {
@@ -368,7 +382,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
     }
 
     // Bottom padding
-    items.add(const SizedBox(height: 24));
+    items.add(AppSpacing.gapH24);
 
     return SliverList(
       delegate: SliverChildBuilderDelegate(
@@ -386,11 +400,16 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
     required int count,
   }) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      padding: AppSpacing.only(
+        left: AppSpacing.md,
+        top: AppSpacing.md,
+        right: AppSpacing.md,
+        bottom: AppSpacing.xs,
+      ),
       child: Row(
         children: [
           Icon(icon, size: 20, color: AppColors.sacredSaffron),
-          const SizedBox(width: 8),
+          AppSpacing.gapW8,
           Text(
             title,
             style: TextStyle(
@@ -399,9 +418,10 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
               color: AppTheme.primaryText(context),
             ),
           ),
-          const SizedBox(width: 8),
+          AppSpacing.gapW8,
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            padding:
+                EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: 2),
             decoration: BoxDecoration(
               color: AppColors.sacredSaffron.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
@@ -424,18 +444,18 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
     final brokerCount = _agencyBrokerCounts[agency.id] ?? 0;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+      padding: EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 5),
       child: Material(
         color: AppTheme.cardSurface(context),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppSpacing.roundedLg,
         elevation: isDark ? 0 : 1,
         child: InkWell(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppSpacing.roundedLg,
           onTap: () => _showAgencyDetail(context, agency),
           child: Container(
-            padding: const EdgeInsets.all(16),
+            padding: AppSpacing.allMd,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: AppSpacing.roundedLg,
               border: Border.all(
                 color: isDark
                     ? AppColors.darkBorder.withValues(alpha: 0.5)
@@ -502,7 +522,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                             ),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      AppSpacing.gapH4,
                       Row(
                         children: [
                           Icon(
@@ -510,7 +530,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                             size: 14,
                             color: AppTheme.tertiaryText(context),
                           ),
-                          const SizedBox(width: 4),
+                          AppSpacing.gapW4,
                           Flexible(
                             child: Text(
                               '${agency.city}, ${agency.state}',
@@ -522,13 +542,13 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          AppSpacing.gapW12,
                           Icon(
                             Icons.people_outline_rounded,
                             size: 14,
                             color: AppTheme.tertiaryText(context),
                           ),
-                          const SizedBox(width: 4),
+                          AppSpacing.gapW4,
                           Text(
                             '$brokerCount broker${brokerCount != 1 ? 's' : ''}',
                             style: TextStyle(
@@ -538,7 +558,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
+                      AppSpacing.gapH8,
                       // Rating
                       Row(
                         children: [
@@ -561,12 +581,15 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                           runSpacing: 4,
                           children: agency.specializations.take(3).map((spec) {
                             return Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: AppSpacing.xs,
+                                vertical: 3,
+                              ),
                               decoration: BoxDecoration(
                                 color: isDark
                                     ? AppColors.darkSurfaceVariant
                                     : AppColors.sacredSaffron.withValues(alpha: 0.08),
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: AppSpacing.roundedSm,
                               ),
                               child: Text(
                                 spec,
@@ -597,18 +620,18 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
     final agencyName = _brokerAgencyNames[broker.userId];
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+      padding: EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 5),
       child: Material(
         color: AppTheme.cardSurface(context),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppSpacing.roundedLg,
         elevation: isDark ? 0 : 1,
         child: InkWell(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppSpacing.roundedLg,
           onTap: () => _showBrokerDetail(context, broker),
           child: Container(
-            padding: const EdgeInsets.all(16),
+            padding: AppSpacing.allMd,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: AppSpacing.roundedLg,
               border: Border.all(
                 color: isDark
                     ? AppColors.darkBorder.withValues(alpha: 0.5)
@@ -710,7 +733,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                               size: 13,
                               color: AppTheme.tertiaryText(context),
                             ),
-                            const SizedBox(width: 4),
+                            AppSpacing.gapW4,
                             Expanded(
                               child: Text(
                                 agencyName,
@@ -740,13 +763,13 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                             ),
                           ),
                           if (broker.clientCount > 0) ...[
-                            const SizedBox(width: 12),
+                            AppSpacing.gapW12,
                             Icon(
                               Icons.group_outlined,
                               size: 14,
                               color: AppTheme.tertiaryText(context),
                             ),
-                            const SizedBox(width: 4),
+                            AppSpacing.gapW4,
                             Flexible(
                               child: Text(
                                 '${broker.clientCount} client${broker.clientCount != 1 ? 's' : ''}',
@@ -770,7 +793,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                               size: 13,
                               color: AppTheme.tertiaryText(context),
                             ),
-                            const SizedBox(width: 4),
+                            AppSpacing.gapW4,
                             Expanded(
                               child: Text(
                                 broker.areasServed.take(3).join(', '),
@@ -786,18 +809,21 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                         ),
                       ],
                       if (broker.specializations.isNotEmpty) ...[
-                        const SizedBox(height: 8),
+                        AppSpacing.gapH8,
                         Wrap(
                           spacing: 6,
                           runSpacing: 4,
                           children: broker.specializations.take(3).map((spec) {
                             return Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: AppSpacing.xs,
+                                vertical: 3,
+                              ),
                               decoration: BoxDecoration(
                                 color: isDark
                                     ? AppColors.darkSurfaceVariant
                                     : AppColors.deepMaroon.withValues(alpha: 0.08),
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: AppSpacing.roundedSm,
                               ),
                               child: Text(
                                 spec,
@@ -833,7 +859,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: AppSpacing.borderRadiusXl),
       ),
       builder: (ctx) {
         return DraggableScrollableSheet(
@@ -855,7 +881,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                AppSpacing.gapH16,
                 // Agency header
                 Row(
                   children: [
@@ -893,15 +919,15 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                AppSpacing.gapH16,
                 if (agency.description.isNotEmpty) ...[
                   Text(agency.description, style: TextStyle(color: AppTheme.secondaryText(context), height: 1.5)),
-                  const SizedBox(height: 16),
+                  AppSpacing.gapH16,
                 ],
                 // Specializations
                 if (agency.specializations.isNotEmpty) ...[
                   Text('Specializations', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.primaryText(context))),
-                  const SizedBox(height: 8),
+                  AppSpacing.gapH8,
                   Wrap(
                     spacing: 8, runSpacing: 6,
                     children: agency.specializations.map((s) => Chip(
@@ -913,7 +939,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     )).toList(),
                   ),
-                  const SizedBox(height: 16),
+                  AppSpacing.gapH16,
                 ],
                 // Connect button
                 FilledButton.icon(
@@ -922,19 +948,19 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                     _sendLinkRequest(context, agencyId: agency.id);
                   },
                   icon: const Icon(Icons.link),
-                  label: const Text('Connect with Agency'),
+                  label: const Text(AppStrings.connectWithAgency),
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.sacredSaffron,
                     minimumSize: const Size(double.infinity, 48),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(borderRadius: AppSpacing.roundedMd),
                   ),
                 ),
-                const SizedBox(height: 16),
+                AppSpacing.gapH16,
                 // Brokers list
                 if (brokers.isNotEmpty) ...[
                   Text('${brokers.length} Broker${brokers.length != 1 ? 's' : ''}',
                     style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.primaryText(context))),
-                  const SizedBox(height: 8),
+                  AppSpacing.gapH8,
                   ...brokers.map((b) => ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: CircleAvatar(
@@ -948,7 +974,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         ..._buildStarRating(b.rating),
-                        const SizedBox(width: 4),
+                        AppSpacing.gapW4,
                         Text(b.rating.toStringAsFixed(1), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                       ],
                     ),
@@ -972,8 +998,8 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
 
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: AppSpacing.borderRadiusXl),
       ),
       builder: (ctx) {
         return SafeArea(
@@ -992,7 +1018,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                AppSpacing.gapH16,
                 Row(
                   children: [
                     CircleAvatar(
@@ -1018,11 +1044,11 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                   ],
                 ),
                 if (broker.bio.isNotEmpty) ...[
-                  const SizedBox(height: 12),
+                  AppSpacing.gapH12,
                   Text(broker.bio, style: TextStyle(color: AppTheme.secondaryText(context), height: 1.4)),
                 ],
                 if (broker.areasServed.isNotEmpty) ...[
-                  const SizedBox(height: 12),
+                  AppSpacing.gapH12,
                   Wrap(
                     spacing: 6, runSpacing: 4,
                     children: broker.areasServed.map((a) => Chip(
@@ -1035,18 +1061,18 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                     )).toList(),
                   ),
                 ],
-                const SizedBox(height: 20),
+                AppSpacing.gapH16,
                 FilledButton.icon(
                   onPressed: () {
                     Navigator.pop(ctx);
                     _sendLinkRequest(context, brokerId: broker.userId);
                   },
                   icon: const Icon(Icons.link),
-                  label: const Text('Connect with Broker'),
+                  label: const Text(AppStrings.connectWithBroker),
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.sacredSaffron,
                     minimumSize: const Size(double.infinity, 48),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(borderRadius: AppSpacing.roundedMd),
                   ),
                 ),
               ],

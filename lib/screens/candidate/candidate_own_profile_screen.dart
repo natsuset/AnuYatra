@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/constants/app_strings.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/models/app_user.dart';
@@ -75,16 +77,16 @@ class _CandidateOwnProfileScreenState
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Profile'),
+        title: const Text(AppStrings.myProfile),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: AppSpacing.allMd,
         children: [
           // ---- Profile header ----
           Card(
             elevation: 0,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: AppSpacing.roundedLg,
               side: BorderSide(
                 color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                 width: 0.5,
@@ -92,7 +94,7 @@ class _CandidateOwnProfileScreenState
             ),
             color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
             child: Padding(
-              padding: const EdgeInsets.all(24),
+              padding: AppSpacing.allLg,
               child: Column(
                 children: [
                   CircleAvatar(
@@ -110,7 +112,7 @@ class _CandidateOwnProfileScreenState
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  AppSpacing.gapH16,
                   Text(
                     user.displayName.isNotEmpty
                         ? user.displayName
@@ -120,7 +122,7 @@ class _CandidateOwnProfileScreenState
                     ),
                   ),
                   if (_candidateProfile != null) ...[
-                    const SizedBox(height: 4),
+                    AppSpacing.gapH4,
                     Text(
                       '${_candidateProfile!.age} years \u2022 ${_candidateProfile!.gender.displayName}',
                       style: theme.textTheme.bodyMedium?.copyWith(
@@ -133,7 +135,9 @@ class _CandidateOwnProfileScreenState
                   const SizedBox(height: 10),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 4),
+                      horizontal: AppSpacing.sm,
+                      vertical: AppSpacing.xxs,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.deepMaroon.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(6),
@@ -152,13 +156,13 @@ class _CandidateOwnProfileScreenState
             ),
           ),
 
-          const SizedBox(height: 16),
+          AppSpacing.gapH16,
 
           // ---- Link status ----
           Card(
             elevation: 0,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: AppSpacing.roundedLg,
               side: BorderSide(
                 color: _linkedParent != null
                     ? AppColors.success.withValues(alpha: 0.3)
@@ -169,7 +173,7 @@ class _CandidateOwnProfileScreenState
             color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
             child: ListTile(
               contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: AppSpacing.xs),
               leading: Container(
                 width: 44,
                 height: 44,
@@ -178,7 +182,7 @@ class _CandidateOwnProfileScreenState
                           ? AppColors.success
                           : AppColors.warning)
                       .withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppSpacing.roundedMd,
                 ),
                 child: Icon(
                   _linkedParent != null ? Icons.link : Icons.link_off,
@@ -201,13 +205,13 @@ class _CandidateOwnProfileScreenState
             ),
           ),
 
-          const SizedBox(height: 16),
+          AppSpacing.gapH16,
 
           // ---- Actions ----
           Card(
             elevation: 0,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: AppSpacing.roundedLg,
               side: BorderSide(
                 color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                 width: 0.5,
@@ -222,7 +226,7 @@ class _CandidateOwnProfileScreenState
                     height: 36,
                     decoration: BoxDecoration(
                       color: AppColors.sacredSaffron.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: AppSpacing.roundedSm,
                     ),
                     child: const Icon(
                       Icons.settings_outlined,
@@ -230,7 +234,7 @@ class _CandidateOwnProfileScreenState
                       size: 18,
                     ),
                   ),
-                  title: const Text('Settings'),
+                  title: const Text(AppStrings.settings),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     context.pushNamed(RouteNames.appSettings);
@@ -243,7 +247,7 @@ class _CandidateOwnProfileScreenState
                     height: 36,
                     decoration: BoxDecoration(
                       color: AppColors.error.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: AppSpacing.roundedSm,
                     ),
                     child: const Icon(
                       Icons.logout,
@@ -252,28 +256,28 @@ class _CandidateOwnProfileScreenState
                     ),
                   ),
                   title: const Text(
-                    'Logout',
+                    AppStrings.logout,
                     style: TextStyle(color: AppColors.error),
                   ),
                   onTap: () async {
                     final confirmed = await showDialog<bool>(
                       context: context,
                       builder: (ctx) => AlertDialog(
-                        title: const Text('Logout'),
+                        title: const Text(AppStrings.logoutConfirmTitle),
                         content: const Text(
-                          'Are you sure you want to log out?',
+                          AppStrings.logoutConfirmMessage,
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(ctx, false),
-                            child: const Text('Cancel'),
+                            child: const Text(AppStrings.cancel),
                           ),
                           FilledButton(
                             onPressed: () => Navigator.pop(ctx, true),
                             style: FilledButton.styleFrom(
                               backgroundColor: AppColors.error,
                             ),
-                            child: const Text('Logout'),
+                            child: const Text(AppStrings.logout),
                           ),
                         ],
                       ),

@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
+import 'package:testing_flutter/core/constants/app_strings.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/core/routing/shells/parent_shell.dart';
 import 'package:testing_flutter/core/routing/shells/broker_shell.dart';
@@ -63,7 +65,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: RouteNames.roleSelectionPath,
-    debugLogDiagnostics: true,
+    debugLogDiagnostics: kDebugMode,
     refreshListenable: authListenable,
     redirect: (context, state) {
       // Read auth state fresh on every redirect (NOT captured in closure)
@@ -106,6 +108,34 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
       return null;
     },
+    errorBuilder: (context, state) => Scaffold(
+      appBar: AppBar(title: const Text(AppStrings.pageNotFound)),
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.error_outline, size: 64, color: Colors.grey),
+            const SizedBox(height: 16),
+            Text(
+              AppStrings.routeNotFound,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              state.uri.toString(),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey,
+                  ),
+            ),
+            const SizedBox(height: 24),
+            FilledButton(
+              onPressed: () => context.go(RouteNames.roleSelectionPath),
+              child: const Text(AppStrings.goHome),
+            ),
+          ],
+        ),
+      ),
+    ),
     routes: [
       // ─── AUTH ROUTES ──────────────────────────────
       GoRoute(

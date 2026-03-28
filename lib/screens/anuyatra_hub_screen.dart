@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/constants/app_strings.dart';
 import 'package:testing_flutter/screens/vivaha_samskara_home_screen.dart';
 import 'package:testing_flutter/screens/trust_verification_screen.dart';
 import 'package:testing_flutter/screens/financial_compatibility_screen.dart';
@@ -17,7 +19,7 @@ class AnuyatraHubScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Anuyatra',
+          AppStrings.appName,
           style: theme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -25,13 +27,13 @@ class AnuyatraHubScreen extends StatelessWidget {
         centerTitle: false,
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: AppSpacing.allMd,
         children: [
           // Premium Services Section
           _SectionCard(
             icon: Icons.auto_awesome,
-            title: 'Vivaha Samskara',
-            subtitle: 'Premium wedding preparation services',
+            title: AppStrings.vivahaSamskara,
+            subtitle: AppStrings.vivahaSamskaraDesc,
             color: AppColors.sacredSaffron,
             onTap: () => Navigator.push(
               context,
@@ -40,12 +42,12 @@ class AnuyatraHubScreen extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          AppSpacing.gapH12,
 
           // Trust Verification
           _SectionCard(
             icon: Icons.verified_user,
-            title: 'Trust Verification',
+            title: AppStrings.trustVerification,
             subtitle: 'Verify profiles with trust scores & endorsements',
             color: AppColors.success,
             onTap: () => Navigator.push(
@@ -55,12 +57,12 @@ class AnuyatraHubScreen extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          AppSpacing.gapH12,
 
           // Financial Compatibility
           _SectionCard(
             icon: Icons.account_balance_wallet,
-            title: 'Financial Compatibility',
+            title: AppStrings.financialCompatibility,
             subtitle: 'Analyze financial alignment between profiles',
             color: AppColors.info,
             onTap: () => Navigator.push(
@@ -70,7 +72,7 @@ class AnuyatraHubScreen extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          AppSpacing.gapH24,
 
           // Coming Soon
           Container(
@@ -79,7 +81,7 @@ class AnuyatraHubScreen extends StatelessWidget {
               color: isDark
                   ? Colors.white.withValues(alpha: 0.05)
                   : AppColors.sacredSaffron.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: AppSpacing.roundedLg,
               border: Border.all(
                 color: AppColors.sacredSaffron.withValues(alpha: 0.2),
               ),
@@ -91,16 +93,16 @@ class AnuyatraHubScreen extends StatelessWidget {
                   size: 40,
                   color: AppColors.sacredSaffron.withValues(alpha: 0.6),
                 ),
-                const SizedBox(height: 12),
+                AppSpacing.gapH12,
                 Text(
-                  'More features coming soon!',
+                  AppStrings.comingSoon,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 4),
+                AppSpacing.gapH4,
                 Text(
-                  'Virtual meetings, AI matching, and more',
+                  AppStrings.comingSoonHint,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -136,13 +138,13 @@ class _SectionCard extends StatelessWidget {
 
     return Material(
       color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: AppSpacing.roundedLg,
       elevation: isDark ? 0 : 1,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppSpacing.roundedLg,
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: AppSpacing.allMd,
           child: Row(
             children: [
               Container(
@@ -150,11 +152,11 @@ class _SectionCard extends StatelessWidget {
                 height: 48,
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppSpacing.roundedMd,
                 ),
                 child: Icon(icon, color: color),
               ),
-              const SizedBox(width: 16),
+              AppSpacing.gapW16,
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

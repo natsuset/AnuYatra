@@ -16,6 +16,12 @@ const _uuid = Uuid();
 
 /// Hive-backed local database that acts as a mini server.
 /// Multiple accounts on one device can interact with each other.
+///
+/// **Deprecated**: Use the domain-specific repository providers instead
+/// (e.g., [userRepositoryProvider], [brokerRepositoryProvider], etc.).
+/// This class is retained only for seeding and backward compatibility
+/// during migration. It will be removed in a future release.
+@Deprecated('Use repository providers from repository_providers.dart instead')
 class LocalStorageService {
   static const String _usersBox = 'users';
   static const String _agenciesBox = 'agencies';
@@ -716,17 +722,22 @@ class LocalStorageService {
     return message;
   }
 
-  /// Save a message
+  static String _msgKey(String convId, String msgId) => '${convId}_$msgId';
+  static String _idxKey(String convId) => '_idx_$convId';
+
+  /// Save a message using per-message keys (matches HiveMessagingRepository).
   Future<void> _saveMessage(ChatMessage message) async {
-    // Store messages in a box keyed by conversationId, each value is a JSON list
-    final key = message.conversationId;
-    final existing = _messages.get(key);
-    List<dynamic> messageList = [];
-    if (existing != null) {
-      messageList = jsonDecode(existing) as List<dynamic>;
-    }
-    messageList.add(message.toJson());
-    await _messages.put(key, jsonEncode(messageList));
+    await _messages.put(
+      _msgKey(message.conversationId, message.id),
+      jsonEncode(message.toJson()),
+    );
+    final idxKey = _idxKey(message.conversationId);
+    final raw = _messages.get(idxKey);
+    final List<String> ids = raw != null
+        ? (jsonDecode(raw) as List<dynamic>).cast<String>()
+        : [];
+    ids.add(message.id);
+    await _messages.put(idxKey, jsonEncode(ids));
   }
 
   /// Save a message directly (for seeding)
@@ -734,31 +745,40 @@ class LocalStorageService {
     await _saveMessage(message);
   }
 
-  /// Get messages for a conversation
+  /// Get messages for a conversation (reads per-message keys).
   List<ChatMessage> getMessages(String conversationId) {
-    final raw = _messages.get(conversationId);
+    final raw = _messages.get(_idxKey(conversationId));
     if (raw == null) return [];
-    final list = jsonDecode(raw) as List<dynamic>;
-    return list
-        .map((m) => ChatMessage.fromJson(m as Map<String, dynamic>))
-        .toList()
-      ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    final ids = (jsonDecode(raw) as List<dynamic>).cast<String>();
+    final messages = <ChatMessage>[];
+    for (final id in ids) {
+      final msgRaw = _messages.get(_msgKey(conversationId, id));
+      if (msgRaw != null) {
+        messages.add(
+            ChatMessage.fromJson(jsonDecode(msgRaw) as Map<String, dynamic>));
+      }
+    }
+    messages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    return messages;
   }
 
-  /// Mark messages as read
+  /// Mark messages as read (updates only unread messages individually).
   Future<void> markMessagesAsRead(String conversationId, String userId) async {
-    final messages = getMessages(conversationId);
-    final updated = messages.map((m) {
-      if (m.recipientId == userId && !m.isRead) {
-        return m.copyWith(isRead: true);
+    final raw = _messages.get(_idxKey(conversationId));
+    if (raw == null) return;
+    final ids = (jsonDecode(raw) as List<dynamic>).cast<String>();
+    for (final id in ids) {
+      final key = _msgKey(conversationId, id);
+      final msgRaw = _messages.get(key);
+      if (msgRaw == null) continue;
+      final msg =
+          ChatMessage.fromJson(jsonDecode(msgRaw) as Map<String, dynamic>);
+      if (msg.recipientId == userId && !msg.isRead) {
+        final updated = msg.copyWith(isRead: true);
+        await _messages.put(key, jsonEncode(updated.toJson()));
       }
-      return m;
-    }).toList();
+    }
 
-    final encoded = jsonEncode(updated.map((m) => m.toJson()).toList());
-    await _messages.put(conversationId, encoded);
-
-    // Reset unread count on conversation
     final conv = getConversation(conversationId);
     if (conv != null) {
       await _conversations.put(

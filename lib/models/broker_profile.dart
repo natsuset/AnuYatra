@@ -116,35 +116,36 @@ class BrokerProfile {
   };
 
   factory BrokerProfile.fromJson(Map<String, dynamic> json) => BrokerProfile(
-    userId: json['userId'] as String,
+    userId: json['userId'] as String? ?? '',
     agencyId: json['agencyId'] as String?,
-    name: json['name'] as String,
-    phoneNumber: json['phoneNumber'] as String,
+    name: json['name'] as String? ?? '',
+    phoneNumber: json['phoneNumber'] as String? ?? '',
     photoUrl: json['photoUrl'] as String?,
     specializations: (json['specializations'] as List<dynamic>?)?.cast<String>() ?? [],
     areasServed: (json['areasServed'] as List<dynamic>?)?.cast<String>() ?? [],
-    experienceYears: json['experienceYears'] as int? ?? 0,
-    clientCount: json['clientCount'] as int? ?? 0,
-    profilesManaged: json['profilesManaged'] as int? ?? 0,
+    experienceYears: (json['experienceYears'] as num?)?.toInt() ?? 0,
+    clientCount: (json['clientCount'] as num?)?.toInt() ?? 0,
+    profilesManaged: (json['profilesManaged'] as num?)?.toInt() ?? 0,
     rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
     bio: json['bio'] as String? ?? '',
     isOnline: json['isOnline'] as bool? ?? false,
-    lastSeen: DateTime.parse(json['lastSeen'] as String),
-    createdAt: DateTime.parse(json['createdAt'] as String),
+    lastSeen: DateTime.tryParse(json['lastSeen'] as String? ?? '') ?? DateTime.now(),
+    createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
     // New fields
     email: json['email'] as String?,
     officeAddress: json['officeAddress'] as String?,
     website: json['website'] as String?,
     licenseNumber: json['licenseNumber'] as String?,
     languagesSpoken: (json['languagesSpoken'] as List<dynamic>?)?.cast<String>() ?? [],
-    totalSuccessfulMatches: json['totalSuccessfulMatches'] as int? ?? 0,
+    totalSuccessfulMatches: (json['totalSuccessfulMatches'] as num?)?.toInt() ?? 0,
     feeStructure: json['feeStructure'] as String?,
     workingHours: json['workingHours'] as String?,
     socialMediaLinks: (json['socialMediaLinks'] as Map<String, dynamic>?)
         ?.map((k, v) => MapEntry(k, v.toString())) ?? {},
-    verificationStatus: json['verificationStatus'] != null
-        ? VerificationStatus.values.byName(json['verificationStatus'] as String)
-        : VerificationStatus.unverified,
+    verificationStatus: VerificationStatus.values.firstWhere(
+      (e) => e.name == (json['verificationStatus'] as String?),
+      orElse: () => VerificationStatus.unverified,
+    ),
   );
 
   BrokerProfile copyWith({

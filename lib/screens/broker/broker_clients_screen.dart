@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/constants/app_strings.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/link_request.dart';
@@ -83,7 +85,12 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                 if (_pendingRequests.isNotEmpty) ...[
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.md,
+                        AppSpacing.md,
+                        AppSpacing.md,
+                        AppSpacing.xs,
+                      ),
                       child: Row(
                         children: [
                           Container(
@@ -91,7 +98,7 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                             decoration: BoxDecoration(
                               color: AppColors.warning
                                   .withValues(alpha: isDark ? 0.15 : 0.1),
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: AppSpacing.roundedSm,
                             ),
                             child: const Icon(
                               Icons.pending_actions_rounded,
@@ -109,15 +116,15 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                                   : AppColors.lightPrimaryText,
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          AppSpacing.gapW8,
                           Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
+                              horizontal: AppSpacing.xs,
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
                               color: AppColors.warning,
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: AppSpacing.roundedMd,
                             ),
                             child: Text(
                               '${_pendingRequests.length}',
@@ -133,7 +140,7 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                     ),
                   ),
                   SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: AppSpacing.horizontalMd,
                     sliver: SliverList.builder(
                       itemCount: _pendingRequests.length,
                       itemBuilder: (context, index) {
@@ -154,7 +161,12 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
 
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.md,
+                      20,
+                      AppSpacing.md,
+                      AppSpacing.xs,
+                    ),
                     child: Row(
                       children: [
                         Container(
@@ -162,7 +174,7 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                           decoration: BoxDecoration(
                             color: AppColors.success
                                 .withValues(alpha: isDark ? 0.15 : 0.1),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: AppSpacing.roundedSm,
                           ),
                           child: const Icon(
                             Icons.people_alt_rounded,
@@ -180,16 +192,16 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                                 : AppColors.lightPrimaryText,
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        AppSpacing.gapW8,
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
+                            horizontal: AppSpacing.xs,
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
                             color: AppColors.success
                                 .withValues(alpha: isDark ? 0.2 : 0.15),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: AppSpacing.roundedMd,
                           ),
                           child: Text(
                             '${_connectedParentIds.length}',
@@ -208,7 +220,7 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 24),
+                          horizontal: AppSpacing.md, vertical: AppSpacing.lg),
                       child: Center(
                         child: Text(
                           'No connected clients yet.',
@@ -224,7 +236,7 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                 else
                   SliverPadding(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xxs),
                     sliver: SliverList.builder(
                       itemCount: _connectedParentIds.length,
                       itemBuilder: (context, index) {
@@ -245,7 +257,7 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                   ),
 
                 const SliverToBoxAdapter(
-                  child: SizedBox(height: 24),
+                  child: AppSpacing.gapH24,
                 ),
               ],
             )
@@ -336,7 +348,7 @@ class _EmptyState extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(24),
+              padding: AppSpacing.allLg,
               decoration: BoxDecoration(
                 color: AppColors.sacredSaffron
                     .withValues(alpha: isDark ? 0.1 : 0.08),
@@ -349,9 +361,9 @@ class _EmptyState extends StatelessWidget {
                     .withValues(alpha: isDark ? 0.6 : 0.5),
               ),
             ),
-            const SizedBox(height: 24),
+            AppSpacing.gapH24,
             Text(
-              'No Clients Yet',
+              AppStrings.noClientsYet,
               style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: isDark
@@ -359,7 +371,7 @@ class _EmptyState extends StatelessWidget {
                     : AppColors.lightPrimaryText,
               ),
             ),
-            const SizedBox(height: 8),
+            AppSpacing.gapH8,
             Text(
               'When parents connect with you, they\nwill appear here.',
               textAlign: TextAlign.center,
@@ -396,10 +408,10 @@ class _PendingRequestCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: AppSpacing.allMd,
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppSpacing.roundedLg,
         border: Border.all(
           color: AppColors.warning.withValues(alpha: 0.3),
           width: 1,
@@ -434,7 +446,7 @@ class _PendingRequestCard extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              AppSpacing.gapW12,
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -462,13 +474,13 @@ class _PendingRequestCard extends StatelessWidget {
               ),
               Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: AppSpacing.xxs),
                 decoration: BoxDecoration(
                   color: AppColors.warning.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: AppSpacing.roundedSm,
                 ),
                 child: Text(
-                  'Pending',
+                  AppStrings.pending,
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -479,10 +491,10 @@ class _PendingRequestCard extends StatelessWidget {
             ],
           ),
           if (request.note != null && request.note!.isNotEmpty) ...[
-            const SizedBox(height: 12),
+            AppSpacing.gapH12,
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(12),
+              padding: AppSpacing.allSm,
               decoration: BoxDecoration(
                 color: isDark
                     ? AppColors.darkSurfaceVariant
@@ -507,7 +519,7 @@ class _PendingRequestCard extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: onDecline,
                   icon: const Icon(Icons.close_rounded, size: 18),
-                  label: const Text('Decline'),
+                  label: const Text(AppStrings.decline),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.error,
                     side: BorderSide(
@@ -520,12 +532,12 @@ class _PendingRequestCard extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              AppSpacing.gapW12,
               Expanded(
                 child: FilledButton.icon(
                   onPressed: onAccept,
                   icon: const Icon(Icons.check_rounded, size: 18),
-                  label: const Text('Accept'),
+                  label: const Text(AppStrings.accept),
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.success,
                     foregroundColor: Colors.white,
@@ -615,7 +627,7 @@ class _ConnectedClientCard extends StatelessWidget {
                         : AppColors.lightPrimaryText,
                   ),
                 ),
-                const SizedBox(height: 4),
+                AppSpacing.gapH4,
                 Wrap(
                   spacing: 8,
                   runSpacing: 6,
@@ -636,18 +648,18 @@ class _ConnectedClientCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 8),
+          AppSpacing.gapW8,
           Material(
             color: Colors.transparent,
             child: InkWell(
               onTap: onChat,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppSpacing.roundedMd,
               child: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: AppColors.sacredSaffron
                       .withValues(alpha: isDark ? 0.15 : 0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppSpacing.roundedMd,
                 ),
                 child: const Icon(
                   Icons.chat_bubble_outline_rounded,
@@ -689,7 +701,7 @@ class _InfoChip extends StatelessWidget {
                 ? AppColors.darkTertiaryText
                 : AppColors.lightTertiaryText,
           ),
-          const SizedBox(width: 4),
+          AppSpacing.gapW4,
           Flexible(
             child: Text(
               label,

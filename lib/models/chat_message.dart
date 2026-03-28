@@ -57,13 +57,16 @@ class ChatMessage {
   };
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) => ChatMessage(
-    id: json['id'] as String,
-    conversationId: json['conversationId'] as String,
-    senderId: json['senderId'] as String,
-    recipientId: json['recipientId'] as String,
-    content: json['content'] as String,
-    type: ChatMessageType.values.byName(json['type'] as String),
-    timestamp: DateTime.parse(json['timestamp'] as String),
+    id: json['id'] as String? ?? '',
+    conversationId: json['conversationId'] as String? ?? '',
+    senderId: json['senderId'] as String? ?? '',
+    recipientId: json['recipientId'] as String? ?? '',
+    content: json['content'] as String? ?? '',
+    type: ChatMessageType.values.firstWhere(
+      (e) => e.name == (json['type'] as String?),
+      orElse: () => ChatMessageType.text,
+    ),
+    timestamp: DateTime.tryParse(json['timestamp'] as String? ?? '') ?? DateTime.now(),
     isRead: json['isRead'] as bool? ?? false,
     profileId: json['profileId'] as String?,
     attachmentUrl: json['attachmentUrl'] as String?,
@@ -109,8 +112,8 @@ class Conversation {
   };
 
   factory Conversation.fromJson(Map<String, dynamic> json) => Conversation(
-    id: json['id'] as String,
-    participantIds: (json['participantIds'] as List<dynamic>).cast<String>(),
+    id: json['id'] as String? ?? '',
+    participantIds: (json['participantIds'] as List<dynamic>?)?.cast<String>() ?? [],
     lastMessagePreview: json['lastMessagePreview'] as String?,
     lastMessageAt: json['lastMessageAt'] != null
         ? DateTime.parse(json['lastMessageAt'] as String)

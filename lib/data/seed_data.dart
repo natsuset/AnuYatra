@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:testing_flutter/core/services/local_storage_service.dart';
 import 'package:testing_flutter/models/app_user.dart';
 import 'package:testing_flutter/models/user_role.dart';
@@ -9,9 +10,17 @@ import 'package:testing_flutter/models/link_request.dart';
 import 'package:testing_flutter/models/shared_profile.dart';
 import 'package:testing_flutter/models/chat_message.dart';
 
+/// Toggle to enable/disable seeding on first launch.
+/// Set to `false` to skip seeding entirely (e.g. for production).
+class SeedConfig {
+  static const bool enabled = true;
+  static const bool printCredentials = true;
+}
+
 /// Seeds the local Hive database with realistic demo data on first launch.
 /// Creates agencies, brokers, parents, candidates, connections, and conversations.
 Future<void> seedDemoData(LocalStorageService storage) async {
+  if (!SeedConfig.enabled) return;
   if (!storage.isFirstLaunch) return;
 
   final now = DateTime.now();
@@ -631,5 +640,29 @@ Future<void> seedDemoData(LocalStorageService storage) async {
 
   for (final msg in messages2) {
     await storage.saveMessage(msg);
+  }
+
+  // ─── PRINT DEMO CREDENTIALS ──────────────────────────────
+
+  if (SeedConfig.printCredentials) {
+    debugPrint('');
+    debugPrint('╔══════════════════════════════════════════════════════╗');
+    debugPrint('║           DEMO LOGIN CREDENTIALS (OTP: 123456)      ║');
+    debugPrint('╠══════════════════════════════════════════════════════╣');
+    debugPrint('║ Agency Admin                                        ║');
+    debugPrint('║   Priya Sharma    +91 9876543210  (Shubh Vivah)     ║');
+    debugPrint('║   Rajesh Gupta    +91 9876543211  (Pavitra Bandhan) ║');
+    debugPrint('║ Brokers                                             ║');
+    debugPrint('║   Sunita Verma    +91 9812345001  (agency)          ║');
+    debugPrint('║   Amit Patel      +91 9812345002  (agency)          ║');
+    debugPrint('║   Kavita Reddy    +91 9812345003  (independent)     ║');
+    debugPrint('║   Deepak Mishra   +91 9812345004  (agency)          ║');
+    debugPrint('║ Parents                                             ║');
+    debugPrint('║   Ramesh Kumar    +91 9800001001                    ║');
+    debugPrint('║   Meera Nair      +91 9800001002                    ║');
+    debugPrint('║ Candidates                                          ║');
+    debugPrint('║   Ananya Kumar    +91 9700001001                    ║');
+    debugPrint('╚══════════════════════════════════════════════════════╝');
+    debugPrint('');
   }
 }

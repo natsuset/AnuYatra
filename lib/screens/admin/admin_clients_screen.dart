@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/constants/app_strings.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 
@@ -93,14 +95,16 @@ class _AdminClientsScreenState extends ConsumerState<AdminClientsScreen> {
         title: const Text('Agency Clients'),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 16),
+            padding: EdgeInsets.only(right: AppSpacing.md),
             child: Center(
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: AppSpacing.xxs,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.sacredSaffron.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppSpacing.roundedMd,
                 ),
                 child: Text(
                   '${_clients.length}',
@@ -117,7 +121,7 @@ class _AdminClientsScreenState extends ConsumerState<AdminClientsScreen> {
       body: _clients.isEmpty
           ? Center(
               child: Padding(
-                padding: const EdgeInsets.all(32),
+                padding: AppSpacing.allXl,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -127,14 +131,14 @@ class _AdminClientsScreenState extends ConsumerState<AdminClientsScreen> {
                       color: theme.colorScheme.onSurfaceVariant
                           .withValues(alpha: 0.4),
                     ),
-                    const SizedBox(height: 16),
+                    AppSpacing.gapH16,
                     Text(
-                      'No clients yet',
+                      AppStrings.noClientsYet,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    AppSpacing.gapH8,
                     Text(
                       'When parents connect with your brokers, they\'ll appear here.',
                       textAlign: TextAlign.center,
@@ -147,7 +151,7 @@ class _AdminClientsScreenState extends ConsumerState<AdminClientsScreen> {
               ),
             )
           : ListView.separated(
-              padding: const EdgeInsets.all(16),
+              padding: AppSpacing.allMd,
               itemCount: _clients.length,
               separatorBuilder: (_, __) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
@@ -167,7 +171,7 @@ class _AdminClientsScreenState extends ConsumerState<AdminClientsScreen> {
                     );
                   },
                   child: Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: AppSpacing.allMd,
                   decoration: BoxDecoration(
                     color: isDark ? AppColors.darkSurface : Colors.white,
                     borderRadius: BorderRadius.circular(14),
@@ -205,7 +209,7 @@ class _AdminClientsScreenState extends ConsumerState<AdminClientsScreen> {
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            AppSpacing.gapH4,
                             Text(
                               '${client.city} \u2022 Looking for ${client.lookingFor}',
                               style: theme.textTheme.bodySmall?.copyWith(
@@ -220,13 +224,13 @@ class _AdminClientsScreenState extends ConsumerState<AdminClientsScreen> {
                               children: client.brokerNames.map((name) {
                                 return Container(
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
+                                    horizontal: AppSpacing.xs,
                                     vertical: 2,
                                   ),
                                   decoration: BoxDecoration(
                                     color:
                                         AppColors.info.withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius: AppSpacing.roundedSm,
                                   ),
                                   child: Text(
                                     name,

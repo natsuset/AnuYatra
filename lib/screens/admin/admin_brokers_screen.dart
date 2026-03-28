@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/constants/app_strings.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/broker_profile.dart';
 import 'package:testing_flutter/models/link_request.dart';
@@ -86,12 +88,17 @@ class _AdminBrokersScreenState extends ConsumerState<AdminBrokersScreen> {
         backgroundColor: AppColors.sacredSaffron,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.person_add),
-        label: const Text('Invite Broker'),
+        label: const Text(AppStrings.inviteBroker),
       ),
       body: _brokers.isEmpty
           ? _buildEmptyState(context, isDark, theme, ref, user.uid, user.displayName)
           : ListView.separated(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+              padding: EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                AppSpacing.md,
+                AppSpacing.md,
+                80,
+              ),
               itemCount: _brokers.length,
               separatorBuilder: (_, __) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
@@ -128,14 +135,14 @@ class _AdminBrokersScreenState extends ConsumerState<AdminBrokersScreen> {
                 ? AppColors.darkTertiaryText
                 : AppColors.lightTertiaryText,
           ),
-          const SizedBox(height: 16),
+          AppSpacing.gapH16,
           Text(
-            'No brokers in your agency',
+            AppStrings.noBrokersInAgency,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 8),
+          AppSpacing.gapH8,
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 48),
             child: Text(
@@ -148,15 +155,17 @@ class _AdminBrokersScreenState extends ConsumerState<AdminBrokersScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          AppSpacing.gapH24,
           FilledButton.icon(
             onPressed: () => _showInviteDialog(context, ref, userId, userName),
             icon: const Icon(Icons.person_add),
-            label: const Text('Invite Broker'),
+            label: const Text(AppStrings.inviteBroker),
             style: FilledButton.styleFrom(
               backgroundColor: AppColors.sacredSaffron,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.sm,
+              ),
             ),
           ),
         ],
@@ -169,14 +178,14 @@ class _AdminBrokersScreenState extends ConsumerState<AdminBrokersScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Invite Broker'),
+        title: const Text(AppStrings.inviteBroker),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
               'Enter the phone number of the broker you want to invite to your agency.',
             ),
-            const SizedBox(height: 16),
+            AppSpacing.gapH16,
             TextField(
               controller: phoneController,
               keyboardType: TextInputType.phone,
@@ -192,7 +201,7 @@ class _AdminBrokersScreenState extends ConsumerState<AdminBrokersScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: const Text(AppStrings.cancel),
           ),
           FilledButton(
             onPressed: () async {
@@ -208,7 +217,7 @@ class _AdminBrokersScreenState extends ConsumerState<AdminBrokersScreen> {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('No user found with that phone number'),
+                      content: Text(AppStrings.userNotFoundByPhone),
                       backgroundColor: AppColors.error,
                     ),
                   );
@@ -249,7 +258,7 @@ class _AdminBrokersScreenState extends ConsumerState<AdminBrokersScreen> {
             style: FilledButton.styleFrom(
               backgroundColor: AppColors.sacredSaffron,
             ),
-            child: const Text('Send Invite'),
+            child: const Text(AppStrings.sendInvite),
           ),
         ],
       ),
@@ -288,7 +297,7 @@ class _BrokerCard extends StatelessWidget {
       ),
       color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: AppSpacing.allMd,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -340,8 +349,10 @@ class _BrokerCard extends StatelessWidget {
                 // Rating badge
                 if (broker.rating > 0)
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.xs,
+                      vertical: AppSpacing.xxs,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.warning.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(6),
@@ -354,7 +365,7 @@ class _BrokerCard extends StatelessWidget {
                           size: 14,
                           color: AppColors.warning,
                         ),
-                        const SizedBox(width: 4),
+                        AppSpacing.gapW4,
                         Text(
                           broker.rating.toStringAsFixed(1),
                           style: const TextStyle(
@@ -408,10 +419,10 @@ class _BrokerCard extends StatelessWidget {
                     .map(
                       (s) => Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 3),
+                            horizontal: AppSpacing.xs, vertical: 3),
                         decoration: BoxDecoration(
                           color: AppColors.info.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: AppSpacing.roundedXs,
                         ),
                         child: Text(
                           s,
@@ -459,7 +470,7 @@ class _MiniStat extends StatelessWidget {
           color:
               isDark ? AppColors.darkTertiaryText : AppColors.lightTertiaryText,
         ),
-        const SizedBox(width: 4),
+        AppSpacing.gapW4,
         Text(
           '$value $label',
           style: TextStyle(

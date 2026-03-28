@@ -33,13 +33,16 @@ class AppUser {
   };
 
   factory AppUser.fromJson(Map<String, dynamic> json) => AppUser(
-    uid: json['uid'] as String,
-    phoneNumber: json['phoneNumber'] as String,
-    displayName: json['displayName'] as String,
+    uid: json['uid'] as String? ?? '',
+    phoneNumber: json['phoneNumber'] as String? ?? '',
+    displayName: json['displayName'] as String? ?? '',
     photoUrl: json['photoUrl'] as String?,
-    role: UserRole.values.byName(json['role'] as String),
+    role: UserRole.values.firstWhere(
+      (e) => e.name == (json['role'] as String?),
+      orElse: () => UserRole.parent,
+    ),
     agencyId: json['agencyId'] as String?,
-    createdAt: DateTime.parse(json['createdAt'] as String),
+    createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
     isActive: json['isActive'] as bool? ?? true,
   );
 

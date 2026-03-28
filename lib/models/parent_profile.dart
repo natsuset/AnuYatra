@@ -1,3 +1,9 @@
+T? _tryParseEnum<T extends Enum>(List<T> values, String? s) {
+  if (s == null) return null;
+  final match = values.where((e) => e.name == s);
+  return match.isEmpty ? null : match.first;
+}
+
 enum LookingFor { bride, groom }
 
 enum FamilyType { joint, nuclear }
@@ -229,27 +235,30 @@ class ParentProfile {
   };
 
   factory ParentProfile.fromJson(Map<String, dynamic> json) => ParentProfile(
-    userId: json['userId'] as String,
-    name: json['name'] as String,
-    lookingFor: LookingFor.values.byName(json['lookingFor'] as String),
-    city: json['city'] as String,
-    state: json['state'] as String,
+    userId: json['userId'] as String? ?? '',
+    name: json['name'] as String? ?? '',
+    lookingFor: LookingFor.values.firstWhere(
+      (e) => e.name == (json['lookingFor'] as String?),
+      orElse: () => LookingFor.bride,
+    ),
+    city: json['city'] as String? ?? '',
+    state: json['state'] as String? ?? '',
     preferredCommunities: (json['preferredCommunities'] as List<dynamic>?)?.cast<String>() ?? [],
     preferredMinAge: json['preferredMinAge'] as int?,
     preferredMaxAge: json['preferredMaxAge'] as int?,
-    createdAt: DateTime.parse(json['createdAt'] as String),
+    createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
     // Contact
     email: json['email'] as String?,
     whatsAppNumber: json['whatsAppNumber'] as String?,
     alternatePhone: json['alternatePhone'] as String?,
     // Child personal
     childName: json['childName'] as String?,
-    childDateOfBirth: json['childDateOfBirth'] != null ? DateTime.parse(json['childDateOfBirth'] as String) : null,
+    childDateOfBirth: DateTime.tryParse(json['childDateOfBirth'] as String? ?? ''),
     childHeight: json['childHeight'] as String?,
     childWeight: json['childWeight'] as String?,
     childComplexion: json['childComplexion'] as String?,
     childBloodGroup: json['childBloodGroup'] as String?,
-    childDiet: json['childDiet'] != null ? Diet.values.byName(json['childDiet'] as String) : null,
+    childDiet: _tryParseEnum(Diet.values, json['childDiet'] as String?),
     childSmokes: json['childSmokes'] as bool?,
     childDrinks: json['childDrinks'] as bool?,
     childPhysicalStatus: json['childPhysicalStatus'] as String?,
@@ -264,8 +273,8 @@ class ParentProfile {
     childBirthTime: json['childBirthTime'] as String?,
     childBirthPlace: json['childBirthPlace'] as String?,
     // Family
-    familyType: json['familyType'] != null ? FamilyType.values.byName(json['familyType'] as String) : null,
-    familyValues: json['familyValues'] != null ? FamilyValues.values.byName(json['familyValues'] as String) : null,
+    familyType: _tryParseEnum(FamilyType.values, json['familyType'] as String?),
+    familyValues: _tryParseEnum(FamilyValues.values, json['familyValues'] as String?),
     familyAffluence: json['familyAffluence'] as String?,
     numberOfBrothers: json['numberOfBrothers'] as int?,
     numberOfSisters: json['numberOfSisters'] as int?,
@@ -277,7 +286,7 @@ class ParentProfile {
     ownHouse: json['ownHouse'] as bool?,
     ownCar: json['ownCar'] as bool?,
     willingToRelocate: json['willingToRelocate'] as bool?,
-    lifestyle: json['lifestyle'] != null ? Lifestyle.values.byName(json['lifestyle'] as String) : null,
+    lifestyle: _tryParseEnum(Lifestyle.values, json['lifestyle'] as String?),
     // Partner preferences
     preferredHeightMin: json['preferredHeightMin'] as String?,
     preferredHeightMax: json['preferredHeightMax'] as String?,
@@ -285,7 +294,7 @@ class ParentProfile {
     preferredEducation: json['preferredEducation'] as String?,
     preferredProfession: json['preferredProfession'] as String?,
     preferredIncomeMin: json['preferredIncomeMin'] as String?,
-    preferredDiet: json['preferredDiet'] != null ? Diet.values.byName(json['preferredDiet'] as String) : null,
+    preferredDiet: _tryParseEnum(Diet.values, json['preferredDiet'] as String?),
     preferredLocation: json['preferredLocation'] as String?,
     preferredReligion: json['preferredReligion'] as String?,
     preferredCaste: json['preferredCaste'] as String?,

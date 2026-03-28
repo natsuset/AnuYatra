@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/constants/app_strings.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/agency.dart';
 import 'package:testing_flutter/core/providers/theme_provider.dart';
@@ -120,7 +122,7 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Agency Settings'),
+        title: const Text(AppStrings.agencySettings),
         actions: [
           if (_editing)
             TextButton(
@@ -132,7 +134,7 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : Text(
-                      'Save',
+                      AppStrings.save,
                       style: TextStyle(
                         color: AppColors.sacredSaffron,
                         fontWeight: FontWeight.w600,
@@ -147,11 +149,11 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: AppSpacing.allMd,
         children: [
           // Agency Info Section
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: AppSpacing.allMd,
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkSurface : Colors.white,
               borderRadius: BorderRadius.circular(14),
@@ -167,36 +169,36 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
                     Icon(Icons.business, color: AppColors.sacredSaffron),
                     const SizedBox(width: 10),
                     Text(
-                      'Agency Information',
+                      AppStrings.agencyInformation,
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                AppSpacing.gapH16,
                 _buildField('Agency Name', _nameController, _editing),
-                const SizedBox(height: 12),
+                AppSpacing.gapH12,
                 _buildField('Description', _descController, _editing,
                     maxLines: 3),
-                const SizedBox(height: 12),
+                AppSpacing.gapH12,
                 Row(
                   children: [
                     Expanded(
                       child: _buildField('City', _cityController, _editing),
                     ),
-                    const SizedBox(width: 12),
+                    AppSpacing.gapW12,
                     Expanded(
                       child: _buildField('State', _stateController, _editing),
                     ),
                   ],
                 ),
                 if (agency != null) ...[
-                  const SizedBox(height: 12),
+                  AppSpacing.gapH12,
                   Row(
                     children: [
                       Icon(Icons.star, size: 16, color: AppColors.warning),
-                      const SizedBox(width: 4),
+                      AppSpacing.gapW4,
                       Text(
                         'Rating: ${agency.rating}',
                         style: theme.textTheme.bodySmall?.copyWith(
@@ -209,12 +211,12 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          AppSpacing.gapH16,
 
           // Specializations
           if (agency != null && agency.specializations.isNotEmpty) ...[
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: AppSpacing.allMd,
               decoration: BoxDecoration(
                 color: isDark ? AppColors.darkSurface : Colors.white,
                 borderRadius: BorderRadius.circular(14),
@@ -232,7 +234,7 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  AppSpacing.gapH12,
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
@@ -251,12 +253,12 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            AppSpacing.gapH16,
           ],
 
           // Theme toggle
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: AppSpacing.allMd,
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkSurface : Colors.white,
               borderRadius: BorderRadius.circular(14),
@@ -270,10 +272,10 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
                   isDark ? Icons.dark_mode : Icons.light_mode,
                   color: AppColors.sacredSaffron,
                 ),
-                const SizedBox(width: 12),
+                AppSpacing.gapW12,
                 Expanded(
                   child: Text(
-                    'Dark Mode',
+                    AppStrings.darkMode,
                     style: theme.textTheme.bodyLarge,
                   ),
                 ),
@@ -288,7 +290,7 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          AppSpacing.gapH16,
 
           // Logout
           SizedBox(
@@ -298,13 +300,13 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
                 showDialog(
                   context: context,
                   builder: (ctx) => AlertDialog(
-                    title: const Text('Logout'),
+                    title: const Text(AppStrings.logoutConfirmTitle),
                     content:
-                        const Text('Are you sure you want to sign out?'),
+                        const Text(AppStrings.logoutConfirmMessage),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(ctx),
-                        child: const Text('Cancel'),
+                        child: const Text(AppStrings.cancel),
                       ),
                       FilledButton(
                         onPressed: () {
@@ -314,7 +316,7 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
                         style: FilledButton.styleFrom(
                           backgroundColor: AppColors.error,
                         ),
-                        child: const Text('Logout',
+                        child: const Text(AppStrings.logout,
                             style: TextStyle(color: Colors.white)),
                       ),
                     ],
@@ -323,18 +325,18 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
               },
               icon: const Icon(Icons.logout, color: AppColors.error),
               label: const Text(
-                'Sign Out',
+                AppStrings.logout,
                 style: TextStyle(color: AppColors.error),
               ),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppColors.error),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppSpacing.roundedMd,
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 32),
+          AppSpacing.gapH32,
         ],
       ),
     );
@@ -352,9 +354,9 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
       maxLines: maxLines,
       decoration: InputDecoration(
         labelText: label,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        border: OutlineInputBorder(borderRadius: AppSpacing.roundedMd),
         contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 14),
       ),
     );
   }

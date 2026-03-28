@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/constants/app_strings.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/link_request.dart';
 
@@ -25,7 +27,7 @@ class LinkRequestsScreen extends ConsumerWidget {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Link Requests'),
+          title: const Text(AppStrings.linkRequests),
           bottom: TabBar(
             indicatorColor: AppColors.sacredSaffron,
             labelColor: AppColors.sacredSaffron,
@@ -111,7 +113,7 @@ class _ReceivedTabState extends ConsumerState<_ReceivedTab> {
       return _buildEmptyState(
         context: context,
         icon: Icons.inbox_outlined,
-        title: 'No received requests',
+        title: AppStrings.noReceivedRequests,
         subtitle: 'Link requests from others will appear here',
       );
     }
@@ -119,7 +121,7 @@ class _ReceivedTabState extends ConsumerState<_ReceivedTab> {
     return RefreshIndicator(
       onRefresh: () async => _loadRequests(),
       child: ListView.separated(
-        padding: const EdgeInsets.all(16),
+        padding: AppSpacing.allMd,
         itemCount: _requests.length,
         separatorBuilder: (_, __) => const SizedBox(height: 10),
         itemBuilder: (context, index) {
@@ -173,13 +175,13 @@ class _SentTabState extends ConsumerState<_SentTab> {
       return _buildEmptyState(
         context: context,
         icon: Icons.send_outlined,
-        title: 'No sent requests',
+        title: AppStrings.noSentRequests,
         subtitle: 'Requests you send will appear here',
       );
     }
 
     return ListView.separated(
-      padding: const EdgeInsets.all(16),
+      padding: AppSpacing.allMd,
       itemCount: _requests.length,
       separatorBuilder: (_, __) => const SizedBox(height: 10),
       itemBuilder: (context, index) {
@@ -217,7 +219,7 @@ class _RequestCard extends StatelessWidget {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppSpacing.roundedMd,
         side: BorderSide(
           color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
           width: 0.5,
@@ -225,7 +227,7 @@ class _RequestCard extends StatelessWidget {
       ),
       color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: AppSpacing.allMd,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -242,7 +244,7 @@ class _RequestCard extends StatelessWidget {
                     size: 20,
                   ),
                 ),
-                const SizedBox(width: 12),
+                AppSpacing.gapW12,
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -272,14 +274,14 @@ class _RequestCard extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 12),
+            AppSpacing.gapH12,
 
             // Status + optional note
             Row(
               children: [
                 _StatusBadge(status: request.status),
                 if (request.note != null && request.note!.isNotEmpty) ...[
-                  const SizedBox(width: 8),
+                  AppSpacing.gapW8,
                   Expanded(
                     child: Text(
                       request.note!,
@@ -306,26 +308,26 @@ class _RequestCard extends StatelessWidget {
                     child: OutlinedButton.icon(
                       onPressed: onDecline,
                       icon: const Icon(Icons.close, size: 18),
-                      label: const Text('Decline'),
+                      label: const Text(AppStrings.decline),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.error,
                         side: const BorderSide(color: AppColors.error),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: AppSpacing.roundedSm,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  AppSpacing.gapW12,
                   Expanded(
                     child: FilledButton.icon(
                       onPressed: onAccept,
                       icon: const Icon(Icons.check, size: 18),
-                      label: const Text('Accept'),
+                      label: const Text(AppStrings.accept),
                       style: FilledButton.styleFrom(
                         backgroundColor: AppColors.success,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: AppSpacing.roundedSm,
                         ),
                       ),
                     ),
@@ -363,7 +365,10 @@ class _TypeBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.xs,
+        vertical: AppSpacing.xxs,
+      ),
       decoration: BoxDecoration(
         color: AppColors.info.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(6),
@@ -401,7 +406,10 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: AppSpacing.xxs,
+      ),
       decoration: BoxDecoration(
         color: _color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(6),
@@ -453,7 +461,7 @@ Widget _buildEmptyState({
               ? AppColors.darkTertiaryText
               : AppColors.lightTertiaryText,
         ),
-        const SizedBox(height: 16),
+        AppSpacing.gapH16,
         Text(
           title,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(

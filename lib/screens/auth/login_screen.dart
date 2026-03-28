@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/constants/app_strings.dart';
 import 'package:testing_flutter/models/user_role.dart';
 
 /// Phone number entry screen with +91 country code.
@@ -71,36 +73,39 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 16),
+              AppSpacing.gapH16,
 
               Text(
-                'Enter your phone number',
+                AppStrings.enterPhoneTitle,
                 style: theme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 8),
+              AppSpacing.gapH8,
               Text(
-                'We\'ll send you a verification code',
+                AppStrings.enterPhoneSubtitle,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
-              const SizedBox(height: 8),
+              AppSpacing.gapH8,
 
               if (_selectedRole != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: AppSpacing.xxs,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.sacredSaffron.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: AppSpacing.roundedSm,
                   ),
                   child: Text(
-                    'Registering as: ${_selectedRole!.displayName}',
+                    AppStrings.registeringAs(_selectedRole!.displayName),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: AppColors.sacredSaffron,
                       fontWeight: FontWeight.w500,
@@ -108,12 +113,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                 ),
 
-              const SizedBox(height: 32),
+              AppSpacing.gapH32,
 
               // Phone input
               Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppSpacing.roundedMd,
                   border: Border.all(
                     color: theme.colorScheme.outline.withValues(alpha: 0.3),
                   ),
@@ -121,12 +126,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.md,
+                        vertical: AppSpacing.md,
+                      ),
                       decoration: BoxDecoration(
                         color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                         borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(12),
-                          bottomLeft: Radius.circular(12),
+                          topLeft: AppSpacing.borderRadiusMd,
+                          bottomLeft: AppSpacing.borderRadiusMd,
                         ),
                       ),
                       child: Text(
@@ -156,7 +164,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         decoration: const InputDecoration(
                           hintText: '9876543210',
                           border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: AppSpacing.md),
                           counterText: '',
                         ),
                       ),
@@ -165,7 +174,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
               ),
 
-              const SizedBox(height: 24),
+              AppSpacing.gapH24,
 
               // Send OTP button
               SizedBox(
@@ -176,7 +185,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.sacredSaffron,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: AppSpacing.roundedMd,
                     ),
                   ),
                   child: isLoading
@@ -189,7 +198,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
                         )
                       : const Text(
-                          'Send OTP',
+                          AppStrings.sendOtp,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -203,11 +212,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
               // Demo hint
               Container(
-                margin: const EdgeInsets.only(bottom: 24),
-                padding: const EdgeInsets.all(12),
+                margin: EdgeInsets.only(bottom: AppSpacing.lg),
+                padding: AppSpacing.allSm,
                 decoration: BoxDecoration(
                   color: AppColors.info.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppSpacing.roundedMd,
                   border: Border.all(
                     color: AppColors.info.withValues(alpha: 0.2),
                   ),
@@ -215,10 +224,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 child: Row(
                   children: [
                     Icon(Icons.info_outline, size: 20, color: AppColors.info),
-                    const SizedBox(width: 12),
+                    AppSpacing.gapW12,
                     Expanded(
                       child: Text(
-                        'Demo mode: Any phone number works.\nUse OTP code: 123456',
+                        AppStrings.demoOtpHint,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: AppColors.info,
                           height: 1.4,

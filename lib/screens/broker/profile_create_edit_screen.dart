@@ -4,6 +4,7 @@ import 'package:testing_flutter/common/widgets/molecules/photo_manager_widget.da
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:uuid/uuid.dart';
 import 'package:testing_flutter/models/candidate_profile.dart';
@@ -147,7 +148,7 @@ class _ProfileCreateEditScreenState
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: AppSpacing.allMd,
           children: [
             // Gender selector
             Text(
@@ -156,7 +157,7 @@ class _ProfileCreateEditScreenState
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 8),
+            AppSpacing.gapH8,
             SegmentedButton<Gender>(
               segments: const [
                 ButtonSegment(value: Gender.bride, label: Text('Bride')),
@@ -174,7 +175,7 @@ class _ProfileCreateEditScreenState
 
             // Basic Info
             _sectionLabel('Basic Information'),
-            const SizedBox(height: 12),
+            AppSpacing.gapH12,
             _field(_nameController, 'Full Name', icon: Icons.person_outline,
                 validator: (v) => v!.isEmpty ? 'Required' : null),
             _fieldRow(
@@ -193,7 +194,7 @@ class _ProfileCreateEditScreenState
 
             // Community
             _sectionLabel('Community & Background'),
-            const SizedBox(height: 12),
+            AppSpacing.gapH12,
             _fieldRow(
               _field(_religionController, 'Religion',
                   icon: Icons.temple_hindu_outlined),
@@ -210,7 +211,7 @@ class _ProfileCreateEditScreenState
 
             // About
             _sectionLabel('About'),
-            const SizedBox(height: 12),
+            AppSpacing.gapH12,
             _field(_aboutMeController, 'About the candidate',
                 icon: Icons.info_outline, maxLines: 3),
             _field(_familyBgController, 'Family Background',
@@ -236,7 +237,7 @@ class _ProfileCreateEditScreenState
                 setState(() => _photos = photos);
               },
             ),
-            const SizedBox(height: 32),
+            AppSpacing.gapH32,
 
             // Save button
             SizedBox(
@@ -246,7 +247,7 @@ class _ProfileCreateEditScreenState
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.sacredSaffron,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: AppSpacing.roundedMd,
                   ),
                 ),
                 child: Text(
@@ -259,7 +260,7 @@ class _ProfileCreateEditScreenState
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            AppSpacing.gapH24,
           ],
         ),
       ),
@@ -286,7 +287,7 @@ class _ProfileCreateEditScreenState
     String? Function(String?)? validator,
   }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.only(bottom: AppSpacing.sm),
       child: TextFormField(
         controller: controller,
         maxLines: maxLines,
@@ -296,9 +297,11 @@ class _ProfileCreateEditScreenState
           labelText: label,
           hintText: hint,
           prefixIcon: icon != null ? Icon(icon, size: 20) : null,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          border: OutlineInputBorder(borderRadius: AppSpacing.roundedMd),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: 14,
+          ),
         ),
       ),
     );
@@ -309,7 +312,7 @@ class _ProfileCreateEditScreenState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(child: left),
-        const SizedBox(width: 12),
+        AppSpacing.gapW12,
         Expanded(child: right),
       ],
     );

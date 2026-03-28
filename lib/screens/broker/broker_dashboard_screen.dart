@@ -5,6 +5,8 @@ import 'package:testing_flutter/common/widgets/molecules/branded_app_bar.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/constants/app_strings.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/broker_profile.dart';
@@ -167,7 +169,7 @@ class _BrokerDashboardScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Quick Actions',
+                    AppStrings.quickActions,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                       color: isDark
@@ -175,7 +177,7 @@ class _BrokerDashboardScreenState
                           : AppColors.lightPrimaryText,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  AppSpacing.gapH12,
                   Wrap(
                     spacing: 10,
                     runSpacing: 10,
@@ -242,7 +244,7 @@ class _BrokerDashboardScreenState
     if (_activities.isEmpty) {
       return SliverToBoxAdapter(
         child: Container(
-          padding: const EdgeInsets.all(24),
+          padding: AppSpacing.allLg,
           child: Center(
             child: Column(
               children: [
@@ -253,7 +255,7 @@ class _BrokerDashboardScreenState
                       ? AppColors.darkTertiaryText
                       : AppColors.lightTertiaryText,
                 ),
-                const SizedBox(height: 12),
+                AppSpacing.gapH12,
                 Text(
                   'No recent activity',
                   style: TextStyle(
@@ -262,7 +264,7 @@ class _BrokerDashboardScreenState
                         : AppColors.lightSecondaryText,
                   ),
                 ),
-                const SizedBox(height: 4),
+                AppSpacing.gapH4,
                 Text(
                   'Activity from shared profiles and connections will appear here',
                   textAlign: TextAlign.center,
@@ -282,7 +284,7 @@ class _BrokerDashboardScreenState
 
     return SliverList.separated(
       itemCount: _activities.length.clamp(0, 5),
-      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      separatorBuilder: (_, __) => AppSpacing.gapH8,
       itemBuilder: (context, index) {
         final a = _activities[index];
         return _ActivityTile(
@@ -399,7 +401,7 @@ class _WelcomeHeader extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              AppSpacing.gapH16,
               Wrap(
                 spacing: 10,
                 runSpacing: 8,
@@ -435,10 +437,10 @@ class _HeaderBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 6),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppSpacing.roundedXl,
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.25),
         ),
@@ -489,7 +491,7 @@ class _StatCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppSpacing.roundedLg,
         border: Border.all(
           color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
           width: 0.5,
@@ -583,12 +585,12 @@ class _QuickActionChip extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppSpacing.roundedMd,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 10),
           decoration: BoxDecoration(
             color: color.withValues(alpha: isDark ? 0.15 : 0.08),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppSpacing.roundedMd,
             border: Border.all(
               color: color.withValues(alpha: 0.3),
               width: 1,
@@ -598,7 +600,7 @@ class _QuickActionChip extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(icon, size: 18, color: color),
-              const SizedBox(width: 8),
+              AppSpacing.gapW8,
               Text(
                 label,
                 style: TextStyle(
@@ -653,7 +655,7 @@ class _ActivityTile extends StatelessWidget {
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: iconColor.withValues(alpha: isDark ? 0.15 : 0.1),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppSpacing.roundedMd,
             ),
             child: Icon(icon, color: iconColor, size: 20),
           ),

@@ -73,16 +73,22 @@ class _ForwardToChildSheetState extends ConsumerState<ForwardToChildSheet> {
     final childUser = _childUser;
 
     return Container(
-      padding: const EdgeInsets.all(24.0),
+      padding: EdgeInsets.fromLTRB(
+        24.0,
+        24.0,
+        24.0,
+        24.0 + MediaQuery.of(context).padding.bottom,
+      ),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
         borderRadius: const BorderRadius.vertical(
           top: Radius.circular(16),
         ),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
           // Drag handle
           Container(
             width: 40,
@@ -260,6 +266,7 @@ class _ForwardToChildSheetState extends ConsumerState<ForwardToChildSheet> {
 
           const SizedBox(height: 16),
         ],
+      ),
       ),
     );
   }

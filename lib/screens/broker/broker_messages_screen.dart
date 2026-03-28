@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/constants/app_strings.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/models/app_user.dart';
@@ -81,7 +83,7 @@ class _BrokerMessagesScreenState extends ConsumerState<BrokerMessagesScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Messages'),
+        title: const Text(AppStrings.messages),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
@@ -166,7 +168,7 @@ class _BrokerMessagesScreenState extends ConsumerState<BrokerMessagesScreen> {
                     children: [
                       Expanded(
                         child: Text(
-                          conv.lastMessagePreview ?? 'No messages yet',
+                          conv.lastMessagePreview ?? AppStrings.noMessagesYet,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: conv.unreadCount > 0
                                 ? theme.colorScheme.onSurface
@@ -181,7 +183,7 @@ class _BrokerMessagesScreenState extends ConsumerState<BrokerMessagesScreen> {
                       ),
                       if (conv.unreadCount > 0)
                         Container(
-                          margin: const EdgeInsets.only(left: 8),
+                          margin: EdgeInsets.only(left: AppSpacing.xs),
                           padding: const EdgeInsets.symmetric(
                             horizontal: 7,
                             vertical: 3,
@@ -220,7 +222,7 @@ class _BrokerMessagesScreenState extends ConsumerState<BrokerMessagesScreen> {
   Widget _buildEmptyState(ThemeData theme) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: AppSpacing.allXl,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -229,14 +231,14 @@ class _BrokerMessagesScreenState extends ConsumerState<BrokerMessagesScreen> {
               size: 64,
               color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
             ),
-            const SizedBox(height: 16),
+            AppSpacing.gapH16,
             Text(
-              'No conversations yet',
+              AppStrings.noConversationsYet,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 8),
+            AppSpacing.gapH8,
             Text(
               'When parents connect with you, conversations will appear here.',
               textAlign: TextAlign.center,

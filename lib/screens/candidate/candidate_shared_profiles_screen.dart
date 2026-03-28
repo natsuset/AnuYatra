@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/constants/app_strings.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/candidate_profile.dart';
@@ -79,16 +81,16 @@ class _CandidateSharedProfilesScreenState
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Shared Profiles'),
+        title: const Text(AppStrings.sharedProfiles),
       ),
       body: _items.isEmpty
           ? _buildEmptyState(isDark, theme)
           : RefreshIndicator(
               onRefresh: () async => _loadProfiles(),
               child: ListView.separated(
-                padding: const EdgeInsets.all(16),
+                padding: AppSpacing.allMd,
                 itemCount: _items.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                separatorBuilder: (_, __) => AppSpacing.gapH12,
                 itemBuilder: (context, index) {
                   final item = _items[index];
                   return _ProfileCard(
@@ -122,18 +124,18 @@ class _CandidateSharedProfilesScreenState
                 ? AppColors.darkTertiaryText
                 : AppColors.lightTertiaryText,
           ),
-          const SizedBox(height: 16),
+          AppSpacing.gapH16,
           Text(
             'No shared profiles yet',
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 8),
+          AppSpacing.gapH8,
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 48),
             child: Text(
-              'Profiles shared by your parent will appear here for your review',
+              AppStrings.noSharedProfilesForCandidate,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: isDark
@@ -199,7 +201,7 @@ class _ProfileCard extends StatelessWidget {
           );
         },
         child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: AppSpacing.allMd,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -254,7 +256,7 @@ class _ProfileCard extends StatelessWidget {
 
             // Additional info
             if (profile.aboutMe.isNotEmpty) ...[
-              const SizedBox(height: 12),
+              AppSpacing.gapH12,
               Text(
                 profile.aboutMe,
                 style: theme.textTheme.bodySmall?.copyWith(
@@ -288,21 +290,21 @@ class _ProfileCard extends StatelessWidget {
                               : AppColors.lightBorder,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: AppSpacing.roundedSm,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  AppSpacing.gapW12,
                   Expanded(
                     child: FilledButton.icon(
                       onPressed: onInterested,
                       icon: const Icon(Icons.favorite_outline, size: 18),
-                      label: const Text('Interested'),
+                      label: const Text(AppStrings.interested),
                       style: FilledButton.styleFrom(
                         backgroundColor: AppColors.success,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: AppSpacing.roundedSm,
                         ),
                       ),
                     ),
@@ -322,7 +324,10 @@ class _ProfileCard extends StatelessWidget {
     final color = isInterested ? AppColors.success : AppColors.lightSecondaryText;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: AppSpacing.xxs,
+      ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(6),

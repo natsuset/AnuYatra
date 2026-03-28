@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/constants/app_strings.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/candidate_profile.dart';
 
@@ -65,15 +67,15 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
 
     if (_loading) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Profile')),
+        appBar: AppBar(title: const Text(AppStrings.profile)),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (profile == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Profile')),
-        body: const Center(child: Text('Profile not found')),
+        appBar: AppBar(title: const Text(AppStrings.profile)),
+        body: const Center(child: Text(AppStrings.profileNotFound)),
       );
     }
 
@@ -115,7 +117,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      AppSpacing.gapH12,
                       Text(
                         profile.displayName,
                         style: const TextStyle(
@@ -124,7 +126,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      AppSpacing.gapH4,
                       Text(
                         profile.snippet,
                         style: TextStyle(
@@ -142,7 +144,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
           // Profile details
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: AppSpacing.allMd,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -164,19 +166,19 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  AppSpacing.gapH16,
 
                   // Profile completeness indicator
                   _ProfileCompletenessBar(
                     completeness: profile.profileCompleteness,
                     isDark: isDark,
                   ),
-                  const SizedBox(height: 24),
+                  AppSpacing.gapH24,
 
                   // About Me
                   if (profile.aboutMe.isNotEmpty) ...[
                     _SectionTitle('About Me'),
-                    const SizedBox(height: 8),
+                    AppSpacing.gapH8,
                     Text(
                       profile.aboutMe,
                       style: theme.textTheme.bodyMedium?.copyWith(
@@ -184,12 +186,12 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    AppSpacing.gapH24,
                   ],
 
                   // Professional & Education
                   _SectionTitle('Professional & Education'),
-                  const SizedBox(height: 12),
+                  AppSpacing.gapH12,
                   _DetailRow(
                     icon: Icons.work_outline,
                     label: 'Profession',
@@ -202,11 +204,11 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                     value: profile.education,
                     isDark: isDark,
                   ),
-                  const SizedBox(height: 24),
+                  AppSpacing.gapH24,
 
                   // Community & Background
                   _SectionTitle('Community & Background'),
-                  const SizedBox(height: 12),
+                  AppSpacing.gapH12,
                   if (profile.community.isNotEmpty)
                     _DetailRow(
                       icon: Icons.group_outlined,
@@ -235,12 +237,12 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                       value: profile.manglikStatus!,
                       isDark: isDark,
                     ),
-                  const SizedBox(height: 24),
+                  AppSpacing.gapH24,
 
                   // Lifestyle & Personal
                   if (_hasLifestyleInfo(profile)) ...[
                     _SectionTitle('Lifestyle & Personal'),
-                    const SizedBox(height: 12),
+                    AppSpacing.gapH12,
                     if (profile.diet != null)
                       _DetailRow(
                         icon: Icons.restaurant,
@@ -298,13 +300,13 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                         value: profile.willingToRelocate! ? 'Yes' : 'No',
                         isDark: isDark,
                       ),
-                    const SizedBox(height: 24),
+                    AppSpacing.gapH24,
                   ],
 
                   // Horoscope
                   if (_hasHoroscopeInfo(profile)) ...[
                     _SectionTitle('Horoscope Details'),
-                    const SizedBox(height: 12),
+                    AppSpacing.gapH12,
                     if (profile.rashi != null && profile.rashi!.isNotEmpty)
                       _DetailRow(
                         icon: Icons.auto_awesome,
@@ -333,13 +335,13 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                         value: profile.birthTime!,
                         isDark: isDark,
                       ),
-                    const SizedBox(height: 24),
+                    AppSpacing.gapH24,
                   ],
 
                   // Family
                   if (profile.familyBackground.isNotEmpty) ...[
                     _SectionTitle('Family Background'),
-                    const SizedBox(height: 8),
+                    AppSpacing.gapH8,
                     Text(
                       profile.familyBackground,
                       style: theme.textTheme.bodyMedium?.copyWith(
@@ -347,7 +349,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    AppSpacing.gapH12,
                   ],
                   if (profile.familyType != null)
                     _DetailRow(
@@ -400,12 +402,12 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                       value: '${profile.numberOfSisters}',
                       isDark: isDark,
                     ),
-                  const SizedBox(height: 24),
+                  AppSpacing.gapH24,
 
                   // Interests
                   if (profile.interests.isNotEmpty) ...[
                     _SectionTitle('Interests & Hobbies'),
-                    const SizedBox(height: 12),
+                    AppSpacing.gapH12,
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
@@ -418,20 +420,20 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                             color: AppColors.sacredSaffron,
                           ),
                           side: BorderSide.none,
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxs),
                         );
                       }).toList(),
                     ),
-                    const SizedBox(height: 24),
+                    AppSpacing.gapH24,
                   ],
 
                   // Visibility badge
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: AppSpacing.allSm,
                     decoration: BoxDecoration(
                       color: theme.colorScheme.surfaceContainerHighest
                           .withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: AppSpacing.roundedMd,
                     ),
                     child: Row(
                       children: [
@@ -440,7 +442,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                           size: 18,
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
-                        const SizedBox(width: 8),
+                        AppSpacing.gapW8,
                         Expanded(
                           child: Text(
                             'Profile visibility: ${profile.visibility.displayName}',
@@ -454,7 +456,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  AppSpacing.gapH32,
                 ],
               ),
             ),
@@ -500,12 +502,12 @@ class _DetailRow extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, size: 18, color: theme.colorScheme.onSurfaceVariant),
-          const SizedBox(width: 12),
+          AppSpacing.gapW12,
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -548,13 +550,13 @@ class _InfoChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppSpacing.roundedXl,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: theme.colorScheme.onSurfaceVariant),
-          const SizedBox(width: 4),
+          AppSpacing.gapW4,
           Flexible(
             child: Text(
               label,
@@ -590,10 +592,10 @@ class _ProfileCompletenessBar extends StatelessWidget {
             : AppColors.error;
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: AppSpacing.allSm,
       decoration: BoxDecoration(
         color: color.withValues(alpha: isDark ? 0.1 : 0.06),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppSpacing.roundedMd,
         border: Border.all(
           color: color.withValues(alpha: 0.2),
         ),
@@ -620,9 +622,9 @@ class _ProfileCompletenessBar extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          AppSpacing.gapH8,
           ClipRRect(
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: AppSpacing.roundedXs,
             child: LinearProgressIndicator(
               value: completeness / 100.0,
               backgroundColor: color.withValues(alpha: 0.15),

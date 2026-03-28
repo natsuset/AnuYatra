@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/constants/app_strings.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/models/app_user.dart';
@@ -74,16 +76,16 @@ class _ParentProfileScreenState extends ConsumerState<ParentProfileScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Profile'),
+        title: const Text(AppStrings.myProfile),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: AppSpacing.allMd,
         children: [
           // ---- Profile header ----
           Card(
             elevation: 0,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: AppSpacing.roundedLg,
               side: BorderSide(
                 color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                 width: 0.5,
@@ -118,7 +120,7 @@ class _ParentProfileScreenState extends ConsumerState<ParentProfileScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  AppSpacing.gapH4,
                   Text(
                     user.phoneNumber,
                     style: theme.textTheme.bodyMedium?.copyWith(
@@ -127,10 +129,12 @@ class _ParentProfileScreenState extends ConsumerState<ParentProfileScreen> {
                           : AppColors.lightSecondaryText,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  AppSpacing.gapH8,
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm,
+                      vertical: AppSpacing.xxs,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.sacredSaffron.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(6),
@@ -149,13 +153,13 @@ class _ParentProfileScreenState extends ConsumerState<ParentProfileScreen> {
             ),
           ),
 
-          const SizedBox(height: 16),
+          AppSpacing.gapH16,
 
           // ---- Profile details ----
           Card(
             elevation: 0,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: AppSpacing.roundedLg,
               side: BorderSide(
                 color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                 width: 0.5,
@@ -237,13 +241,13 @@ class _ParentProfileScreenState extends ConsumerState<ParentProfileScreen> {
             ),
           ),
 
-          const SizedBox(height: 16),
+          AppSpacing.gapH16,
 
           // ---- Actions ----
           Card(
             elevation: 0,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: AppSpacing.roundedLg,
               side: BorderSide(
                 color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                 width: 0.5,
@@ -258,7 +262,7 @@ class _ParentProfileScreenState extends ConsumerState<ParentProfileScreen> {
                     height: 36,
                     decoration: BoxDecoration(
                       color: AppColors.info.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: AppSpacing.roundedSm,
                     ),
                     child: const Icon(
                       Icons.link,
@@ -279,7 +283,7 @@ class _ParentProfileScreenState extends ConsumerState<ParentProfileScreen> {
                     height: 36,
                     decoration: BoxDecoration(
                       color: AppColors.sacredSaffron.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: AppSpacing.roundedSm,
                     ),
                     child: const Icon(
                       Icons.settings_outlined,
@@ -287,7 +291,7 @@ class _ParentProfileScreenState extends ConsumerState<ParentProfileScreen> {
                       size: 18,
                     ),
                   ),
-                  title: const Text('Settings'),
+                  title: const Text(AppStrings.settings),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     context.pushNamed(RouteNames.appSettings);
@@ -300,7 +304,7 @@ class _ParentProfileScreenState extends ConsumerState<ParentProfileScreen> {
                     height: 36,
                     decoration: BoxDecoration(
                       color: AppColors.error.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: AppSpacing.roundedSm,
                     ),
                     child: const Icon(
                       Icons.logout,
@@ -309,28 +313,28 @@ class _ParentProfileScreenState extends ConsumerState<ParentProfileScreen> {
                     ),
                   ),
                   title: const Text(
-                    'Logout',
+                    AppStrings.logout,
                     style: TextStyle(color: AppColors.error),
                   ),
                   onTap: () async {
                     final confirmed = await showDialog<bool>(
                       context: context,
                       builder: (ctx) => AlertDialog(
-                        title: const Text('Logout'),
+                        title: const Text(AppStrings.logoutConfirmTitle),
                         content: const Text(
-                          'Are you sure you want to log out?',
+                          AppStrings.logoutConfirmMessage,
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(ctx, false),
-                            child: const Text('Cancel'),
+                            child: const Text(AppStrings.cancel),
                           ),
                           FilledButton(
                             onPressed: () => Navigator.pop(ctx, true),
                             style: FilledButton.styleFrom(
                               backgroundColor: AppColors.error,
                             ),
-                            child: const Text('Logout'),
+                            child: const Text(AppStrings.logout),
                           ),
                         ],
                       ),

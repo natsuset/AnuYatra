@@ -10,6 +10,7 @@ import 'package:testing_flutter/core/routing/app_router.dart';
 import 'package:testing_flutter/core/data/app_data_module.dart';
 import 'package:testing_flutter/core/services/local_storage_service.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
+import 'package:testing_flutter/core/constants/app_strings.dart';
 import 'package:testing_flutter/data/seed_data.dart';
 
 void main() async {
@@ -116,7 +117,7 @@ class _AnuyatraAppState extends ConsumerState<AnuyatraApp> {
     final router = ref.watch(appRouterProvider);
 
     return MaterialApp.router(
-      title: 'Anuyatra - The Real Matrimony App',
+      title: AppStrings.appTitle,
 
       // Material Design 3 themes
       theme: AppTheme.lightTheme,

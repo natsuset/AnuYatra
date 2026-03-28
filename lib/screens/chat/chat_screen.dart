@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/constants/app_strings.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/chat_message.dart';
 
@@ -198,9 +200,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                               : AppColors.chatDarkGray
                                   .withValues(alpha: 0.5),
                         ),
-                        const SizedBox(height: 16),
+                        AppSpacing.gapH16,
                         Text(
-                          'No messages yet',
+                          AppStrings.noMessagesYet,
                           style: TextStyle(
                             color: isDark
                                 ? AppColors.chatDarkGray
@@ -208,9 +210,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                             fontSize: 16,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        AppSpacing.gapH4,
                         Text(
-                          'Send a message to start the conversation',
+                          AppStrings.noMessagesHint,
                           style: TextStyle(
                             color: isDark
                                 ? AppColors.chatDarkGray
@@ -225,8 +227,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 : ListView.builder(
                     controller: _scrollController,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
+                      horizontal: AppSpacing.sm,
+                      vertical: AppSpacing.xs,
                     ),
                     itemCount: _messages.length,
                     itemBuilder: (context, index) {
@@ -258,13 +260,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   Widget _buildDateHeader(DateTime date, bool isDark) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 12),
+      margin: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       decoration: BoxDecoration(
         color: isDark
             ? AppColors.chatDarkBubble.withValues(alpha: 0.9)
             : Colors.white.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: AppSpacing.roundedSm,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -306,14 +308,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           maxWidth: MediaQuery.of(context).size.width * 0.78,
         ),
         margin: const EdgeInsets.symmetric(vertical: 2),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.sm,
+          vertical: AppSpacing.xs,
+        ),
         decoration: BoxDecoration(
           color: bubbleColor,
           borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(12),
-            topRight: const Radius.circular(12),
-            bottomLeft: Radius.circular(isSent ? 12 : 2),
-            bottomRight: Radius.circular(isSent ? 2 : 12),
+            topLeft: AppSpacing.borderRadiusMd,
+            topRight: AppSpacing.borderRadiusMd,
+            bottomLeft: Radius.circular(isSent ? AppSpacing.radiusMd : 2),
+            bottomRight: Radius.circular(isSent ? 2 : AppSpacing.radiusMd),
           ),
           boxShadow: [
             BoxShadow(
@@ -381,11 +386,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   color: isDark
                       ? AppColors.chatDarkInputField
                       : AppColors.chatLightInputField,
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: AppSpacing.roundedXxl,
                 ),
                 child: Row(
                   children: [
-                    const SizedBox(width: 12),
+                    AppSpacing.gapW12,
                     Expanded(
                       child: TextField(
                         controller: _messageController,
@@ -425,7 +430,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 ),
               ),
             ),
-            const SizedBox(width: 4),
+            AppSpacing.gapW4,
             Container(
               decoration: const BoxDecoration(
                 color: AppColors.chatDarkGreen,

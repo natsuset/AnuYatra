@@ -5,6 +5,8 @@ import 'package:testing_flutter/common/widgets/molecules/branded_app_bar.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/constants/app_strings.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/models/app_user.dart';
@@ -78,7 +80,12 @@ class _CandidateHomeScreenState extends ConsumerState<CandidateHomeScreen> {
           SliverToBoxAdapter(
             child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
+              padding: EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                20,
+                AppSpacing.lg,
+                20,
+              ),
               decoration: const BoxDecoration(
                 gradient: AppColors.primaryGradient,
               ),
@@ -91,7 +98,7 @@ class _CandidateHomeScreenState extends ConsumerState<CandidateHomeScreen> {
                       color: Colors.white70,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  AppSpacing.gapH4,
                   Text(
                     user.displayName.isNotEmpty
                         ? user.displayName
@@ -108,7 +115,7 @@ class _CandidateHomeScreenState extends ConsumerState<CandidateHomeScreen> {
 
           // ---- Body ----
           SliverPadding(
-            padding: const EdgeInsets.all(16),
+            padding: AppSpacing.allMd,
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // Link status card
@@ -119,7 +126,7 @@ class _CandidateHomeScreenState extends ConsumerState<CandidateHomeScreen> {
                   linkedParent: _linkedParent,
                 ),
 
-                const SizedBox(height: 16),
+                AppSpacing.gapH16,
 
                 // Stats card
                 _buildStatsCard(
@@ -129,7 +136,7 @@ class _CandidateHomeScreenState extends ConsumerState<CandidateHomeScreen> {
                   sharedCount: _sharedProfiles.length,
                 ),
 
-                const SizedBox(height: 16),
+                AppSpacing.gapH16,
 
                 // Quick actions
                 _buildQuickActions(context, isDark, theme),
@@ -152,7 +159,7 @@ class _CandidateHomeScreenState extends ConsumerState<CandidateHomeScreen> {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppSpacing.roundedLg,
         side: BorderSide(
           color: isLinked
               ? AppColors.success.withValues(alpha: 0.3)
@@ -171,14 +178,14 @@ class _CandidateHomeScreenState extends ConsumerState<CandidateHomeScreen> {
               decoration: BoxDecoration(
                 color: (isLinked ? AppColors.success : AppColors.warning)
                     .withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppSpacing.roundedMd,
               ),
               child: Icon(
                 isLinked ? Icons.link : Icons.link_off,
                 color: isLinked ? AppColors.success : AppColors.warning,
               ),
             ),
-            const SizedBox(width: 16),
+            AppSpacing.gapW16,
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,7 +196,7 @@ class _CandidateHomeScreenState extends ConsumerState<CandidateHomeScreen> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  AppSpacing.gapH4,
                   Text(
                     isLinked
                         ? linkedParent.displayName
@@ -211,7 +218,7 @@ class _CandidateHomeScreenState extends ConsumerState<CandidateHomeScreen> {
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.sacredSaffron,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: AppSpacing.roundedSm,
                   ),
                 ),
                 child: const Text('Link'),
@@ -231,7 +238,7 @@ class _CandidateHomeScreenState extends ConsumerState<CandidateHomeScreen> {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppSpacing.roundedLg,
         side: BorderSide(
           color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
           width: 0.5,
@@ -247,11 +254,11 @@ class _CandidateHomeScreenState extends ConsumerState<CandidateHomeScreen> {
               height: 48,
               decoration: BoxDecoration(
                 color: AppColors.info.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppSpacing.roundedMd,
               ),
               child: const Icon(Icons.people_outline, color: AppColors.info),
             ),
-            const SizedBox(width: 16),
+            AppSpacing.gapW16,
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -262,7 +269,7 @@ class _CandidateHomeScreenState extends ConsumerState<CandidateHomeScreen> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  AppSpacing.gapH4,
                   Text(
                     '$sharedCount profile${sharedCount == 1 ? '' : 's'} available',
                     style: theme.textTheme.bodySmall?.copyWith(
@@ -295,7 +302,7 @@ class _CandidateHomeScreenState extends ConsumerState<CandidateHomeScreen> {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppSpacing.roundedLg,
         side: BorderSide(
           color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
           width: 0.5,
@@ -306,9 +313,9 @@ class _CandidateHomeScreenState extends ConsumerState<CandidateHomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+            padding: const EdgeInsets.fromLTRB(20, AppSpacing.md, 20, AppSpacing.xs),
             child: Text(
-              'Quick Actions',
+              AppStrings.quickActions,
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -350,7 +357,7 @@ class _CandidateHomeScreenState extends ConsumerState<CandidateHomeScreen> {
                 size: 20,
               ),
             ),
-            title: const Text('Link Requests'),
+            title: const Text(AppStrings.linkRequests),
             subtitle: const Text('View your connection requests'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {

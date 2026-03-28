@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/constants/app_strings.dart';
 
 /// 6-digit OTP verification screen.
 /// Code "123456" always works (mock).
@@ -38,7 +40,7 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
     final code = _otpCode;
     if (code.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter the complete 6-digit code')),
+        const SnackBar(content: Text(AppStrings.invalidOtpError)),
       );
       return;
     }
@@ -104,21 +106,21 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 16),
+              AppSpacing.gapH16,
 
               Text(
-                'Verify your number',
+                AppStrings.verifyNumber,
                 style: theme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 8),
+              AppSpacing.gapH8,
               Text(
-                'Enter the 6-digit code sent to $phoneNumber',
+                AppStrings.otpSentTo(phoneNumber),
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -147,13 +149,13 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
                       decoration: InputDecoration(
                         counterText: '',
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: AppSpacing.roundedMd,
                           borderSide: BorderSide(
                             color: theme.colorScheme.outline.withValues(alpha: 0.3),
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: AppSpacing.roundedMd,
                           borderSide: BorderSide(
                             color: AppColors.sacredSaffron,
                             width: 2,
@@ -167,7 +169,7 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
                 }),
               ),
 
-              const SizedBox(height: 32),
+              AppSpacing.gapH32,
 
               // Verify button
               SizedBox(
@@ -178,7 +180,7 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.sacredSaffron,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: AppSpacing.roundedMd,
                     ),
                   ),
                   child: isLoading
@@ -191,7 +193,7 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
                           ),
                         )
                       : const Text(
-                          'Verify & Continue',
+                          AppStrings.verifyAndContinue,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -201,7 +203,7 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
                 ),
               ),
 
-              const SizedBox(height: 24),
+              AppSpacing.gapH24,
 
               // Resend code
               Center(
@@ -213,7 +215,7 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
                     );
                   },
                   child: Text(
-                    'Resend Code',
+                    AppStrings.resendCode,
                     style: TextStyle(
                       color: AppColors.sacredSaffron,
                       fontWeight: FontWeight.w600,
@@ -226,19 +228,19 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
 
               // Hint
               Container(
-                margin: const EdgeInsets.only(bottom: 24),
-                padding: const EdgeInsets.all(12),
+                margin: EdgeInsets.only(bottom: AppSpacing.lg),
+                padding: AppSpacing.allSm,
                 decoration: BoxDecoration(
                   color: AppColors.success.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppSpacing.roundedMd,
                 ),
                 child: Row(
                   children: [
                     Icon(Icons.lightbulb_outline, size: 20, color: AppColors.success),
-                    const SizedBox(width: 12),
+                    AppSpacing.gapW12,
                     Expanded(
                       child: Text(
-                        'Hint: The OTP is 123456',
+                        AppStrings.otpHint,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: AppColors.success,
                           fontWeight: FontWeight.w500,

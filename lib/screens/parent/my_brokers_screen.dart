@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/constants/app_strings.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/models/broker_profile.dart';
@@ -150,7 +152,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
               context, isDark, _connectedBrokers, currentUser.uid,
             ),
 
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+          const SliverToBoxAdapter(child: AppSpacing.gapH24),
         ],
       ),
     );
@@ -179,7 +181,12 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
           ),
           child: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              padding: AppSpacing.only(
+                left: AppSpacing.md,
+                top: AppSpacing.xs,
+                right: AppSpacing.md,
+                bottom: AppSpacing.md,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -197,11 +204,11 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 10, vertical: AppSpacing.xxs),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: AppSpacing.roundedMd,
                         ),
                         child: Text(
                           '$brokerCount connected',
@@ -234,14 +241,19 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          padding: AppSpacing.only(
+            left: AppSpacing.md,
+            top: AppSpacing.md,
+            right: AppSpacing.md,
+            bottom: AppSpacing.xs,
+          ),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   color: AppColors.warning.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: AppSpacing.roundedSm,
                 ),
                 child: const Icon(
                   Icons.pending_actions_rounded,
@@ -258,9 +270,10 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                   color: AppTheme.primaryText(context),
                 ),
               ),
-              const SizedBox(width: 8),
+              AppSpacing.gapW8,
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding:
+                    EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: 2),
                 decoration: BoxDecoration(
                   color: AppColors.warning.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
@@ -280,7 +293,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
         ...requests.map((request) =>
             _buildIncomingRequestCard(context, isDark, request)),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: AppSpacing.horizontalMd,
           child: Divider(color: AppTheme.divider(context), height: 32),
         ),
       ],
@@ -297,7 +310,10 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
     final timeAgo = _formatTimeAgo(request.createdAt);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.xxs,
+      ),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
@@ -334,7 +350,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            AppSpacing.gapW12,
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -373,7 +389,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                     ],
                   ),
                   if (request.note != null && request.note!.isNotEmpty) ...[
-                    const SizedBox(height: 4),
+                    AppSpacing.gapH4,
                     Text(
                       request.note!,
                       style: TextStyle(
@@ -388,7 +404,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                 ],
               ),
             ),
-            const SizedBox(width: 8),
+            AppSpacing.gapW8,
             Column(
               children: [
                 SizedBox(
@@ -418,14 +434,14 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                       elevation: 0,
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: AppSpacing.roundedSm,
                       ),
                       textStyle: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    child: const Text('Accept'),
+                    child: const Text(AppStrings.accept),
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -456,14 +472,14 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: AppSpacing.roundedSm,
                       ),
                       textStyle: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    child: const Text('Decline'),
+                    child: const Text(AppStrings.decline),
                   ),
                 ),
               ],
@@ -486,14 +502,19 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          padding: AppSpacing.only(
+            left: AppSpacing.md,
+            top: AppSpacing.md,
+            right: AppSpacing.md,
+            bottom: AppSpacing.xs,
+          ),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   color: AppColors.info.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: AppSpacing.roundedSm,
                 ),
                 child: const Icon(
                   Icons.send_rounded,
@@ -510,9 +531,10 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                   color: AppTheme.primaryText(context),
                 ),
               ),
-              const SizedBox(width: 8),
+              AppSpacing.gapW8,
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding:
+                    EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: 2),
                 decoration: BoxDecoration(
                   color: AppColors.info.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
@@ -532,7 +554,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
         ...requests.map((request) =>
             _buildSentRequestCard(context, isDark, request, currentUserId)),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: AppSpacing.horizontalMd,
           child: Divider(color: AppTheme.divider(context), height: 32),
         ),
       ],
@@ -551,7 +573,10 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
     final isBrokerRequest = request.type == LinkRequestType.parentToBroker;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.xxs,
+      ),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
@@ -586,7 +611,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                AppSpacing.gapW12,
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -609,7 +634,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                                 horizontal: 6, vertical: 1),
                             decoration: BoxDecoration(
                               color: AppColors.warning.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(4),
+                              borderRadius: AppSpacing.roundedXs,
                             ),
                             child: const Text(
                               'Awaiting response',
@@ -655,7 +680,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppTheme.primaryText(context),
                       side: BorderSide(color: AppTheme.border(context)),
-                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      padding: AppSpacing.verticalXs,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -688,7 +713,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                       backgroundColor: AppColors.sacredSaffron,
                       foregroundColor: Colors.white,
                       elevation: 0,
-                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      padding: AppSpacing.verticalXs,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -712,7 +737,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
   Widget _buildEmptyState(BuildContext context, bool isDark) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(48),
+        padding: AppSpacing.allXxl,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -733,16 +758,16 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                     : AppColors.sacredSaffron,
               ),
             ),
-            const SizedBox(height: 24),
+            AppSpacing.gapH24,
             Text(
-              'No Brokers Connected',
+              AppStrings.noBrokersConnected,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
                 color: AppTheme.primaryText(context),
               ),
             ),
-            const SizedBox(height: 8),
+            AppSpacing.gapH8,
             Text(
               'Connect with experienced brokers to help you find the right match for your family.',
               textAlign: TextAlign.center,
@@ -758,7 +783,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                 context.goNamed(RouteNames.parentSearch);
               },
               icon: const Icon(Icons.search_rounded, size: 20),
-              label: const Text('Find Brokers'),
+              label: const Text(AppStrings.findBrokers),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.sacredSaffron,
                 foregroundColor: Colors.white,
@@ -792,14 +817,19 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
         (context, index) {
           if (index == 0) {
             return Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              padding: AppSpacing.only(
+                left: AppSpacing.md,
+                top: AppSpacing.md,
+                right: AppSpacing.md,
+                bottom: AppSpacing.xs,
+              ),
               child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
                       color: AppColors.success.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: AppSpacing.roundedSm,
                     ),
                     child: const Icon(
                       Icons.verified_user_rounded,
@@ -839,20 +869,20 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
     final agencyName = _agencyNamesByBrokerId[broker.userId];
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+      padding: EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 5),
       child: Material(
         color: AppTheme.cardSurface(context),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppSpacing.roundedLg,
         elevation: isDark ? 0 : 1,
         child: InkWell(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppSpacing.roundedLg,
           onTap: () {
             _showBrokerDetailSheet(context, broker, agencyName);
           },
           child: Container(
-            padding: const EdgeInsets.all(16),
+            padding: AppSpacing.allMd,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: AppSpacing.roundedLg,
               border: Border.all(
                 color: isDark
                     ? AppColors.darkBorder.withValues(alpha: 0.5)
@@ -930,8 +960,8 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                                 ),
                               ),
                               Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.xs,
                                   vertical: 3,
                                 ),
                                 decoration: BoxDecoration(
@@ -940,7 +970,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                                       : (isDark
                                           ? AppColors.darkSurfaceVariant
                                           : AppColors.lightSurfaceVariant),
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: AppSpacing.roundedSm,
                                 ),
                                 child: Text(
                                   broker.isOnline ? 'Online' : 'Offline',
@@ -964,7 +994,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                                   size: 13,
                                   color: AppTheme.tertiaryText(context),
                                 ),
-                                const SizedBox(width: 4),
+                                AppSpacing.gapW4,
                                 Expanded(
                                   child: Text(
                                     agencyName,
@@ -993,13 +1023,13 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                                 ),
                               ),
                               if (broker.experienceYears > 0) ...[
-                                const SizedBox(width: 12),
+                                AppSpacing.gapW12,
                                 Icon(
                                   Icons.work_outline_rounded,
                                   size: 13,
                                   color: AppTheme.tertiaryText(context),
                                 ),
-                                const SizedBox(width: 4),
+                                AppSpacing.gapW4,
                                 Text(
                                   '${broker.experienceYears} yr${broker.experienceYears != 1 ? 's' : ''} exp',
                                   style: TextStyle(
@@ -1015,7 +1045,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                AppSpacing.gapH12,
                 Row(
                   children: [
                     Expanded(
@@ -1121,7 +1151,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: AppSpacing.borderRadiusXl),
       ),
       builder: (ctx) {
         return SafeArea(
@@ -1141,7 +1171,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                AppSpacing.gapH16,
                 Row(
                   children: [
                     CircleAvatar(
@@ -1179,13 +1209,13 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                   ],
                 ),
                 if (broker.bio.isNotEmpty) ...[
-                  const SizedBox(height: 12),
+                  AppSpacing.gapH12,
                   Text(broker.bio,
                       style: TextStyle(
                           color: AppTheme.secondaryText(context),
                           height: 1.4)),
                 ],
-                const SizedBox(height: 12),
+                AppSpacing.gapH12,
                 Row(
                   children: [
                     ..._buildStarRating(broker.rating),
@@ -1199,7 +1229,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                   ],
                 ),
                 if (broker.areasServed.isNotEmpty) ...[
-                  const SizedBox(height: 12),
+                  AppSpacing.gapH12,
                   Wrap(
                     spacing: 6,
                     runSpacing: 4,
@@ -1218,7 +1248,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                         .toList(),
                   ),
                 ],
-                const SizedBox(height: 8),
+                AppSpacing.gapH8,
               ],
             ),
           ),

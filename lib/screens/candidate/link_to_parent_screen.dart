@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/link_request.dart';
 import 'package:testing_flutter/models/user_role.dart';
@@ -91,21 +92,21 @@ class _LinkToParentScreenState extends ConsumerState<LinkToParentScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Link to Parent')),
       body: ListView(
-        padding: const EdgeInsets.all(24),
+        padding: AppSpacing.allLg,
         children: [
           // Explanation
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: AppSpacing.allMd,
             decoration: BoxDecoration(
               color: AppColors.info.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppSpacing.roundedMd,
               border: Border.all(color: AppColors.info.withValues(alpha: 0.2)),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(Icons.info_outline, size: 20, color: AppColors.info),
-                const SizedBox(width: 12),
+                AppSpacing.gapW12,
                 Expanded(
                   child: Text(
                     'Link your account to your parent\'s account. They can share profiles with you and you\'ll both stay connected on your matchmaking journey.',
@@ -118,7 +119,7 @@ class _LinkToParentScreenState extends ConsumerState<LinkToParentScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 32),
+          AppSpacing.gapH32,
 
           Text(
             'Enter your parent\'s phone number',
@@ -126,7 +127,7 @@ class _LinkToParentScreenState extends ConsumerState<LinkToParentScreen> {
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 12),
+          AppSpacing.gapH12,
 
           // Phone input
           Row(
@@ -134,7 +135,7 @@ class _LinkToParentScreenState extends ConsumerState<LinkToParentScreen> {
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: AppSpacing.roundedMd,
                     border: Border.all(
                       color: theme.colorScheme.outline.withValues(alpha: 0.3),
                     ),
@@ -143,15 +144,15 @@ class _LinkToParentScreenState extends ConsumerState<LinkToParentScreen> {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
+                          horizontal: AppSpacing.sm,
                           vertical: 14,
                         ),
                         decoration: BoxDecoration(
                           color: theme.colorScheme.surfaceContainerHighest
                               .withValues(alpha: 0.5),
                           borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(12),
-                            bottomLeft: Radius.circular(12),
+                            topLeft: AppSpacing.borderRadiusMd,
+                            bottomLeft: AppSpacing.borderRadiusMd,
                           ),
                         ),
                         child: Text(
@@ -172,7 +173,8 @@ class _LinkToParentScreenState extends ConsumerState<LinkToParentScreen> {
                           decoration: const InputDecoration(
                             hintText: '9800001001',
                             border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(horizontal: 12),
+                            contentPadding:
+                                EdgeInsets.symmetric(horizontal: AppSpacing.sm),
                             counterText: '',
                           ),
                         ),
@@ -181,7 +183,7 @@ class _LinkToParentScreenState extends ConsumerState<LinkToParentScreen> {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              AppSpacing.gapW12,
               SizedBox(
                 height: 48,
                 child: FilledButton(
@@ -189,7 +191,7 @@ class _LinkToParentScreenState extends ConsumerState<LinkToParentScreen> {
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.sacredSaffron,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: AppSpacing.roundedMd,
                     ),
                   ),
                   child: const Text(
@@ -200,17 +202,17 @@ class _LinkToParentScreenState extends ConsumerState<LinkToParentScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          AppSpacing.gapH24,
 
           // Search result
           if (_searchResult == 'found' && _foundParentName != null)
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: AppSpacing.allMd,
               decoration: BoxDecoration(
                 color: isDark
                     ? AppColors.success.withValues(alpha: 0.1)
                     : AppColors.success.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppSpacing.roundedMd,
                 border: Border.all(
                   color: AppColors.success.withValues(alpha: 0.3),
                 ),
@@ -225,7 +227,7 @@ class _LinkToParentScreenState extends ConsumerState<LinkToParentScreen> {
                         backgroundColor: AppColors.success.withValues(alpha: 0.2),
                         child: Icon(Icons.person, color: AppColors.success),
                       ),
-                      const SizedBox(width: 12),
+                      AppSpacing.gapW12,
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -248,7 +250,7 @@ class _LinkToParentScreenState extends ConsumerState<LinkToParentScreen> {
                       Icon(Icons.check_circle, color: AppColors.success),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  AppSpacing.gapH16,
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton.icon(
@@ -266,7 +268,7 @@ class _LinkToParentScreenState extends ConsumerState<LinkToParentScreen> {
                             ? AppColors.success
                             : AppColors.sacredSaffron,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: AppSpacing.roundedMd,
                         ),
                       ),
                     ),
@@ -277,15 +279,15 @@ class _LinkToParentScreenState extends ConsumerState<LinkToParentScreen> {
 
           if (_searchResult == 'not_found')
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: AppSpacing.allMd,
               decoration: BoxDecoration(
                 color: AppColors.warning.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppSpacing.roundedMd,
               ),
               child: Row(
                 children: [
                   Icon(Icons.search_off, color: AppColors.warning),
-                  const SizedBox(width: 12),
+                  AppSpacing.gapW12,
                   Expanded(
                     child: Text(
                       'No parent account found with this number. Ask your parent to create an account first.',
@@ -300,15 +302,15 @@ class _LinkToParentScreenState extends ConsumerState<LinkToParentScreen> {
 
           if (_searchResult == 'not_parent')
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: AppSpacing.allMd,
               decoration: BoxDecoration(
                 color: AppColors.error.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppSpacing.roundedMd,
               ),
               child: Row(
                 children: [
                   Icon(Icons.error_outline, color: AppColors.error),
-                  const SizedBox(width: 12),
+                  AppSpacing.gapW12,
                   Expanded(
                     child: Text(
                       'An account exists with this number but it\'s not a parent account.',
@@ -321,14 +323,14 @@ class _LinkToParentScreenState extends ConsumerState<LinkToParentScreen> {
               ),
             ),
 
-          const SizedBox(height: 32),
+          AppSpacing.gapH32,
 
           // Demo hint
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: AppSpacing.allSm,
             decoration: BoxDecoration(
               color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppSpacing.roundedMd,
             ),
             child: Row(
               children: [

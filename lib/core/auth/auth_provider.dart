@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/data/repositories/auth_repository.dart';
@@ -9,6 +10,9 @@ import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/user_role.dart';
 import 'package:testing_flutter/models/broker_profile.dart';
 import 'package:testing_flutter/models/parent_profile.dart';
+
+/// Indian mobile number: starts with 6-9, followed by 9 digits.
+final _indianPhoneRegex = RegExp(r'^[6-9]\d{9}$');
 
 /// Auth notifier that manages login/logout via repository interfaces.
 ///
@@ -50,22 +54,45 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  /// Validate an Indian mobile number (10 digits, starting with 6-9).
+  /// Accepts both raw (`9876543210`) and prefixed (`+919876543210`) formats.
+  static bool isValidIndianPhone(String phone) {
+    final digits = phone.replaceFirst('+91', '');
+    return _indianPhoneRegex.hasMatch(digits);
+  }
+
   /// Step 1: User selects role and enters phone → send OTP
   Future<void> sendOtp({
     required String phoneNumber,
     required UserRole selectedRole,
   }) async {
+    if (!isValidIndianPhone(phoneNumber)) {
+      state = AuthError(
+        message: 'Please enter a valid 10-digit Indian mobile number.',
+        previousState: const AuthInitial(),
+      );
+      return;
+    }
+
     state = const AuthLoading();
 
-    await _authRepo.sendOtp(
-      phoneNumber: phoneNumber,
-      selectedRole: selectedRole,
-    );
+    try {
+      await _authRepo.sendOtp(
+        phoneNumber: phoneNumber,
+        selectedRole: selectedRole,
+      );
 
-    state = AuthOtpSent(
-      phoneNumber: phoneNumber,
-      selectedRole: selectedRole,
-    );
+      state = AuthOtpSent(
+        phoneNumber: phoneNumber,
+        selectedRole: selectedRole,
+      );
+    } catch (e) {
+      debugPrint('sendOtp failed: $e');
+      state = AuthError(
+        message: 'Failed to send OTP. Please try again.',
+        previousState: const AuthInitial(),
+      );
+    }
   }
 
   /// Step 2: Verify OTP code
@@ -76,44 +103,51 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }) async {
     state = const AuthLoading();
 
-    final isValid = await _authRepo.verifyOtp(
-      phoneNumber: phoneNumber,
-      otpCode: otpCode,
-    );
+    try {
+      final isValid = await _authRepo.verifyOtp(
+        phoneNumber: phoneNumber,
+        otpCode: otpCode,
+      );
 
-    if (!isValid) {
-      final hint = _authRepo.demoOtpCode;
+      if (!isValid) {
+        final hint = _authRepo.demoOtpCode;
+        state = AuthError(
+          message: hint != null
+              ? 'Invalid OTP. Use "$hint" for demo.'
+              : 'Invalid OTP. Please try again.',
+          previousState: AuthOtpSent(
+            phoneNumber: phoneNumber,
+            selectedRole: selectedRole,
+          ),
+        );
+        return;
+      }
+
+      final existingUser = await _userRepo.getUserByPhone(phoneNumber);
+
+      if (existingUser != null) {
+        await _userRepo.setCurrentUser(existingUser.uid);
+        state = AuthAuthenticated(user: existingUser);
+      } else {
+        final user = await _userRepo.registerUser(
+          phoneNumber: phoneNumber,
+          displayName: '',
+          role: selectedRole,
+        );
+        state = AuthNeedsProfile(
+          uid: user.uid,
+          phoneNumber: phoneNumber,
+          role: selectedRole,
+        );
+      }
+    } catch (e) {
+      debugPrint('verifyOtp failed: $e');
       state = AuthError(
-        message: hint != null
-            ? 'Invalid OTP. Use "$hint" for demo.'
-            : 'Invalid OTP. Please try again.',
+        message: 'Verification failed. Please try again.',
         previousState: AuthOtpSent(
           phoneNumber: phoneNumber,
           selectedRole: selectedRole,
         ),
-      );
-      return;
-    }
-
-    // Check if user already exists with this phone number
-    final existingUser = await _userRepo.getUserByPhone(phoneNumber);
-
-    if (existingUser != null) {
-      // Existing user → log them in
-      await _userRepo.setCurrentUser(existingUser.uid);
-      state = AuthAuthenticated(user: existingUser);
-    } else {
-      // New user → needs to complete profile
-      // Pre-register with minimal info
-      final user = await _userRepo.registerUser(
-        phoneNumber: phoneNumber,
-        displayName: '',
-        role: selectedRole,
-      );
-      state = AuthNeedsProfile(
-        uid: user.uid,
-        phoneNumber: phoneNumber,
-        role: selectedRole,
       );
     }
   }

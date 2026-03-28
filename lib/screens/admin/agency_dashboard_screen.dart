@@ -5,6 +5,8 @@ import 'package:testing_flutter/common/widgets/molecules/branded_app_bar.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/constants/app_strings.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/models/agency.dart';
@@ -99,7 +101,12 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
                 ),
                 child: SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 48, 24, 24),
+                    padding: EdgeInsets.fromLTRB(
+                      AppSpacing.lg,
+                      AppSpacing.xxl,
+                      AppSpacing.lg,
+                      AppSpacing.lg,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -111,7 +118,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
                               height: 48,
                               decoration: BoxDecoration(
                                 color: Colors.white.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: AppSpacing.roundedMd,
                               ),
                               child: const Icon(
                                 Icons.business,
@@ -158,7 +165,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
 
           // ---- Body ----
           SliverPadding(
-            padding: const EdgeInsets.all(16),
+            padding: AppSpacing.allMd,
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // Stat cards row
@@ -169,7 +176,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
                 // Broker roster preview
                 _buildBrokerRoster(context, _brokers, _brokerUsers, isDark, theme),
 
-                const SizedBox(height: 16),
+                AppSpacing.gapH16,
 
                 // Quick action: Invite Broker
                 _buildInviteBrokerAction(context, isDark, theme, ref, user.uid, user.displayName),
@@ -192,7 +199,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
           child: _StatCard(
             icon: Icons.people_outline,
             iconColor: AppColors.info,
-            label: 'Brokers',
+            label: AppStrings.activeBrokers,
             value: '${stats['totalBrokers'] ?? 0}',
             isDark: isDark,
           ),
@@ -202,7 +209,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
           child: _StatCard(
             icon: Icons.family_restroom,
             iconColor: AppColors.sacredSaffron,
-            label: 'Clients',
+            label: AppStrings.activeClients,
             value: '${stats['totalClients'] ?? 0}',
             isDark: isDark,
           ),
@@ -212,7 +219,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
           child: _StatCard(
             icon: Icons.person_outline,
             iconColor: AppColors.success,
-            label: 'Profiles',
+            label: AppStrings.profilesManaged,
             value: '${stats['totalProfiles'] ?? 0}',
             isDark: isDark,
           ),
@@ -231,7 +238,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppSpacing.roundedLg,
         side: BorderSide(
           color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
           width: 0.5,
@@ -242,12 +249,12 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+            padding: const EdgeInsets.fromLTRB(20, AppSpacing.md, 20, AppSpacing.xs),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Broker Roster',
+                  AppStrings.brokerRoster,
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -275,7 +282,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
                           ? AppColors.darkTertiaryText
                           : AppColors.lightTertiaryText,
                     ),
-                    const SizedBox(height: 8),
+                    AppSpacing.gapH8,
                     Text(
                       'No brokers yet',
                       style: theme.textTheme.bodyMedium?.copyWith(
@@ -323,12 +330,12 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
                 ),
                 trailing: Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: 2),
                   decoration: BoxDecoration(
                     color: (user?.isActive ?? false)
                         ? AppColors.success.withValues(alpha: 0.12)
                         : AppColors.lightTertiaryText.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: AppSpacing.roundedXs,
                   ),
                   child: Text(
                     (user?.isActive ?? false) ? 'Active' : 'Inactive',
@@ -343,7 +350,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
                 ),
               );
             }),
-          const SizedBox(height: 8),
+          AppSpacing.gapH8,
         ],
       ),
     );
@@ -360,7 +367,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppSpacing.roundedLg,
         side: BorderSide(
           color: AppColors.sacredSaffron.withValues(alpha: 0.3),
           width: 1,
@@ -368,13 +375,14 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
       ),
       color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 20, vertical: AppSpacing.xs),
         leading: Container(
           width: 48,
           height: 48,
           decoration: BoxDecoration(
             color: AppColors.sacredSaffron.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppSpacing.roundedMd,
           ),
           child: const Icon(
             Icons.person_add_outlined,
@@ -382,7 +390,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
           ),
         ),
         title: Text(
-          'Invite Broker',
+          AppStrings.inviteBroker,
           style: theme.textTheme.titleSmall?.copyWith(
             fontWeight: FontWeight.w600,
           ),
@@ -404,7 +412,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Invite Broker'),
+        title: const Text(AppStrings.inviteBroker),
         content: TextField(
           controller: phoneController,
           keyboardType: TextInputType.phone,
@@ -418,7 +426,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: const Text(AppStrings.cancel),
           ),
           FilledButton(
             onPressed: () async {
@@ -434,7 +442,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('No user found with that phone number'),
+                      content: Text(AppStrings.userNotFoundByPhone),
                       backgroundColor: AppColors.error,
                     ),
                   );
@@ -475,7 +483,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
             style: FilledButton.styleFrom(
               backgroundColor: AppColors.sacredSaffron,
             ),
-            child: const Text('Send Invite'),
+            child: const Text(AppStrings.sendInvite),
           ),
         ],
       ),
@@ -514,7 +522,7 @@ class _StatCard extends StatelessWidget {
       ),
       color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: AppSpacing.allMd,
         child: Column(
           children: [
             Container(

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/candidate_profile.dart';
@@ -60,7 +61,12 @@ class _BrokerProfilesScreenState extends ConsumerState<BrokerProfilesScreen> {
               slivers: [
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.md,
+                      AppSpacing.md,
+                      AppSpacing.md,
+                      AppSpacing.xxs,
+                    ),
                     child: Row(
                       children: [
                         Container(
@@ -68,7 +74,7 @@ class _BrokerProfilesScreenState extends ConsumerState<BrokerProfilesScreen> {
                           decoration: BoxDecoration(
                             color: AppColors.sacredSaffron
                                 .withValues(alpha: isDark ? 0.15 : 0.1),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: AppSpacing.roundedSm,
                           ),
                           child: const Icon(
                             Icons.badge_rounded,
@@ -86,16 +92,16 @@ class _BrokerProfilesScreenState extends ConsumerState<BrokerProfilesScreen> {
                                 : AppColors.lightPrimaryText,
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        AppSpacing.gapW8,
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
+                            horizontal: AppSpacing.xs,
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
                             color: AppColors.sacredSaffron
                                 .withValues(alpha: isDark ? 0.2 : 0.12),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: AppSpacing.roundedMd,
                           ),
                           child: Text(
                             '${_profiles.length}',
@@ -112,13 +118,18 @@ class _BrokerProfilesScreenState extends ConsumerState<BrokerProfilesScreen> {
                 ),
 
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 88),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.md,
+                    AppSpacing.sm,
+                    AppSpacing.md,
+                    88,
+                  ),
                   sliver: SliverList.builder(
                     itemCount: _profiles.length,
                     itemBuilder: (context, index) {
                       final profile = _profiles[index];
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                         child: _ProfileCard(
                           profile: profile,
                           isDark: isDark,
@@ -176,9 +187,9 @@ class _BrokerProfilesScreenState extends ConsumerState<BrokerProfilesScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Padding(
-                padding: EdgeInsets.all(16),
-                child: Text(
+              Padding(
+                padding: AppSpacing.allMd,
+                child: const Text(
                   'Share Profile With',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
@@ -214,7 +225,7 @@ class _BrokerProfilesScreenState extends ConsumerState<BrokerProfilesScreen> {
                   },
                 );
               }),
-              const SizedBox(height: 8),
+              AppSpacing.gapH8,
             ],
           ),
         );
@@ -253,7 +264,7 @@ class _EmptyState extends StatelessWidget {
                     .withValues(alpha: isDark ? 0.6 : 0.5),
               ),
             ),
-            const SizedBox(height: 24),
+            AppSpacing.gapH24,
             Text(
               'No Profiles Yet',
               style: theme.textTheme.titleLarge?.copyWith(
@@ -263,7 +274,7 @@ class _EmptyState extends StatelessWidget {
                     : AppColors.lightPrimaryText,
               ),
             ),
-            const SizedBox(height: 8),
+            AppSpacing.gapH8,
             Text(
               'No profiles yet. Create your first\ncandidate profile.',
               textAlign: TextAlign.center,
@@ -285,9 +296,9 @@ class _EmptyState extends StatelessWidget {
                 backgroundColor: AppColors.sacredSaffron,
                 foregroundColor: Colors.white,
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: 14),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppSpacing.roundedMd,
                 ),
               ),
             ),
@@ -324,12 +335,12 @@ class _ProfileCard extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppSpacing.roundedLg,
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: AppSpacing.roundedLg,
             border: Border.all(
               color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
               width: 0.5,
@@ -397,17 +408,17 @@ class _ProfileCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        AppSpacing.gapW8,
                         // Gender badge
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
+                            horizontal: AppSpacing.xs,
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
                             color: genderColor
                                 .withValues(alpha: isDark ? 0.15 : 0.1),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: AppSpacing.roundedSm,
                           ),
                           child: Text(
                             profile.gender.displayName,
@@ -433,7 +444,7 @@ class _ProfileCard extends StatelessWidget {
                                 ? AppColors.darkTertiaryText
                                 : AppColors.lightTertiaryText,
                           ),
-                          const SizedBox(width: 4),
+                          AppSpacing.gapW4,
                           Flexible(
                             child: Text(
                               profile.education,
@@ -460,7 +471,7 @@ class _ProfileCard extends StatelessWidget {
                                 ? AppColors.darkTertiaryText
                                 : AppColors.lightTertiaryText,
                           ),
-                          const SizedBox(width: 4),
+                          AppSpacing.gapW4,
                           Flexible(
                             child: Text(
                               profile.city,
@@ -484,13 +495,13 @@ class _ProfileCard extends StatelessWidget {
                         // Listed with brokers badge
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
+                            horizontal: AppSpacing.xs,
+                            vertical: AppSpacing.xxs,
                           ),
                           decoration: BoxDecoration(
                             color: AppColors.info
                                 .withValues(alpha: isDark ? 0.12 : 0.08),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: AppSpacing.roundedSm,
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -500,7 +511,7 @@ class _ProfileCard extends StatelessWidget {
                                 size: 14,
                                 color: AppColors.info,
                               ),
-                              const SizedBox(width: 4),
+                              AppSpacing.gapW4,
                               Text(
                                 'Listed with ${profile.listedWithBrokersCount} broker${profile.listedWithBrokersCount != 1 ? 's' : ''}',
                                 style: TextStyle(
@@ -519,16 +530,16 @@ class _ProfileCard extends StatelessWidget {
                           color: Colors.transparent,
                           child: InkWell(
                             onTap: onShare,
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: AppSpacing.roundedSm,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
+                                horizontal: AppSpacing.sm,
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
                                 color: AppColors.sacredSaffron
                                     .withValues(alpha: isDark ? 0.15 : 0.1),
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: AppSpacing.roundedSm,
                                 border: Border.all(
                                   color: AppColors.sacredSaffron
                                       .withValues(alpha: 0.25),

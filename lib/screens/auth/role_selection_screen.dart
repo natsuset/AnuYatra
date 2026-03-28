@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/constants/app_strings.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/models/user_role.dart';
 
@@ -17,21 +19,21 @@ class RoleSelectionScreen extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 48),
+              AppSpacing.gapH48,
 
               // Brand header
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 6),
                 decoration: BoxDecoration(
                   gradient: AppColors.primaryGradient,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: AppSpacing.roundedXl,
                 ),
                 child: const Text(
-                  'Anuyatra',
+                  AppStrings.appName,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 14,
@@ -40,22 +42,22 @@ class RoleSelectionScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              AppSpacing.gapH16,
 
               Text(
-                'Welcome!',
+                AppStrings.welcome,
                 style: theme.textTheme.headlineLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 8),
+              AppSpacing.gapH8,
               Text(
                 'How would you like to use Anuyatra?',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
-              const SizedBox(height: 32),
+              AppSpacing.gapH32,
 
               // Role cards
               Expanded(
@@ -80,7 +82,7 @@ class RoleSelectionScreen extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 24, top: 8),
                 child: Center(
                   child: Text(
-                    'The Real Matrimony Experience',
+                    AppStrings.appTagline,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                       letterSpacing: 0.5,
@@ -138,16 +140,16 @@ class _RoleCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.only(bottom: AppSpacing.sm),
       child: Material(
         color: isDark ? AppColors.darkSurface : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppSpacing.roundedLg,
         elevation: isDark ? 0 : 1,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppSpacing.roundedLg,
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: AppSpacing.allMd,
             child: Row(
               children: [
                 Container(
@@ -159,7 +161,7 @@ class _RoleCard extends StatelessWidget {
                   ),
                   child: Icon(_icon, color: _color, size: 28),
                 ),
-                const SizedBox(width: 16),
+                AppSpacing.gapW16,
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,7 +172,7 @@ class _RoleCard extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      AppSpacing.gapH4,
                       Text(
                         role.description,
                         style: theme.textTheme.bodySmall?.copyWith(

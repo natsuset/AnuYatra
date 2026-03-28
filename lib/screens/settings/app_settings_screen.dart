@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/constants/app_strings.dart';
 import 'package:testing_flutter/core/providers/theme_provider.dart';
 
 class AppSettingsScreen extends ConsumerWidget {
@@ -25,17 +27,20 @@ class AppSettingsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: const Text(AppStrings.settings),
       ),
       body: ListView(
         children: [
           // ---- Account section ----
-          _SectionHeader(title: 'Account', isDark: isDark),
+          _SectionHeader(title: AppStrings.account, isDark: isDark),
           Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            margin: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.xxs,
+            ),
             elevation: 0,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppSpacing.roundedMd,
               side: BorderSide(
                 color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                 width: 0.5,
@@ -84,15 +89,18 @@ class AppSettingsScreen extends ConsumerWidget {
             ),
           ),
 
-          const SizedBox(height: 16),
+          AppSpacing.gapH16,
 
           // ---- Appearance section ----
-          _SectionHeader(title: 'Appearance', isDark: isDark),
+          _SectionHeader(title: AppStrings.appearance, isDark: isDark),
           Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            margin: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.xxs,
+            ),
             elevation: 0,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppSpacing.roundedMd,
               side: BorderSide(
                 color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                 width: 0.5,
@@ -106,7 +114,7 @@ class AppSettingsScreen extends ConsumerWidget {
                     isDark ? Icons.dark_mode : Icons.light_mode,
                     color: AppColors.sacredSaffron,
                   ),
-                  title: const Text('Dark Mode'),
+                  title: const Text(AppStrings.darkMode),
                   subtitle: Text(
                     themeMode == ThemeMode.dark
                         ? 'Dark theme active'
@@ -122,15 +130,18 @@ class AppSettingsScreen extends ConsumerWidget {
             ),
           ),
 
-          const SizedBox(height: 16),
+          AppSpacing.gapH16,
 
           // ---- Danger zone ----
           _SectionHeader(title: 'Session', isDark: isDark),
           Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            margin: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.xxs,
+            ),
             elevation: 0,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppSpacing.roundedMd,
               side: BorderSide(
                 color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                 width: 0.5,
@@ -140,7 +151,7 @@ class AppSettingsScreen extends ConsumerWidget {
             child: ListTile(
               leading: const Icon(Icons.logout, color: AppColors.error),
               title: const Text(
-                'Logout',
+                AppStrings.logout,
                 style: TextStyle(color: AppColors.error),
               ),
               subtitle: const Text('Sign out of your account'),
@@ -148,21 +159,21 @@ class AppSettingsScreen extends ConsumerWidget {
                 final confirmed = await showDialog<bool>(
                   context: context,
                   builder: (ctx) => AlertDialog(
-                    title: const Text('Logout'),
+                    title: const Text(AppStrings.logoutConfirmTitle),
                     content: const Text(
-                      'Are you sure you want to log out?',
+                      AppStrings.logoutConfirmMessage,
                     ),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(ctx, false),
-                        child: const Text('Cancel'),
+                        child: const Text(AppStrings.cancel),
                       ),
                       FilledButton(
                         onPressed: () => Navigator.pop(ctx, true),
                         style: FilledButton.styleFrom(
                           backgroundColor: AppColors.error,
                         ),
-                        child: const Text('Logout'),
+                        child: const Text(AppStrings.logout),
                       ),
                     ],
                   ),
@@ -174,14 +185,14 @@ class AppSettingsScreen extends ConsumerWidget {
             ),
           ),
 
-          const SizedBox(height: 32),
+          AppSpacing.gapH32,
 
           // ---- App version ----
           Center(
             child: Column(
               children: [
                 Text(
-                  'Vivaha Samskara',
+                  AppStrings.vivahaSamskara,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: isDark
                         ? AppColors.darkTertiaryText
@@ -189,7 +200,7 @@ class AppSettingsScreen extends ConsumerWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 4),
+                AppSpacing.gapH4,
                 Text(
                   'Version 1.0.0 (beta)',
                   style: theme.textTheme.bodySmall?.copyWith(
@@ -202,7 +213,7 @@ class AppSettingsScreen extends ConsumerWidget {
             ),
           ),
 
-          const SizedBox(height: 32),
+          AppSpacing.gapH32,
         ],
       ),
     );
@@ -220,7 +231,7 @@ class _SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
+      padding: const EdgeInsets.fromLTRB(20, AppSpacing.xs, 20, AppSpacing.xxs),
       child: Text(
         title.toUpperCase(),
         style: TextStyle(
@@ -245,7 +256,10 @@ class _RoleBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: AppSpacing.xxs,
+      ),
       decoration: BoxDecoration(
         color: AppColors.sacredSaffron.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(6),

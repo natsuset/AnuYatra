@@ -297,11 +297,14 @@ class CandidateProfile {
   };
 
   factory CandidateProfile.fromJson(Map<String, dynamic> json) => CandidateProfile(
-    id: json['id'] as String,
-    createdByUserId: json['createdByUserId'] as String,
-    name: json['name'] as String,
-    age: json['age'] as int,
-    gender: Gender.values.byName(json['gender'] as String),
+    id: json['id'] as String? ?? '',
+    createdByUserId: json['createdByUserId'] as String? ?? '',
+    name: json['name'] as String? ?? '',
+    age: (json['age'] as num?)?.toInt() ?? 0,
+    gender: Gender.values.firstWhere(
+      (e) => e.name == (json['gender'] as String?),
+      orElse: () => Gender.bride,
+    ),
     profession: json['profession'] as String? ?? '',
     education: json['education'] as String? ?? '',
     city: json['city'] as String? ?? '',
@@ -327,8 +330,8 @@ class CandidateProfile {
     deduplicationKey: json['deduplicationKey'] as String?,
     listedWithBrokersCount: json['listedWithBrokersCount'] as int? ?? 1,
     searchTags: (json['searchTags'] as List<dynamic>?)?.cast<String>() ?? [],
-    createdAt: DateTime.parse(json['createdAt'] as String),
-    updatedAt: DateTime.parse(json['updatedAt'] as String),
+    createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+    updatedAt: DateTime.tryParse(json['updatedAt'] as String? ?? '') ?? DateTime.now(),
     // New fields
     dateOfBirth: json['dateOfBirth'] != null ? DateTime.parse(json['dateOfBirth'] as String) : null,
     annualIncome: json['annualIncome'] as String?,

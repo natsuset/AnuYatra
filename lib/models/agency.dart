@@ -87,32 +87,33 @@ class Agency {
   };
 
   factory Agency.fromJson(Map<String, dynamic> json) => Agency(
-    id: json['id'] as String,
-    adminUserId: json['adminUserId'] as String,
-    name: json['name'] as String,
+    id: json['id'] as String? ?? '',
+    adminUserId: json['adminUserId'] as String? ?? '',
+    name: json['name'] as String? ?? '',
     logoUrl: json['logoUrl'] as String?,
-    city: json['city'] as String,
-    state: json['state'] as String,
+    city: json['city'] as String? ?? '',
+    state: json['state'] as String? ?? '',
     description: json['description'] as String? ?? '',
     specializations: (json['specializations'] as List<dynamic>?)?.cast<String>() ?? [],
     areasServed: (json['areasServed'] as List<dynamic>?)?.cast<String>() ?? [],
     rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
     isActive: json['isActive'] as bool? ?? true,
-    createdAt: DateTime.parse(json['createdAt'] as String),
+    createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
     // New fields
     email: json['email'] as String?,
     phone: json['phone'] as String?,
     website: json['website'] as String?,
     foundedYear: json['foundedYear'] as int?,
     licenseNumber: json['licenseNumber'] as String?,
-    totalStaff: json['totalStaff'] as int? ?? 0,
-    totalSuccessfulMatches: json['totalSuccessfulMatches'] as int? ?? 0,
+    totalStaff: (json['totalStaff'] as num?)?.toInt() ?? 0,
+    totalSuccessfulMatches: (json['totalSuccessfulMatches'] as num?)?.toInt() ?? 0,
     languagesServed: (json['languagesServed'] as List<dynamic>?)?.cast<String>() ?? [],
     feeStructure: json['feeStructure'] as String?,
     awardsAndRecognition: (json['awardsAndRecognition'] as List<dynamic>?)?.cast<String>() ?? [],
-    verificationStatus: json['verificationStatus'] != null
-        ? VerificationStatus.values.byName(json['verificationStatus'] as String)
-        : VerificationStatus.unverified,
+    verificationStatus: VerificationStatus.values.firstWhere(
+      (e) => e.name == (json['verificationStatus'] as String?),
+      orElse: () => VerificationStatus.unverified,
+    ),
     officeAddresses: (json['officeAddresses'] as List<dynamic>?)?.cast<String>() ?? [],
   );
 

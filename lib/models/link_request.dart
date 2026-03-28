@@ -76,14 +76,20 @@ class LinkRequest {
   };
 
   factory LinkRequest.fromJson(Map<String, dynamic> json) => LinkRequest(
-    id: json['id'] as String,
-    fromUserId: json['fromUserId'] as String,
-    toUserId: json['toUserId'] as String,
-    fromUserName: json['fromUserName'] as String,
-    toUserName: json['toUserName'] as String,
-    type: LinkRequestType.values.byName(json['type'] as String),
-    status: LinkRequestStatus.values.byName(json['status'] as String),
-    createdAt: DateTime.parse(json['createdAt'] as String),
+    id: json['id'] as String? ?? '',
+    fromUserId: json['fromUserId'] as String? ?? '',
+    toUserId: json['toUserId'] as String? ?? '',
+    fromUserName: json['fromUserName'] as String? ?? '',
+    toUserName: json['toUserName'] as String? ?? '',
+    type: LinkRequestType.values.firstWhere(
+      (e) => e.name == (json['type'] as String?),
+      orElse: () => LinkRequestType.parentToBroker,
+    ),
+    status: LinkRequestStatus.values.firstWhere(
+      (e) => e.name == (json['status'] as String?),
+      orElse: () => LinkRequestStatus.pending,
+    ),
+    createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
     respondedAt: json['respondedAt'] != null ? DateTime.parse(json['respondedAt'] as String) : null,
     note: json['note'] as String?,
   );
