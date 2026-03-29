@@ -1,6 +1,19 @@
 import 'package:testing_flutter/models/app_user.dart';
 import 'package:testing_flutter/models/user_role.dart';
 
+/// Typed error categories emitted by [AuthNotifier].
+///
+/// The widget layer resolves these to localized strings via context.l10n,
+/// keeping the provider free of BuildContext / UI concerns.
+enum AuthErrorType {
+  invalidPhone,
+  sendOtpFailed,
+  invalidOtpWithHint,
+  invalidOtp,
+  verificationFailed,
+  profileSetupFailed,
+}
+
 /// Sealed class representing all possible authentication states.
 sealed class AuthState {
   const AuthState();
@@ -47,13 +60,19 @@ class AuthNeedsProfile extends AuthState {
   });
 }
 
-/// Authentication error
+/// Authentication error — carries a typed [errorType] and optional [detail].
+///
+/// Screens resolve [errorType] to a localized string using context.l10n.
 class AuthError extends AuthState {
-  final String message;
+  final AuthErrorType errorType;
+
+  /// Additional context, e.g. the demo OTP hint or an exception message.
+  final String? detail;
   final AuthState? previousState;
 
   const AuthError({
-    required this.message,
+    required this.errorType,
+    this.detail,
     this.previousState,
   });
 }

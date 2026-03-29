@@ -67,9 +67,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     required UserRole selectedRole,
   }) async {
     if (!isValidIndianPhone(phoneNumber)) {
-      state = AuthError(
-        message: 'Please enter a valid 10-digit Indian mobile number.',
-        previousState: const AuthInitial(),
+      state = const AuthError(
+        errorType: AuthErrorType.invalidPhone,
+        previousState: AuthInitial(),
       );
       return;
     }
@@ -89,7 +89,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     } catch (e) {
       debugPrint('sendOtp failed: $e');
       state = AuthError(
-        message: 'Failed to send OTP. Please try again.',
+        errorType: AuthErrorType.sendOtpFailed,
         previousState: const AuthInitial(),
       );
     }
@@ -112,9 +112,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
       if (!isValid) {
         final hint = _authRepo.demoOtpCode;
         state = AuthError(
-          message: hint != null
-              ? 'Invalid OTP. Use "$hint" for demo.'
-              : 'Invalid OTP. Please try again.',
+          errorType: hint != null
+              ? AuthErrorType.invalidOtpWithHint
+              : AuthErrorType.invalidOtp,
+          detail: hint,
           previousState: AuthOtpSent(
             phoneNumber: phoneNumber,
             selectedRole: selectedRole,
@@ -143,7 +144,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     } catch (e) {
       debugPrint('verifyOtp failed: $e');
       state = AuthError(
-        message: 'Verification failed. Please try again.',
+        errorType: AuthErrorType.verificationFailed,
         previousState: AuthOtpSent(
           phoneNumber: phoneNumber,
           selectedRole: selectedRole,
@@ -238,7 +239,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await _userRepo.setCurrentUser(uid);
       state = AuthAuthenticated(user: finalUser);
     } catch (e) {
-      state = AuthError(message: 'Profile setup failed: $e');
+      state = AuthError(
+        errorType: AuthErrorType.profileSetupFailed,
+        detail: e.toString(),
+      );
     }
   }
 

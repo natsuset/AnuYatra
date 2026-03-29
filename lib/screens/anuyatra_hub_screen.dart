@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
-import 'package:testing_flutter/core/constants/app_strings.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/screens/vivaha_samskara_home_screen.dart';
 import 'package:testing_flutter/screens/trust_verification_screen.dart';
 import 'package:testing_flutter/screens/financial_compatibility_screen.dart';
@@ -19,7 +19,7 @@ class AnuyatraHubScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          AppStrings.appName,
+          context.l10n.appName,
           style: theme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -32,8 +32,8 @@ class AnuyatraHubScreen extends StatelessWidget {
           // Premium Services Section
           _SectionCard(
             icon: Icons.auto_awesome,
-            title: AppStrings.vivahaSamskara,
-            subtitle: AppStrings.vivahaSamskaraDesc,
+            title: context.l10n.vivahaSamskara,
+            subtitle: context.l10n.vivahaSamskaraDesc,
             color: AppColors.sacredSaffron,
             onTap: () => Navigator.push(
               context,
@@ -47,7 +47,7 @@ class AnuyatraHubScreen extends StatelessWidget {
           // Trust Verification
           _SectionCard(
             icon: Icons.verified_user,
-            title: AppStrings.trustVerification,
+            title: context.l10n.trustVerification,
             subtitle: 'Verify profiles with trust scores & endorsements',
             color: AppColors.success,
             onTap: () => Navigator.push(
@@ -62,7 +62,7 @@ class AnuyatraHubScreen extends StatelessWidget {
           // Financial Compatibility
           _SectionCard(
             icon: Icons.account_balance_wallet,
-            title: AppStrings.financialCompatibility,
+            title: context.l10n.financialCompatibility,
             subtitle: 'Analyze financial alignment between profiles',
             color: AppColors.info,
             onTap: () => Navigator.push(
@@ -95,14 +95,14 @@ class AnuyatraHubScreen extends StatelessWidget {
                 ),
                 AppSpacing.gapH12,
                 Text(
-                  AppStrings.comingSoon,
+                  context.l10n.comingSoon,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 AppSpacing.gapH4,
                 Text(
-                  AppStrings.comingSoonHint,
+                  context.l10n.comingSoonHint,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),

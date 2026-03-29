@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:testing_flutter/core/providers/theme_provider.dart';
+import 'package:testing_flutter/core/providers/locale_provider.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/theme/app_theme.dart';
 import 'package:testing_flutter/core/routing/app_router.dart';
@@ -12,6 +13,7 @@ import 'package:testing_flutter/core/services/local_storage_service.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/constants/app_strings.dart';
 import 'package:testing_flutter/data/seed_data.dart';
+import 'package:testing_flutter/l10n/app_localizations.dart';
 
 void main() async {
   // Wrap everything in error handling to prevent silent crashes
@@ -112,12 +114,17 @@ class _AnuyatraAppState extends ConsumerState<AnuyatraApp> {
 
   @override
   Widget build(BuildContext context) {
-    // Watch theme mode from provider for dark mode support
     final themeMode = ref.watch(themeModeProvider);
+    final locale = ref.watch(localeProvider);
     final router = ref.watch(appRouterProvider);
 
     return MaterialApp.router(
       title: AppStrings.appTitle,
+
+      // Localization
+      locale: locale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
 
       // Material Design 3 themes
       theme: AppTheme.lightTheme,

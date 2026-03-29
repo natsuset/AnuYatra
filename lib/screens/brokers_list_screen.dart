@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/models/broker.dart';
 import 'package:testing_flutter/data/mock_data.dart';
 import 'package:testing_flutter/theme/app_theme.dart';
@@ -15,7 +16,7 @@ class BrokersListScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppTheme.appBarBackground(context),
-        title: const Text('Brokers'),
+        title: Text(context.l10n.activeBrokers),
       ),
       body: ListView.separated(
         itemCount: brokers.length,

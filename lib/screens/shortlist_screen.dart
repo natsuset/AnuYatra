@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:testing_flutter/models/profile.dart';
@@ -41,14 +42,14 @@ class _ShortlistScreenState extends State<ShortlistScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         // AppBar colors come from global theme
-        title: const Text('Your Shortlist'),
+        title: Text(context.l10n.yourShortlist),
         actions: [
           PopupMenuButton(
             icon: const Icon(Icons.more_vert),
             itemBuilder: (context) => [
-              const PopupMenuItem(value: 'sort', child: Text('Sort by')),
-              const PopupMenuItem(value: 'filter', child: Text('Filter')),
-              const PopupMenuItem(value: 'export', child: Text('Export list')),
+              PopupMenuItem(value: 'sort', child: Text(context.l10n.sortBy)),
+              PopupMenuItem(value: 'filter', child: Text(context.l10n.filter)),
+              PopupMenuItem(value: 'export', child: Text(context.l10n.exportList)),
             ],
             onSelected: (value) {
               // TODO: Implement menu actions
@@ -88,7 +89,7 @@ class _ShortlistScreenState extends State<ShortlistScreen> {
             onPressed: () {
               widget.onNavigateToHome?.call();
             },
-            child: const Text('Browse Profiles'),
+            child: Text(context.l10n.browseProfiles),
           ),
         ],
       ),

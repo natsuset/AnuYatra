@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
-import 'package:testing_flutter/core/constants/app_strings.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/models/user_role.dart';
 
@@ -15,6 +15,7 @@ class RoleSelectionScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = context.l10n;
 
     return Scaffold(
       body: SafeArea(
@@ -32,9 +33,9 @@ class RoleSelectionScreen extends StatelessWidget {
                   gradient: AppColors.primaryGradient,
                   borderRadius: AppSpacing.roundedXl,
                 ),
-                child: const Text(
-                  AppStrings.appName,
-                  style: TextStyle(
+                child: Text(
+                  l10n.appName,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -45,14 +46,14 @@ class RoleSelectionScreen extends StatelessWidget {
               AppSpacing.gapH16,
 
               Text(
-                AppStrings.welcome,
+                l10n.welcome,
                 style: theme.textTheme.headlineLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               AppSpacing.gapH8,
               Text(
-                'How would you like to use Anuyatra?',
+                l10n.howToUseAnuyatra,
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -82,7 +83,7 @@ class RoleSelectionScreen extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 24, top: 8),
                 child: Center(
                   child: Text(
-                    AppStrings.appTagline,
+                    l10n.appTagline,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                       letterSpacing: 0.5,

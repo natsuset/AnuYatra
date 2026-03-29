@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
-import 'package:testing_flutter/core/constants/app_strings.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/core/routing/shells/parent_shell.dart';
 import 'package:testing_flutter/core/routing/shells/broker_shell.dart';
@@ -109,7 +109,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       return null;
     },
     errorBuilder: (context, state) => Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.pageNotFound)),
+      appBar: AppBar(title: Text(context.l10n.pageNotFound)),
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -117,7 +117,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             const Icon(Icons.error_outline, size: 64, color: Colors.grey),
             const SizedBox(height: 16),
             Text(
-              AppStrings.routeNotFound,
+              context.l10n.routeNotFound,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 8),
@@ -130,7 +130,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             const SizedBox(height: 24),
             FilledButton(
               onPressed: () => context.go(RouteNames.roleSelectionPath),
-              child: const Text(AppStrings.goHome),
+              child: Text(context.l10n.goHome),
             ),
           ],
         ),

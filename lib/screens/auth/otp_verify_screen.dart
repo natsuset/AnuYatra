@@ -5,7 +5,7 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
-import 'package:testing_flutter/core/constants/app_strings.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 
 /// 6-digit OTP verification screen.
 /// Code "123456" always works (mock).
@@ -36,11 +36,25 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
 
   String get _otpCode => _controllers.map((c) => c.text).join();
 
+  String _resolveAuthError(BuildContext context, AuthError error) {
+    final l10n = context.l10n;
+    return switch (error.errorType) {
+      AuthErrorType.invalidPhone => l10n.authErrorInvalidPhone,
+      AuthErrorType.sendOtpFailed => l10n.authErrorSendOtpFailed,
+      AuthErrorType.invalidOtpWithHint =>
+        l10n.authErrorInvalidOtpWithHint(error.detail ?? '123456'),
+      AuthErrorType.invalidOtp => l10n.authErrorInvalidOtp,
+      AuthErrorType.verificationFailed => l10n.authErrorVerificationFailed,
+      AuthErrorType.profileSetupFailed =>
+        l10n.authErrorProfileSetupFailed(error.detail ?? ''),
+    };
+  }
+
   void _verifyOtp() {
     final code = _otpCode;
     if (code.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text(AppStrings.invalidOtpError)),
+        SnackBar(content: Text(context.l10n.invalidOtpError)),
       );
       return;
     }
@@ -72,6 +86,7 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final authState = ref.watch(authProvider);
     final isLoading = authState is AuthLoading;
 
@@ -85,7 +100,7 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
       if (next is AuthError) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(next.message),
+            content: Text(_resolveAuthError(context, next)),
             backgroundColor: AppColors.error,
           ),
         );
@@ -113,14 +128,14 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
               AppSpacing.gapH16,
 
               Text(
-                AppStrings.verifyNumber,
+                l10n.verifyNumber,
                 style: theme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               AppSpacing.gapH8,
               Text(
-                AppStrings.otpSentTo(phoneNumber),
+                l10n.otpSentTo(phoneNumber),
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -192,9 +207,9 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
                             strokeWidth: 2,
                           ),
                         )
-                      : const Text(
-                          AppStrings.verifyAndContinue,
-                          style: TextStyle(
+                      : Text(
+                          l10n.verifyAndContinue,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
@@ -211,11 +226,11 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
                   onPressed: () {
                     // In demo mode, just show a message
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Demo: OTP code is always 123456')),
+                      SnackBar(content: Text(l10n.demoOtpAlways)),
                     );
                   },
                   child: Text(
-                    AppStrings.resendCode,
+                    l10n.resendCode,
                     style: TextStyle(
                       color: AppColors.sacredSaffron,
                       fontWeight: FontWeight.w600,
@@ -240,7 +255,7 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
                     AppSpacing.gapW12,
                     Expanded(
                       child: Text(
-                        AppStrings.otpHint,
+                        l10n.otpHint,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: AppColors.success,
                           fontWeight: FontWeight.w500,

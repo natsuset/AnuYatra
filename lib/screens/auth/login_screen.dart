@@ -6,7 +6,7 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
-import 'package:testing_flutter/core/constants/app_strings.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/models/user_role.dart';
 
 /// Phone number entry screen with +91 country code.
@@ -41,7 +41,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final phone = _phoneController.text.trim();
     if (phone.length < 10) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid 10-digit phone number')),
+        SnackBar(content: Text(context.l10n.invalidPhoneError)),
       );
       return;
     }
@@ -56,6 +56,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final authState = ref.watch(authProvider);
     final isLoading = authState is AuthLoading;
 
@@ -80,14 +81,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               AppSpacing.gapH16,
 
               Text(
-                AppStrings.enterPhoneTitle,
+                l10n.enterPhoneTitle,
                 style: theme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               AppSpacing.gapH8,
               Text(
-                AppStrings.enterPhoneSubtitle,
+                l10n.enterPhoneSubtitle,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -105,7 +106,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     borderRadius: AppSpacing.roundedSm,
                   ),
                   child: Text(
-                    AppStrings.registeringAs(_selectedRole!.displayName),
+                    l10n.registeringAs(_selectedRole!.displayName),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: AppColors.sacredSaffron,
                       fontWeight: FontWeight.w500,
@@ -197,9 +198,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             strokeWidth: 2,
                           ),
                         )
-                      : const Text(
-                          AppStrings.sendOtp,
-                          style: TextStyle(
+                      : Text(
+                          l10n.sendOtp,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
@@ -227,7 +228,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     AppSpacing.gapW12,
                     Expanded(
                       child: Text(
-                        AppStrings.demoOtpHint,
+                        l10n.demoOtpHint,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: AppColors.info,
                           height: 1.4,

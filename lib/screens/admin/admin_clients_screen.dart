@@ -5,7 +5,7 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
-import 'package:testing_flutter/core/constants/app_strings.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 
@@ -92,7 +92,7 @@ class _AdminClientsScreenState extends ConsumerState<AdminClientsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Agency Clients'),
+        title: Text(context.l10n.agencyClientsTitle),
         actions: [
           Padding(
             padding: EdgeInsets.only(right: AppSpacing.md),
@@ -133,7 +133,7 @@ class _AdminClientsScreenState extends ConsumerState<AdminClientsScreen> {
                     ),
                     AppSpacing.gapH16,
                     Text(
-                      AppStrings.noClientsYet,
+                      context.l10n.noClientsYet,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),

@@ -6,7 +6,7 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
-import 'package:testing_flutter/core/constants/app_strings.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/broker_profile.dart';
@@ -98,6 +98,7 @@ class _BrokerDashboardScreenState
     final authState = ref.watch(authProvider);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = context.l10n;
 
     if (authState is! AuthAuthenticated) {
       return const Scaffold(
@@ -131,28 +132,28 @@ class _BrokerDashboardScreenState
               childAspectRatio: 1.25,
               children: [
                 _StatCard(
-                  label: 'Active Clients',
+                  label: l10n.connectedClients,
                   value: _stats['activeClients'] ?? 0,
                   icon: Icons.people_alt_rounded,
                   color: AppColors.info,
                   isDark: isDark,
                 ),
                 _StatCard(
-                  label: 'Profiles Managed',
+                  label: l10n.managedProfiles,
                   value: _stats['profilesManaged'] ?? 0,
                   icon: Icons.badge_rounded,
                   color: AppColors.success,
                   isDark: isDark,
                 ),
                 _StatCard(
-                  label: 'Profiles Shared',
+                  label: l10n.profilesSharedStat,
                   value: _stats['profilesShared'] ?? 0,
                   icon: Icons.share_rounded,
                   color: AppColors.sacredSaffron,
                   isDark: isDark,
                 ),
                 _StatCard(
-                  label: 'Pending Requests',
+                  label: l10n.pendingRequestsStat,
                   value: _stats['pendingRequests'] ?? 0,
                   icon: Icons.pending_actions_rounded,
                   color: AppColors.warning,
@@ -169,7 +170,7 @@ class _BrokerDashboardScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    AppStrings.quickActions,
+                    l10n.quickActions,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                       color: isDark
@@ -183,7 +184,7 @@ class _BrokerDashboardScreenState
                     runSpacing: 10,
                     children: [
                       _QuickActionChip(
-                        label: 'Create Profile',
+                        label: l10n.createProfileAction,
                         icon: Icons.person_add_alt_1_rounded,
                         color: AppColors.success,
                         isDark: isDark,
@@ -192,7 +193,7 @@ class _BrokerDashboardScreenState
                         },
                       ),
                       _QuickActionChip(
-                        label: 'Share Profile',
+                        label: l10n.shareProfileAction,
                         icon: Icons.send_rounded,
                         color: AppColors.sacredSaffron,
                         isDark: isDark,
@@ -201,7 +202,7 @@ class _BrokerDashboardScreenState
                         },
                       ),
                       _QuickActionChip(
-                        label: 'View Requests',
+                        label: l10n.viewRequestsAction,
                         icon: Icons.inbox_rounded,
                         color: AppColors.info,
                         isDark: isDark,
@@ -220,7 +221,7 @@ class _BrokerDashboardScreenState
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
               child: Text(
-                'Recent Activity',
+                l10n.recentActivity,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w700,
                   color: isDark
@@ -257,7 +258,7 @@ class _BrokerDashboardScreenState
                 ),
                 AppSpacing.gapH12,
                 Text(
-                  'No recent activity',
+                  context.l10n.noRecentActivity,
                   style: TextStyle(
                     color: isDark
                         ? AppColors.darkSecondaryText
@@ -266,7 +267,7 @@ class _BrokerDashboardScreenState
                 ),
                 AppSpacing.gapH4,
                 Text(
-                  'Activity from shared profiles and connections will appear here',
+                  context.l10n.recentActivityHint,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 12,

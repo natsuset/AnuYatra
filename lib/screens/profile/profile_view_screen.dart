@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
-import 'package:testing_flutter/core/constants/app_strings.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/candidate_profile.dart';
 
@@ -67,15 +67,15 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
 
     if (_loading) {
       return Scaffold(
-        appBar: AppBar(title: const Text(AppStrings.profile)),
+        appBar: AppBar(title: Text(context.l10n.profile)),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (profile == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text(AppStrings.profile)),
-        body: const Center(child: Text(AppStrings.profileNotFound)),
+        appBar: AppBar(title: Text(context.l10n.profile)),
+        body: Center(child: Text(context.l10n.profileNotFound)),
       );
     }
 
@@ -194,13 +194,13 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                   AppSpacing.gapH12,
                   _DetailRow(
                     icon: Icons.work_outline,
-                    label: 'Profession',
+                    label: context.l10n.professionLabel,
                     value: profile.profession,
                     isDark: isDark,
                   ),
                   _DetailRow(
                     icon: Icons.school_outlined,
-                    label: 'Education',
+                    label: context.l10n.educationLabel,
                     value: profile.education,
                     isDark: isDark,
                   ),
@@ -212,28 +212,28 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                   if (profile.community.isNotEmpty)
                     _DetailRow(
                       icon: Icons.group_outlined,
-                      label: 'Community',
+                      label: context.l10n.community,
                       value: profile.community,
                       isDark: isDark,
                     ),
                   if (profile.caste.isNotEmpty)
                     _DetailRow(
                       icon: Icons.account_tree_outlined,
-                      label: 'Caste',
+                      label: context.l10n.caste,
                       value: profile.caste,
                       isDark: isDark,
                     ),
                   if (profile.gotra != null && profile.gotra!.isNotEmpty)
                     _DetailRow(
                       icon: Icons.family_restroom,
-                      label: 'Gotra',
+                      label: context.l10n.gotra,
                       value: profile.gotra!,
                       isDark: isDark,
                     ),
                   if (profile.manglikStatus != null && profile.manglikStatus!.isNotEmpty)
                     _DetailRow(
                       icon: Icons.auto_awesome,
-                      label: 'Manglik Status',
+                      label: context.l10n.manglikStatus,
                       value: profile.manglikStatus!,
                       isDark: isDark,
                     ),
@@ -246,7 +246,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                     if (profile.diet != null)
                       _DetailRow(
                         icon: Icons.restaurant,
-                        label: 'Diet',
+                        label: context.l10n.dietLabel,
                         value: profile.diet!.name[0].toUpperCase() +
                             profile.diet!.name.substring(1),
                         isDark: isDark,
@@ -254,50 +254,50 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                     if (profile.annualIncome != null && profile.annualIncome!.isNotEmpty)
                       _DetailRow(
                         icon: Icons.currency_rupee,
-                        label: 'Annual Income',
+                        label: context.l10n.annualIncome,
                         value: profile.annualIncome!,
                         isDark: isDark,
                       ),
                     if (profile.complexion != null && profile.complexion!.isNotEmpty)
                       _DetailRow(
                         icon: Icons.face,
-                        label: 'Complexion',
+                        label: context.l10n.complexion,
                         value: profile.complexion!,
                         isDark: isDark,
                       ),
                     if (profile.smokes != null)
                       _DetailRow(
                         icon: Icons.smoking_rooms,
-                        label: 'Smoking',
-                        value: profile.smokes! ? 'Yes' : 'No',
+                        label: context.l10n.smoking,
+                        value: profile.smokes! ? context.l10n.yes : context.l10n.no,
                         isDark: isDark,
                       ),
                     if (profile.drinks != null)
                       _DetailRow(
                         icon: Icons.local_bar,
-                        label: 'Drinking',
-                        value: profile.drinks! ? 'Yes' : 'No',
+                        label: context.l10n.drinking,
+                        value: profile.drinks! ? context.l10n.yes : context.l10n.no,
                         isDark: isDark,
                       ),
                     if (profile.ownHouse != null)
                       _DetailRow(
                         icon: Icons.home,
-                        label: 'Own House',
-                        value: profile.ownHouse! ? 'Yes' : 'No',
+                        label: context.l10n.ownHouse,
+                        value: profile.ownHouse! ? context.l10n.yes : context.l10n.no,
                         isDark: isDark,
                       ),
                     if (profile.ownCar != null)
                       _DetailRow(
                         icon: Icons.directions_car,
-                        label: 'Own Car',
-                        value: profile.ownCar! ? 'Yes' : 'No',
+                        label: context.l10n.ownCar,
+                        value: profile.ownCar! ? context.l10n.yes : context.l10n.no,
                         isDark: isDark,
                       ),
                     if (profile.willingToRelocate != null)
                       _DetailRow(
                         icon: Icons.flight,
-                        label: 'Willing to Relocate',
-                        value: profile.willingToRelocate! ? 'Yes' : 'No',
+                        label: context.l10n.willingToRelocate,
+                        value: profile.willingToRelocate! ? context.l10n.yes : context.l10n.no,
                         isDark: isDark,
                       ),
                     AppSpacing.gapH24,
@@ -310,28 +310,28 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                     if (profile.rashi != null && profile.rashi!.isNotEmpty)
                       _DetailRow(
                         icon: Icons.auto_awesome,
-                        label: 'Rashi',
+                        label: context.l10n.rashi,
                         value: profile.rashi!,
                         isDark: isDark,
                       ),
                     if (profile.nakshatra != null && profile.nakshatra!.isNotEmpty)
                       _DetailRow(
                         icon: Icons.star_outline,
-                        label: 'Nakshatra',
+                        label: context.l10n.nakshatra,
                         value: profile.nakshatra!,
                         isDark: isDark,
                       ),
                     if (profile.birthPlace != null && profile.birthPlace!.isNotEmpty)
                       _DetailRow(
                         icon: Icons.location_on_outlined,
-                        label: 'Birth Place',
+                        label: context.l10n.birthPlace,
                         value: profile.birthPlace!,
                         isDark: isDark,
                       ),
                     if (profile.birthTime != null && profile.birthTime!.isNotEmpty)
                       _DetailRow(
                         icon: Icons.access_time,
-                        label: 'Birth Time',
+                        label: context.l10n.birthTime,
                         value: profile.birthTime!,
                         isDark: isDark,
                       ),
@@ -354,7 +354,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                   if (profile.familyType != null)
                     _DetailRow(
                       icon: Icons.family_restroom,
-                      label: 'Family Type',
+                      label: context.l10n.familyTypeLabel,
                       value: profile.familyType!.name[0].toUpperCase() +
                           profile.familyType!.name.substring(1),
                       isDark: isDark,
@@ -362,7 +362,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                   if (profile.familyValues != null)
                     _DetailRow(
                       icon: Icons.balance,
-                      label: 'Family Values',
+                      label: context.l10n.familyValues,
                       value: profile.familyValues!.name[0].toUpperCase() +
                           profile.familyValues!.name.substring(1),
                       isDark: isDark,
@@ -370,35 +370,35 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                   if (profile.fatherOccupation.isNotEmpty)
                     _DetailRow(
                       icon: Icons.person_outline,
-                      label: "Father's Occupation",
+                      label: context.l10n.fatherOccupationLabel,
                       value: profile.fatherOccupation,
                       isDark: isDark,
                     ),
                   if (profile.motherOccupation.isNotEmpty)
                     _DetailRow(
                       icon: Icons.person_outline,
-                      label: "Mother's Occupation",
+                      label: context.l10n.motherOccupationLabel,
                       value: profile.motherOccupation,
                       isDark: isDark,
                     ),
                   if (profile.siblings.isNotEmpty)
                     _DetailRow(
                       icon: Icons.people_outline,
-                      label: 'Siblings',
+                      label: context.l10n.siblings,
                       value: profile.siblings,
                       isDark: isDark,
                     ),
                   if (profile.numberOfBrothers != null)
                     _DetailRow(
                       icon: Icons.boy,
-                      label: 'Brothers',
+                      label: context.l10n.brothers,
                       value: '${profile.numberOfBrothers}',
                       isDark: isDark,
                     ),
                   if (profile.numberOfSisters != null)
                     _DetailRow(
                       icon: Icons.girl,
-                      label: 'Sisters',
+                      label: context.l10n.sisters,
                       value: '${profile.numberOfSisters}',
                       isDark: isDark,
                     ),

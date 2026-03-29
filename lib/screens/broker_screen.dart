@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:testing_flutter/models/broker.dart';
@@ -110,15 +111,15 @@ class _BrokerScreenState extends ConsumerState<BrokerScreen> {
           PopupMenuButton(
             icon: const Icon(Icons.more_vert),
             itemBuilder: (context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'profile',
-                child: Text('View Broker Profile'),
+                child: Text(context.l10n.viewBrokerProfile),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'mute',
-                child: Text('Mute Notifications'),
+                child: Text(context.l10n.muteNotifications),
               ),
-              const PopupMenuItem(value: 'clear', child: Text('Clear Chat')),
+              PopupMenuItem(value: 'clear', child: Text(context.l10n.clearChat)),
             ],
           ),
         ],
@@ -358,14 +359,14 @@ class _BrokerScreenState extends ConsumerState<BrokerScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Call Broker'),
+        title: Text(context.l10n.callBroker),
         content: Text(
           'Call ${widget.broker.displayName} at ${widget.broker.phoneNumber}?',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () {
@@ -378,7 +379,7 @@ class _BrokerScreenState extends ConsumerState<BrokerScreen> {
                 ),
               );
             },
-            child: const Text('Call'),
+            child: Text(context.l10n.call),
           ),
         ],
       ),
@@ -411,14 +412,14 @@ class _BrokerScreenState extends ConsumerState<BrokerScreen> {
                 children: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancel'),
+                    child: Text(context.l10n.cancel),
                   ),
                   ElevatedButton(
                     onPressed: () {
                       Navigator.pop(context);
                       // TODO: Implement voice recording
                     },
-                    child: const Text('Start Recording'),
+                    child: Text(context.l10n.startRecording),
                   ),
                 ],
               ),

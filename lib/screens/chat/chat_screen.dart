@@ -6,7 +6,7 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
-import 'package:testing_flutter/core/constants/app_strings.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/chat_message.dart';
 
@@ -22,7 +22,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   List<ChatMessage> _messages = [];
   String? _currentUserId;
-  String _contactName = 'Chat';
+  String _contactName = '';
 
   String _conversationId = '';
 
@@ -159,8 +159,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const Text(
-                    'online',
+                  Text(
+                    context.l10n.online,
                     style: TextStyle(fontSize: 12, color: Colors.white70),
                   ),
                 ],
@@ -202,7 +202,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         ),
                         AppSpacing.gapH16,
                         Text(
-                          AppStrings.noMessagesYet,
+                          context.l10n.noMessagesYet,
                           style: TextStyle(
                             color: isDark
                                 ? AppColors.chatDarkGray
@@ -212,7 +212,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         ),
                         AppSpacing.gapH4,
                         Text(
-                          AppStrings.noMessagesHint,
+                          context.l10n.noMessagesHint,
                           style: TextStyle(
                             color: isDark
                                 ? AppColors.chatDarkGray
@@ -404,7 +404,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           fontSize: 16,
                         ),
                         decoration: InputDecoration(
-                          hintText: 'Type a message',
+                          hintText: context.l10n.typeAMessage,
                           hintStyle: TextStyle(
                             color: isDark
                                 ? AppColors.chatDarkGray

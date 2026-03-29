@@ -5,7 +5,7 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
-import 'package:testing_flutter/core/constants/app_strings.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/models/agency.dart';
@@ -63,8 +63,8 @@ class _BrokerOwnProfileScreenState extends ConsumerState<BrokerOwnProfileScreen>
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     if (authState is! AuthAuthenticated) {
-      return const Scaffold(
-        body: Center(child: Text('Please log in')),
+      return Scaffold(
+        body: Center(child: Text(context.l10n.pleaseLogIn)),
       );
     }
 
@@ -73,7 +73,7 @@ class _BrokerOwnProfileScreenState extends ConsumerState<BrokerOwnProfileScreen>
     final theme = Theme.of(context);
 
     if (_isLoading) {
-      return const Scaffold(
+      return Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
@@ -124,7 +124,7 @@ class _BrokerOwnProfileScreenState extends ConsumerState<BrokerOwnProfileScreen>
                   Text(
                     user.displayName.isNotEmpty
                         ? user.displayName
-                        : 'No name set',
+                        : context.l10n.noNameSet,
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -206,7 +206,7 @@ class _BrokerOwnProfileScreenState extends ConsumerState<BrokerOwnProfileScreen>
               Expanded(
                 child: _StatTile(
                   icon: Icons.family_restroom,
-                  label: AppStrings.activeClients,
+                  label: context.l10n.activeClients,
                   value: '$clientCount',
                   color: AppColors.info,
                   isDark: isDark,
@@ -216,7 +216,7 @@ class _BrokerOwnProfileScreenState extends ConsumerState<BrokerOwnProfileScreen>
               Expanded(
                 child: _StatTile(
                   icon: Icons.person_outline,
-                  label: AppStrings.profilesManaged,
+                  label: context.l10n.profilesManaged,
                   value: '$profileCount',
                   color: AppColors.success,
                   isDark: isDark,
@@ -243,7 +243,7 @@ class _BrokerOwnProfileScreenState extends ConsumerState<BrokerOwnProfileScreen>
                 if (agency != null) ...[
                   ListTile(
                     leading: const Icon(Icons.business_outlined),
-                    title: const Text('Agency'),
+                    title: Text(context.l10n.agencyLabel),
                     trailing: Text(
                       agency.name,
                       style: theme.textTheme.bodyMedium?.copyWith(
@@ -256,7 +256,7 @@ class _BrokerOwnProfileScreenState extends ConsumerState<BrokerOwnProfileScreen>
                 if (brokerProfile != null) ...[
                   ListTile(
                     leading: const Icon(Icons.work_outline),
-                    title: const Text('Experience'),
+                    title: Text(context.l10n.experienceLabel),
                     trailing: Text(
                       '${brokerProfile.experienceYears} years',
                       style: theme.textTheme.bodyMedium,
@@ -401,7 +401,7 @@ class _BrokerOwnProfileScreenState extends ConsumerState<BrokerOwnProfileScreen>
                       size: 18,
                     ),
                   ),
-                  title: const Text(AppStrings.settings),
+                  title: Text(context.l10n.settings),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     context.pushNamed(RouteNames.appSettings);
@@ -422,29 +422,29 @@ class _BrokerOwnProfileScreenState extends ConsumerState<BrokerOwnProfileScreen>
                       size: 18,
                     ),
                   ),
-                  title: const Text(
-                    AppStrings.logout,
+                  title: Text(
+                    context.l10n.logout,
                     style: TextStyle(color: AppColors.error),
                   ),
                   onTap: () async {
                     final confirmed = await showDialog<bool>(
                       context: context,
                       builder: (ctx) => AlertDialog(
-                        title: const Text(AppStrings.logoutConfirmTitle),
-                        content: const Text(
-                          AppStrings.logoutConfirmMessage,
+                        title: Text(context.l10n.logoutConfirmTitle),
+                        content: Text(
+                          context.l10n.logoutConfirmMessage,
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(ctx, false),
-                            child: const Text(AppStrings.cancel),
+                            child: Text(context.l10n.cancel),
                           ),
                           FilledButton(
                             onPressed: () => Navigator.pop(ctx, true),
                             style: FilledButton.styleFrom(
                               backgroundColor: AppColors.error,
                             ),
-                            child: const Text(AppStrings.logout),
+                            child: Text(context.l10n.logout),
                           ),
                         ],
                       ),

@@ -5,7 +5,7 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
-import 'package:testing_flutter/core/constants/app_strings.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/models/app_user.dart';
@@ -83,7 +83,7 @@ class _BrokerMessagesScreenState extends ConsumerState<BrokerMessagesScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.messages),
+        title: Text(context.l10n.messages),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
@@ -168,7 +168,7 @@ class _BrokerMessagesScreenState extends ConsumerState<BrokerMessagesScreen> {
                     children: [
                       Expanded(
                         child: Text(
-                          conv.lastMessagePreview ?? AppStrings.noMessagesYet,
+                          conv.lastMessagePreview ?? context.l10n.noMessagesYet,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: conv.unreadCount > 0
                                 ? theme.colorScheme.onSurface
@@ -233,7 +233,7 @@ class _BrokerMessagesScreenState extends ConsumerState<BrokerMessagesScreen> {
             ),
             AppSpacing.gapH16,
             Text(
-              AppStrings.noConversationsYet,
+              context.l10n.noConversationsYet,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
               ),

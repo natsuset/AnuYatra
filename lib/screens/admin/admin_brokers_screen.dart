@@ -4,7 +4,7 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
-import 'package:testing_flutter/core/constants/app_strings.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/broker_profile.dart';
 import 'package:testing_flutter/models/link_request.dart';
@@ -64,8 +64,8 @@ class _AdminBrokersScreenState extends ConsumerState<AdminBrokersScreen> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     if (authState is! AuthAuthenticated) {
-      return const Scaffold(
-        body: Center(child: Text('Please log in')),
+      return Scaffold(
+        body: Center(child: Text(context.l10n.pleaseLogIn)),
       );
     }
 
@@ -74,21 +74,21 @@ class _AdminBrokersScreenState extends ConsumerState<AdminBrokersScreen> {
     final theme = Theme.of(context);
 
     if (_loading) {
-      return const Scaffold(
+      return Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Agency Brokers'),
+        title: Text(context.l10n.agencyBrokersTitle),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showInviteDialog(context, ref, user.uid, user.displayName),
         backgroundColor: AppColors.sacredSaffron,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.person_add),
-        label: const Text(AppStrings.inviteBroker),
+        label: Text(context.l10n.inviteBroker),
       ),
       body: _brokers.isEmpty
           ? _buildEmptyState(context, isDark, theme, ref, user.uid, user.displayName)
@@ -137,7 +137,7 @@ class _AdminBrokersScreenState extends ConsumerState<AdminBrokersScreen> {
           ),
           AppSpacing.gapH16,
           Text(
-            AppStrings.noBrokersInAgency,
+            context.l10n.noBrokersInAgency,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w600,
             ),
@@ -159,7 +159,7 @@ class _AdminBrokersScreenState extends ConsumerState<AdminBrokersScreen> {
           FilledButton.icon(
             onPressed: () => _showInviteDialog(context, ref, userId, userName),
             icon: const Icon(Icons.person_add),
-            label: const Text(AppStrings.inviteBroker),
+            label: Text(context.l10n.inviteBroker),
             style: FilledButton.styleFrom(
               backgroundColor: AppColors.sacredSaffron,
               padding: const EdgeInsets.symmetric(
@@ -178,7 +178,7 @@ class _AdminBrokersScreenState extends ConsumerState<AdminBrokersScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text(AppStrings.inviteBroker),
+        title: Text(context.l10n.inviteBroker),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -189,8 +189,8 @@ class _AdminBrokersScreenState extends ConsumerState<AdminBrokersScreen> {
             TextField(
               controller: phoneController,
               keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(
-                labelText: 'Phone Number',
+              decoration: InputDecoration(
+                labelText: context.l10n.phoneNumber,
                 hintText: '+91 XXXXX XXXXX',
                 prefixIcon: Icon(Icons.phone),
                 border: OutlineInputBorder(),
@@ -201,7 +201,7 @@ class _AdminBrokersScreenState extends ConsumerState<AdminBrokersScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text(AppStrings.cancel),
+            child: Text(context.l10n.cancel),
           ),
           FilledButton(
             onPressed: () async {
@@ -216,8 +216,8 @@ class _AdminBrokersScreenState extends ConsumerState<AdminBrokersScreen> {
               if (brokerUser == null) {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(AppStrings.userNotFoundByPhone),
+                    SnackBar(
+                      content: Text(context.l10n.userNotFoundByPhone),
                       backgroundColor: AppColors.error,
                     ),
                   );
@@ -258,7 +258,7 @@ class _AdminBrokersScreenState extends ConsumerState<AdminBrokersScreen> {
             style: FilledButton.styleFrom(
               backgroundColor: AppColors.sacredSaffron,
             ),
-            child: const Text(AppStrings.sendInvite),
+            child: Text(context.l10n.sendInvite),
           ),
         ],
       ),
@@ -401,7 +401,7 @@ class _BrokerCard extends StatelessWidget {
                 const SizedBox(width: 20),
                 _MiniStat(
                   icon: Icons.work_outline,
-                  label: 'Experience',
+                  label: context.l10n.experienceLabel,
                   value: '${broker.experienceYears}y',
                   isDark: isDark,
                 ),

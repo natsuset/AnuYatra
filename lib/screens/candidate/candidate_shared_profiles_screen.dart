@@ -5,7 +5,7 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
-import 'package:testing_flutter/core/constants/app_strings.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/candidate_profile.dart';
@@ -61,8 +61,8 @@ class _CandidateSharedProfilesScreenState
 
     if (mounted) {
       final label = response == SharedProfileResponse.interested
-          ? 'Marked as Interested'
-          : 'Marked as Pass';
+          ? context.l10n.markedAsInterested
+          : context.l10n.markedAsPass;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(label),
@@ -81,7 +81,7 @@ class _CandidateSharedProfilesScreenState
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.sharedProfiles),
+        title: Text(context.l10n.sharedProfiles),
       ),
       body: _items.isEmpty
           ? _buildEmptyState(isDark, theme)
@@ -135,7 +135,7 @@ class _CandidateSharedProfilesScreenState
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 48),
             child: Text(
-              AppStrings.noSharedProfilesForCandidate,
+              context.l10n.noSharedProfilesForCandidate,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: isDark
@@ -300,7 +300,7 @@ class _ProfileCard extends StatelessWidget {
                     child: FilledButton.icon(
                       onPressed: onInterested,
                       icon: const Icon(Icons.favorite_outline, size: 18),
-                      label: const Text(AppStrings.interested),
+                      label: Text(context.l10n.interested),
                       style: FilledButton.styleFrom(
                         backgroundColor: AppColors.success,
                         shape: RoundedRectangleBorder(

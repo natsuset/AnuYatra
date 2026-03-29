@@ -4,7 +4,7 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
-import 'package:testing_flutter/core/constants/app_strings.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/parent_profile.dart';
 import 'package:testing_flutter/models/user_role.dart';
@@ -274,7 +274,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.completeProfile),
+        title: Text(context.l10n.completeProfile),
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: _currentStep > 0
@@ -316,7 +316,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                               borderRadius: AppSpacing.roundedMd,
                             ),
                           ),
-                          child: const Text(AppStrings.back),
+                          child: Text(context.l10n.back),
                         ),
                       ),
                     if (_currentStep > 0) AppSpacing.gapW12,
@@ -350,8 +350,8 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                               )
                             : Text(
                                 _currentStep < _totalSteps - 1
-                                    ? AppStrings.next
-                                    : AppStrings.getStarted,
+                                    ? context.l10n.next
+                                    : context.l10n.getStarted,
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -373,10 +373,10 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   Widget _buildStepIndicator(ThemeData theme, UserRole role) {
     final total = _totalSteps;
     final stepLabels = switch (role) {
-      UserRole.agencyAdmin => ['Basic Info', 'Agency Details', 'Contact'],
-      UserRole.broker => ['Basic Info', 'Experience', 'Business Details'],
-      UserRole.parent => ['Basic Info', 'Child Details', 'Family Details'],
-      UserRole.candidate => ['Basic Info', 'Personal'],
+      UserRole.agencyAdmin => [context.l10n.stepBasicInfo, context.l10n.stepAgencyDetails, context.l10n.stepContact],
+      UserRole.broker => [context.l10n.stepBasicInfo, context.l10n.experienceLabel, context.l10n.stepBusinessDetails],
+      UserRole.parent => [context.l10n.stepBasicInfo, context.l10n.stepChildDetails, context.l10n.stepFamilyDetails],
+      UserRole.candidate => [context.l10n.stepBasicInfo, context.l10n.stepPersonal],
     };
 
     return Padding(
@@ -480,7 +480,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
             borderRadius: AppSpacing.roundedSm,
           ),
           child: Text(
-            AppStrings.settingUpAs(role.displayName),
+            context.l10n.settingUpAs(role.displayName),
             style: theme.textTheme.bodySmall?.copyWith(
               color: AppColors.sacredSaffron,
               fontWeight: FontWeight.w600,
@@ -490,11 +490,11 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
         AppSpacing.gapH24,
         _buildTextField(
           controller: _nameController,
-          label: 'Your Name',
-          hint: 'Enter your full name',
+          label: context.l10n.yourName,
+          hint: context.l10n.enterYourFullName,
           icon: Icons.person_outline,
           validator: (v) =>
-              v == null || v.isEmpty ? AppStrings.nameRequired : null,
+              v == null || v.isEmpty ? context.l10n.nameRequired : null,
         ),
         AppSpacing.gapH16,
         // Role-specific basic fields
@@ -502,11 +502,11 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
           UserRole.agencyAdmin => [
               _buildTextField(
                 controller: _agencyNameController,
-                label: 'Agency Name',
+                label: context.l10n.agencyNameLabel,
                 hint: 'e.g., Shubh Vivah Matrimony',
                 icon: Icons.business,
                 validator: (v) =>
-                    v == null || v.isEmpty ? AppStrings.agencyNameRequired : null,
+                    v == null || v.isEmpty ? context.l10n.agencyNameRequired : null,
               ),
               AppSpacing.gapH16,
               Row(
@@ -514,7 +514,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   Expanded(
                     child: _buildTextField(
                       controller: _agencyCityController,
-                      label: 'City',
+                      label: context.l10n.cityLabel,
                       hint: 'Mumbai',
                       icon: Icons.location_city,
                     ),
@@ -523,7 +523,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   Expanded(
                     child: _buildTextField(
                       controller: _agencyStateController,
-                      label: 'State',
+                      label: context.l10n.stateLabel,
                       hint: 'Maharashtra',
                       icon: Icons.map,
                     ),
@@ -534,15 +534,15 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
           UserRole.broker => [
               _buildTextField(
                 controller: _brokerBioController,
-                label: 'About You',
-                hint: 'Tell families about your matchmaking experience...',
+                label: context.l10n.aboutYou,
+                hint: context.l10n.aboutYouHint,
                 icon: Icons.info_outline,
                 maxLines: 3,
               ),
               AppSpacing.gapH16,
               _buildTextField(
                 controller: _brokerExpController,
-                label: 'Years of Experience',
+                label: context.l10n.yearsOfExperience,
                 hint: 'e.g., 5',
                 icon: Icons.work_outline,
                 keyboardType: TextInputType.number,
@@ -550,7 +550,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
             ],
           UserRole.parent => [
               Text(
-                'Looking for a',
+                context.l10n.lookingForA,
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -560,7 +560,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                 children: [
                   Expanded(
                     child: _RadioCard(
-                      label: 'Bride',
+                      label: context.l10n.bride,
                       icon: Icons.female,
                       isSelected: _lookingFor == 'bride',
                       onTap: () => setState(() => _lookingFor = 'bride'),
@@ -569,7 +569,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   AppSpacing.gapW12,
                   Expanded(
                     child: _RadioCard(
-                      label: 'Groom',
+                      label: context.l10n.groom,
                       icon: Icons.male,
                       isSelected: _lookingFor == 'groom',
                       onTap: () => setState(() => _lookingFor = 'groom'),
@@ -583,7 +583,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   Expanded(
                     child: _buildTextField(
                       controller: _parentCityController,
-                      label: 'City',
+                      label: context.l10n.cityLabel,
                       hint: 'Mumbai',
                       icon: Icons.location_city,
                     ),
@@ -592,7 +592,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   Expanded(
                     child: _buildTextField(
                       controller: _parentStateController,
-                      label: 'State',
+                      label: context.l10n.stateLabel,
                       hint: 'Maharashtra',
                       icon: Icons.map,
                     ),
@@ -602,7 +602,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
             ],
           UserRole.candidate => [
               Text(
-                'I am a',
+                context.l10n.iAmA,
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -612,7 +612,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                 children: [
                   Expanded(
                     child: _RadioCard(
-                      label: 'Bride',
+                      label: context.l10n.bride,
                       icon: Icons.female,
                       isSelected: _candidateGender == 'bride',
                       onTap: () =>
@@ -622,7 +622,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   AppSpacing.gapW12,
                   Expanded(
                     child: _RadioCard(
-                      label: 'Groom',
+                      label: context.l10n.groom,
                       icon: Icons.male,
                       isSelected: _candidateGender == 'groom',
                       onTap: () =>
@@ -634,7 +634,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
               AppSpacing.gapH16,
               _buildTextField(
                 controller: _candidateAgeController,
-                label: 'Your Age',
+                label: context.l10n.yourAge,
                 hint: 'e.g., 26',
                 icon: Icons.cake_outlined,
                 keyboardType: TextInputType.number,
@@ -650,11 +650,11 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
     return ListView(
       padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       children: [
-        _buildSectionHeader(theme, 'Agency Details'),
+        _buildSectionHeader(theme, context.l10n.stepAgencyDetails),
         AppSpacing.gapH16,
         _buildTextField(
           controller: _agencyDescController,
-          label: 'Description',
+          label: context.l10n.descriptionLabel,
           hint: 'Describe your agency and services...',
           icon: Icons.description,
           maxLines: 4,
@@ -676,11 +676,11 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
     return ListView(
       padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       children: [
-        _buildSectionHeader(theme, 'Contact Information'),
+        _buildSectionHeader(theme, context.l10n.contactInformationSection),
         AppSpacing.gapH16,
         _buildTextField(
           controller: _agencyEmailController,
-          label: 'Email',
+          label: context.l10n.emailLabel,
           hint: 'agency@example.com',
           icon: Icons.email_outlined,
           keyboardType: TextInputType.emailAddress,
@@ -717,7 +717,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
     return ListView(
       padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       children: [
-        _buildSectionHeader(theme, 'Experience & Expertise'),
+        _buildSectionHeader(theme, context.l10n.experienceExpertiseSection),
         AppSpacing.gapH16,
         _buildTextField(
           controller: TextEditingController(),
@@ -751,11 +751,11 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
     return ListView(
       padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       children: [
-        _buildSectionHeader(theme, 'Business Details'),
+        _buildSectionHeader(theme, context.l10n.stepBusinessDetails),
         AppSpacing.gapH16,
         _buildTextField(
           controller: _brokerEmailController,
-          label: 'Email',
+          label: context.l10n.emailLabel,
           hint: 'you@example.com',
           icon: Icons.email_outlined,
           keyboardType: TextInputType.emailAddress,
@@ -791,7 +791,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
     return ListView(
       padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       children: [
-        _buildSectionHeader(theme, "Your Child's Details"),
+        _buildSectionHeader(theme, context.l10n.childDetailsSection),
         AppSpacing.gapH8,
         Text(
           'This information helps brokers find suitable matches',
@@ -802,8 +802,8 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
         AppSpacing.gapH16,
         _buildTextField(
           controller: _childNameController,
-          label: "Child's Name",
-          hint: 'Full name',
+          label: context.l10n.childNameLabel,
+          hint: context.l10n.fullNameHint,
           icon: Icons.person_outline,
         ),
         AppSpacing.gapH16,
@@ -812,7 +812,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
             Expanded(
               child: _buildTextField(
                 controller: _childHeightController,
-                label: 'Height',
+                label: context.l10n.heightLabel,
                 hint: "e.g., 5'6\"",
                 icon: Icons.height,
               ),
@@ -822,7 +822,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
               child: DropdownButtonFormField<Diet>(
                 initialValue: _childDiet,
                   decoration: InputDecoration(
-                  labelText: 'Diet',
+                  labelText: context.l10n.dietLabel,
                   prefixIcon: const Icon(Icons.restaurant_outlined, size: 20),
                   border: OutlineInputBorder(
                     borderRadius: AppSpacing.roundedMd,
@@ -848,14 +848,14 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
         AppSpacing.gapH16,
         _buildTextField(
           controller: _childEducationController,
-          label: 'Education',
+          label: context.l10n.educationLabel,
           hint: 'e.g., B.Tech, MBA, MBBS',
           icon: Icons.school_outlined,
         ),
         AppSpacing.gapH16,
         _buildTextField(
           controller: _childProfessionController,
-          label: 'Profession',
+          label: context.l10n.professionLabel,
           hint: 'e.g., Software Engineer, Doctor',
           icon: Icons.work_outline,
         ),
@@ -876,12 +876,12 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
     return ListView(
       padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       children: [
-        _buildSectionHeader(theme, 'Family Information'),
+        _buildSectionHeader(theme, context.l10n.familyInformationSection),
         AppSpacing.gapH16,
         DropdownButtonFormField<FamilyType>(
           initialValue: _familyType,
           decoration: InputDecoration(
-            labelText: 'Family Type',
+            labelText: context.l10n.familyTypeLabel,
             prefixIcon: const Icon(Icons.family_restroom, size: 20),
             border: OutlineInputBorder(
               borderRadius: AppSpacing.roundedMd,
@@ -901,7 +901,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
             Expanded(
               child: _buildTextField(
                 controller: _fatherOccController,
-                label: "Father's Occupation",
+                label: context.l10n.fatherOccupationLabel,
                 hint: 'e.g., Businessman',
                 icon: Icons.person_outline,
               ),
@@ -910,7 +910,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
             Expanded(
               child: _buildTextField(
                 controller: _motherOccController,
-                label: "Mother's Occupation",
+                label: context.l10n.motherOccupationLabel,
                 hint: 'e.g., Homemaker',
                 icon: Icons.person_outline,
               ),
@@ -920,14 +920,14 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
         AppSpacing.gapH16,
         _buildTextField(
           controller: _aboutFamilyController,
-          label: 'About Family',
+          label: context.l10n.aboutFamilyLabel,
           hint: 'Briefly describe your family background...',
           icon: Icons.info_outline,
           maxLines: 3,
         ),
         AppSpacing.gapH16,
         Text(
-          'You can complete more details from your profile later',
+          context.l10n.canCompleteLater,
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
             fontStyle: FontStyle.italic,
@@ -942,10 +942,10 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
     return ListView(
       padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       children: [
-        _buildSectionHeader(theme, 'Personal Information'),
+        _buildSectionHeader(theme, context.l10n.personalInformationSection),
         AppSpacing.gapH8,
         Text(
-          'You can link to your parent later and they can fill detailed profile information',
+          context.l10n.candidateLinkHint,
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),
@@ -966,7 +966,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
               AppSpacing.gapW12,
               Expanded(
                 child: Text(
-                  'After creating your account, link to your parent from the Home screen. Your parent and broker will manage detailed profile information.',
+                  context.l10n.candidateInfoBox,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: AppColors.info,
                     height: 1.4,

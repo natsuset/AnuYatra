@@ -5,7 +5,7 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
-import 'package:testing_flutter/core/constants/app_strings.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/models/broker_profile.dart';
@@ -441,7 +441,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    child: const Text(AppStrings.accept),
+                    child: Text(context.l10n.accept),
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -479,7 +479,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    child: const Text(AppStrings.decline),
+                    child: Text(context.l10n.decline),
                   ),
                 ),
               ],
@@ -676,7 +676,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                       );
                     },
                     icon: const Icon(Icons.phone_outlined, size: 16),
-                    label: const Text('Call'),
+                    label: Text(context.l10n.call),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppTheme.primaryText(context),
                       side: BorderSide(color: AppTheme.border(context)),
@@ -708,7 +708,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                       );
                     },
                     icon: const Icon(Icons.chat_bubble_outline_rounded, size: 16),
-                    label: const Text('Chat'),
+                    label: Text(context.l10n.chat),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.sacredSaffron,
                       foregroundColor: Colors.white,
@@ -760,7 +760,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
             ),
             AppSpacing.gapH24,
             Text(
-              AppStrings.noBrokersConnected,
+              context.l10n.noBrokersConnected,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
@@ -783,7 +783,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                 context.goNamed(RouteNames.parentSearch);
               },
               icon: const Icon(Icons.search_rounded, size: 20),
-              label: const Text(AppStrings.findBrokers),
+              label: Text(context.l10n.findBrokers),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.sacredSaffron,
                 foregroundColor: Colors.white,
@@ -839,7 +839,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    'Connected Brokers',
+                    context.l10n.connectedBrokers,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -973,7 +973,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                                   borderRadius: AppSpacing.roundedSm,
                                 ),
                                 child: Text(
-                                  broker.isOnline ? 'Online' : 'Offline',
+                                  broker.isOnline ? context.l10n.online : context.l10n.offline,
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w600,
@@ -1062,7 +1062,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                           );
                         },
                         icon: const Icon(Icons.phone_outlined, size: 18),
-                        label: const Text('Call'),
+                        label: Text(context.l10n.call),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppTheme.primaryText(context),
                           side: BorderSide(color: AppTheme.border(context)),
@@ -1095,7 +1095,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                         },
                         icon: const Icon(Icons.chat_bubble_outline_rounded,
                             size: 18),
-                        label: const Text('Chat'),
+                        label: Text(context.l10n.chat),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.sacredSaffron,
                           foregroundColor: Colors.white,

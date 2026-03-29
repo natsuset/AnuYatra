@@ -5,7 +5,7 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
-import 'package:testing_flutter/core/constants/app_strings.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/candidate_profile.dart';
@@ -84,9 +84,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     if (mounted) {
       final label = switch (response) {
-        SharedProfileResponse.interested => 'Marked as Interested',
-        SharedProfileResponse.maybe => 'Marked as Maybe',
-        SharedProfileResponse.pass => 'Marked as Pass',
+        SharedProfileResponse.interested => context.l10n.markedAsInterested,
+        SharedProfileResponse.maybe => context.l10n.markedAsMaybe,
+        SharedProfileResponse.pass => context.l10n.markedAsPass,
         SharedProfileResponse.pending => '',
       };
       ScaffoldMessenger.of(context).showSnackBar(
@@ -135,7 +135,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             AppSpacing.gapW12,
             Text(
-              AppStrings.appNameStyled,
+              context.l10n.appNameStyled,
               style: theme.appBarTheme.titleTextStyle,
             ),
           ],
@@ -179,7 +179,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         size: 20, color: AppColors.sacredSaffron),
                     AppSpacing.gapW8,
                     Text(
-                      AppStrings.sharedProfiles,
+                      context.l10n.sharedProfiles,
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
@@ -283,7 +283,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppStrings.dashboard,
+            context.l10n.dashboard,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w700,
               color: Colors.white,
@@ -294,14 +294,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             children: [
               _DashboardStat(
                 icon: Icons.people,
-                label: AppStrings.activeBrokers,
+                label: context.l10n.activeBrokers,
                 value: '$_connectedBrokerCount',
                 color: Colors.white,
               ),
               AppSpacing.gapW16,
               _DashboardStat(
                 icon: Icons.person_search,
-                label: AppStrings.profilesManaged,
+                label: context.l10n.profilesManaged,
                 value: '${_items.length}',
                 color: Colors.white,
               ),
@@ -309,7 +309,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               _DashboardStat(
                 icon: Icons.child_care,
                 label: 'Child',
-                value: _linkedChildName != null ? 'Linked' : 'None',
+                value: _linkedChildName != null ? context.l10n.linked : context.l10n.none,
                 color: Colors.white,
               ),
             ],
@@ -341,7 +341,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             AppSpacing.gapH24,
             Text(
-              AppStrings.noProfilesShared,
+              context.l10n.noProfilesShared,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -350,7 +350,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             Text(
               _connectedBrokerCount == 0
                   ? 'Connect with brokers from the Search tab to start receiving profiles'
-                  : 'Your connected brokers will share profiles here for your review',
+                  : context.l10n.brokerSharesHint,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: AppTheme.secondaryText(context),
@@ -366,7 +366,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   shell.goBranch(1);
                 },
                 icon: const Icon(Icons.search, size: 18),
-                label: const Text(AppStrings.findBrokers),
+                label: Text(context.l10n.findBrokers),
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.sacredSaffron,
                   shape: RoundedRectangleBorder(
@@ -680,7 +680,7 @@ class _ParentProfileCard extends StatelessWidget {
                           ),
                           padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
                         ),
-                        child: const Text(AppStrings.pass,
+                        child: Text(context.l10n.pass,
                             style: TextStyle(fontSize: 13)),
                       ),
                     ),
@@ -699,7 +699,7 @@ class _ParentProfileCard extends StatelessWidget {
                           ),
                           padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
                         ),
-                        child: const Text(AppStrings.maybe,
+                        child: Text(context.l10n.maybe,
                             style: TextStyle(fontSize: 13)),
                       ),
                     ),
@@ -715,7 +715,7 @@ class _ParentProfileCard extends StatelessWidget {
                           ),
                           padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
                         ),
-                        child: const Text(AppStrings.interested,
+                        child: Text(context.l10n.interested,
                             style: TextStyle(fontSize: 13)),
                       ),
                     ),
@@ -731,7 +731,7 @@ class _ParentProfileCard extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: onForward,
                     icon: const Icon(Icons.forward_to_inbox, size: 16),
-                    label: const Text(AppStrings.forwardToChild),
+                    label: Text(context.l10n.forwardToChild),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.sacredSaffron,
                       side: BorderSide(

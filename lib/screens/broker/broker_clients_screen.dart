@@ -5,7 +5,7 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
-import 'package:testing_flutter/core/constants/app_strings.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/link_request.dart';
@@ -108,7 +108,7 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                           ),
                           const SizedBox(width: 10),
                           Text(
-                            'Pending Requests',
+                            context.l10n.linkRequests,
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.w700,
                               color: isDark
@@ -184,7 +184,7 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                         ),
                         const SizedBox(width: 10),
                         Text(
-                          'Connected Clients',
+                          context.l10n.connectedClients,
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w700,
                             color: isDark
@@ -223,7 +223,7 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                           horizontal: AppSpacing.md, vertical: AppSpacing.lg),
                       child: Center(
                         child: Text(
-                          'No connected clients yet.',
+                          context.l10n.noConnectedClients,
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: isDark
                                 ? AppColors.darkTertiaryText
@@ -363,7 +363,7 @@ class _EmptyState extends StatelessWidget {
             ),
             AppSpacing.gapH24,
             Text(
-              AppStrings.noClientsYet,
+              context.l10n.noClientsYet,
               style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: isDark
@@ -373,7 +373,7 @@ class _EmptyState extends StatelessWidget {
             ),
             AppSpacing.gapH8,
             Text(
-              'When parents connect with you, they\nwill appear here.',
+              context.l10n.brokerClientsHint,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: isDark
@@ -480,7 +480,7 @@ class _PendingRequestCard extends StatelessWidget {
                   borderRadius: AppSpacing.roundedSm,
                 ),
                 child: Text(
-                  AppStrings.pending,
+                  context.l10n.pending,
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -519,7 +519,7 @@ class _PendingRequestCard extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: onDecline,
                   icon: const Icon(Icons.close_rounded, size: 18),
-                  label: const Text(AppStrings.decline),
+                  label: Text(context.l10n.decline),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.error,
                     side: BorderSide(
@@ -537,7 +537,7 @@ class _PendingRequestCard extends StatelessWidget {
                 child: FilledButton.icon(
                   onPressed: onAccept,
                   icon: const Icon(Icons.check_rounded, size: 18),
-                  label: const Text(AppStrings.accept),
+                  label: Text(context.l10n.accept),
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.success,
                     foregroundColor: Colors.white,

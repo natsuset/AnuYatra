@@ -6,7 +6,7 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
-import 'package:testing_flutter/core/constants/app_strings.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/models/agency.dart';
@@ -70,8 +70,8 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     if (authState is! AuthAuthenticated) {
-      return const Scaffold(
-        body: Center(child: Text('Please log in')),
+      return Scaffold(
+        body: Center(child: Text(context.l10n.pleaseLogIn)),
       );
     }
 
@@ -80,7 +80,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
     final theme = Theme.of(context);
 
     if (_loading) {
-      return const Scaffold(
+      return Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
@@ -199,7 +199,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
           child: _StatCard(
             icon: Icons.people_outline,
             iconColor: AppColors.info,
-            label: AppStrings.activeBrokers,
+            label: context.l10n.activeBrokers,
             value: '${stats['totalBrokers'] ?? 0}',
             isDark: isDark,
           ),
@@ -209,7 +209,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
           child: _StatCard(
             icon: Icons.family_restroom,
             iconColor: AppColors.sacredSaffron,
-            label: AppStrings.activeClients,
+            label: context.l10n.activeClients,
             value: '${stats['totalClients'] ?? 0}',
             isDark: isDark,
           ),
@@ -219,7 +219,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
           child: _StatCard(
             icon: Icons.person_outline,
             iconColor: AppColors.success,
-            label: AppStrings.profilesManaged,
+            label: context.l10n.profilesManaged,
             value: '${stats['totalProfiles'] ?? 0}',
             isDark: isDark,
           ),
@@ -254,7 +254,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  AppStrings.brokerRoster,
+                  context.l10n.brokerRoster,
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -264,7 +264,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
                     onPressed: () {
                       context.goNamed(RouteNames.adminBrokers);
                     },
-                    child: const Text('View All'),
+                    child: Text(context.l10n.viewAll),
                   ),
               ],
             ),
@@ -390,12 +390,12 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
           ),
         ),
         title: Text(
-          AppStrings.inviteBroker,
+          context.l10n.inviteBroker,
           style: theme.textTheme.titleSmall?.copyWith(
             fontWeight: FontWeight.w600,
           ),
         ),
-        subtitle: const Text('Add a new broker to your agency'),
+        subtitle: Text(context.l10n.addNewBroker),
         trailing: const Icon(
           Icons.chevron_right,
           color: AppColors.sacredSaffron,
@@ -412,12 +412,12 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text(AppStrings.inviteBroker),
+        title: Text(context.l10n.inviteBroker),
         content: TextField(
           controller: phoneController,
           keyboardType: TextInputType.phone,
-          decoration: const InputDecoration(
-            labelText: 'Phone Number',
+          decoration: InputDecoration(
+            labelText: context.l10n.phoneNumber,
             hintText: 'Enter broker phone number',
             prefixIcon: Icon(Icons.phone),
             border: OutlineInputBorder(),
@@ -426,7 +426,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text(AppStrings.cancel),
+            child: Text(context.l10n.cancel),
           ),
           FilledButton(
             onPressed: () async {
@@ -441,8 +441,8 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
               if (brokerUser == null) {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(AppStrings.userNotFoundByPhone),
+                    SnackBar(
+                      content: Text(context.l10n.userNotFoundByPhone),
                       backgroundColor: AppColors.error,
                     ),
                   );
@@ -483,7 +483,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
             style: FilledButton.styleFrom(
               backgroundColor: AppColors.sacredSaffron,
             ),
-            child: const Text(AppStrings.sendInvite),
+            child: Text(context.l10n.sendInvite),
           ),
         ],
       ),

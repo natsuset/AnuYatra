@@ -6,7 +6,7 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
-import 'package:testing_flutter/core/constants/app_strings.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/models/app_user.dart';
@@ -57,8 +57,8 @@ class _CandidateHomeScreenState extends ConsumerState<CandidateHomeScreen> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     if (authState is! AuthAuthenticated) {
-      return const Scaffold(
-        body: Center(child: Text('Please log in')),
+      return Scaffold(
+        body: Center(child: Text(context.l10n.pleaseLogIn)),
       );
     }
 
@@ -67,7 +67,7 @@ class _CandidateHomeScreenState extends ConsumerState<CandidateHomeScreen> {
     final theme = Theme.of(context);
 
     if (_loading) {
-      return const Scaffold(
+      return Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
@@ -221,7 +221,7 @@ class _CandidateHomeScreenState extends ConsumerState<CandidateHomeScreen> {
                     borderRadius: AppSpacing.roundedSm,
                   ),
                 ),
-                child: const Text('Link'),
+                child: Text(context.l10n.linkAction),
               ),
           ],
         ),
@@ -315,7 +315,7 @@ class _CandidateHomeScreenState extends ConsumerState<CandidateHomeScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, AppSpacing.md, 20, AppSpacing.xs),
             child: Text(
-              AppStrings.quickActions,
+              context.l10n.quickActions,
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -335,8 +335,8 @@ class _CandidateHomeScreenState extends ConsumerState<CandidateHomeScreen> {
                 size: 20,
               ),
             ),
-            title: const Text('View Shared Profiles'),
-            subtitle: const Text('See profiles forwarded by your parent'),
+            title: Text(context.l10n.viewSharedProfiles),
+            subtitle: Text(context.l10n.seeProfilesForwardedByParent),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
               context.goNamed(RouteNames.candidateShared);
@@ -357,8 +357,8 @@ class _CandidateHomeScreenState extends ConsumerState<CandidateHomeScreen> {
                 size: 20,
               ),
             ),
-            title: const Text(AppStrings.linkRequests),
-            subtitle: const Text('View your connection requests'),
+            title: Text(context.l10n.linkRequests),
+            subtitle: Text(context.l10n.viewConnectionRequests),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
               context.pushNamed(RouteNames.linkRequests);

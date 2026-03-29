@@ -5,7 +5,7 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
-import 'package:testing_flutter/core/constants/app_strings.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/link_request.dart';
 
@@ -16,8 +16,8 @@ class LinkRequestsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
     if (authState is! AuthAuthenticated) {
-      return const Scaffold(
-        body: Center(child: Text('Please log in')),
+      return Scaffold(
+        body: Center(child: Text(context.l10n.pleaseLogIn)),
       );
     }
 
@@ -27,15 +27,15 @@ class LinkRequestsScreen extends ConsumerWidget {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text(AppStrings.linkRequests),
+          title: Text(context.l10n.linkRequests),
           bottom: TabBar(
             indicatorColor: AppColors.sacredSaffron,
             labelColor: AppColors.sacredSaffron,
             unselectedLabelColor:
                 Theme.of(context).colorScheme.onSurfaceVariant,
-            tabs: const [
-              Tab(text: 'Received'),
-              Tab(text: 'Sent'),
+            tabs: [
+              Tab(text: context.l10n.received),
+              Tab(text: context.l10n.sent),
             ],
           ),
         ),
@@ -85,8 +85,8 @@ class _ReceivedTabState extends ConsumerState<_ReceivedTab> {
     await _loadRequests();
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Request accepted'),
+        SnackBar(
+          content: Text(context.l10n.requestAccepted),
           backgroundColor: AppColors.success,
         ),
       );
@@ -99,8 +99,8 @@ class _ReceivedTabState extends ConsumerState<_ReceivedTab> {
     await _loadRequests();
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Request declined'),
+        SnackBar(
+          content: Text(context.l10n.requestDeclined),
           backgroundColor: AppColors.error,
         ),
       );
@@ -113,7 +113,7 @@ class _ReceivedTabState extends ConsumerState<_ReceivedTab> {
       return _buildEmptyState(
         context: context,
         icon: Icons.inbox_outlined,
-        title: AppStrings.noReceivedRequests,
+        title: context.l10n.noReceivedRequests,
         subtitle: 'Link requests from others will appear here',
       );
     }
@@ -175,7 +175,7 @@ class _SentTabState extends ConsumerState<_SentTab> {
       return _buildEmptyState(
         context: context,
         icon: Icons.send_outlined,
-        title: AppStrings.noSentRequests,
+        title: context.l10n.noSentRequests,
         subtitle: 'Requests you send will appear here',
       );
     }
@@ -308,7 +308,7 @@ class _RequestCard extends StatelessWidget {
                     child: OutlinedButton.icon(
                       onPressed: onDecline,
                       icon: const Icon(Icons.close, size: 18),
-                      label: const Text(AppStrings.decline),
+                      label: Text(context.l10n.decline),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.error,
                         side: const BorderSide(color: AppColors.error),
@@ -323,7 +323,7 @@ class _RequestCard extends StatelessWidget {
                     child: FilledButton.icon(
                       onPressed: onAccept,
                       icon: const Icon(Icons.check, size: 18),
-                      label: const Text(AppStrings.accept),
+                      label: Text(context.l10n.accept),
                       style: FilledButton.styleFrom(
                         backgroundColor: AppColors.success,
                         shape: RoundedRectangleBorder(

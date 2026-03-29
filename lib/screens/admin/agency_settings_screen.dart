@@ -4,7 +4,7 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
-import 'package:testing_flutter/core/constants/app_strings.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/agency.dart';
 import 'package:testing_flutter/core/providers/theme_provider.dart';
@@ -90,8 +90,8 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Agency settings saved!'),
+        SnackBar(
+          content: Text(context.l10n.agencySettingsSaved),
           backgroundColor: AppColors.success,
         ),
       );
@@ -122,7 +122,7 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.agencySettings),
+        title: Text(context.l10n.agencySettings),
         actions: [
           if (_editing)
             TextButton(
@@ -134,7 +134,7 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : Text(
-                      AppStrings.save,
+                      context.l10n.save,
                       style: TextStyle(
                         color: AppColors.sacredSaffron,
                         fontWeight: FontWeight.w600,
@@ -169,7 +169,7 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
                     Icon(Icons.business, color: AppColors.sacredSaffron),
                     const SizedBox(width: 10),
                     Text(
-                      AppStrings.agencyInformation,
+                      context.l10n.agencyInformation,
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
@@ -177,7 +177,7 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
                   ],
                 ),
                 AppSpacing.gapH16,
-                _buildField('Agency Name', _nameController, _editing),
+                _buildField(context.l10n.agencyNameLabel, _nameController, _editing),
                 AppSpacing.gapH12,
                 _buildField('Description', _descController, _editing,
                     maxLines: 3),
@@ -185,11 +185,11 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: _buildField('City', _cityController, _editing),
+                      child: _buildField(context.l10n.cityLabel, _cityController, _editing),
                     ),
                     AppSpacing.gapW12,
                     Expanded(
-                      child: _buildField('State', _stateController, _editing),
+                      child: _buildField(context.l10n.stateLabel, _stateController, _editing),
                     ),
                   ],
                 ),
@@ -275,7 +275,7 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
                 AppSpacing.gapW12,
                 Expanded(
                   child: Text(
-                    AppStrings.darkMode,
+                    context.l10n.darkMode,
                     style: theme.textTheme.bodyLarge,
                   ),
                 ),
@@ -300,13 +300,13 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
                 showDialog(
                   context: context,
                   builder: (ctx) => AlertDialog(
-                    title: const Text(AppStrings.logoutConfirmTitle),
+                    title: Text(context.l10n.logoutConfirmTitle),
                     content:
-                        const Text(AppStrings.logoutConfirmMessage),
+                        Text(context.l10n.logoutConfirmMessage),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(ctx),
-                        child: const Text(AppStrings.cancel),
+                        child: Text(context.l10n.cancel),
                       ),
                       FilledButton(
                         onPressed: () {
@@ -316,7 +316,7 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
                         style: FilledButton.styleFrom(
                           backgroundColor: AppColors.error,
                         ),
-                        child: const Text(AppStrings.logout,
+                        child: Text(context.l10n.logout,
                             style: TextStyle(color: Colors.white)),
                       ),
                     ],
@@ -324,8 +324,8 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
                 );
               },
               icon: const Icon(Icons.logout, color: AppColors.error),
-              label: const Text(
-                AppStrings.logout,
+              label: Text(
+                context.l10n.logout,
                 style: TextStyle(color: AppColors.error),
               ),
               style: OutlinedButton.styleFrom(

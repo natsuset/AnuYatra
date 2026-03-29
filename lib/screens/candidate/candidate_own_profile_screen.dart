@@ -5,7 +5,7 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
-import 'package:testing_flutter/core/constants/app_strings.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/models/app_user.dart';
@@ -60,8 +60,8 @@ class _CandidateOwnProfileScreenState
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     if (authState is! AuthAuthenticated) {
-      return const Scaffold(
-        body: Center(child: Text('Please log in')),
+      return Scaffold(
+        body: Center(child: Text(context.l10n.pleaseLogIn)),
       );
     }
 
@@ -70,14 +70,14 @@ class _CandidateOwnProfileScreenState
     final theme = Theme.of(context);
 
     if (_loading) {
-      return const Scaffold(
+      return Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.myProfile),
+        title: Text(context.l10n.myProfile),
       ),
       body: ListView(
         padding: AppSpacing.allMd,
@@ -116,7 +116,7 @@ class _CandidateOwnProfileScreenState
                   Text(
                     user.displayName.isNotEmpty
                         ? user.displayName
-                        : 'No name set',
+                        : context.l10n.noNameSet,
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -234,7 +234,7 @@ class _CandidateOwnProfileScreenState
                       size: 18,
                     ),
                   ),
-                  title: const Text(AppStrings.settings),
+                  title: Text(context.l10n.settings),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     context.pushNamed(RouteNames.appSettings);
@@ -255,29 +255,29 @@ class _CandidateOwnProfileScreenState
                       size: 18,
                     ),
                   ),
-                  title: const Text(
-                    AppStrings.logout,
+                  title: Text(
+                    context.l10n.logout,
                     style: TextStyle(color: AppColors.error),
                   ),
                   onTap: () async {
                     final confirmed = await showDialog<bool>(
                       context: context,
                       builder: (ctx) => AlertDialog(
-                        title: const Text(AppStrings.logoutConfirmTitle),
-                        content: const Text(
-                          AppStrings.logoutConfirmMessage,
+                        title: Text(context.l10n.logoutConfirmTitle),
+                        content: Text(
+                          context.l10n.logoutConfirmMessage,
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(ctx, false),
-                            child: const Text(AppStrings.cancel),
+                            child: Text(context.l10n.cancel),
                           ),
                           FilledButton(
                             onPressed: () => Navigator.pop(ctx, true),
                             style: FilledButton.styleFrom(
                               backgroundColor: AppColors.error,
                             ),
-                            child: const Text(AppStrings.logout),
+                            child: Text(context.l10n.logout),
                           ),
                         ],
                       ),

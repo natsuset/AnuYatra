@@ -4,7 +4,7 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
-import 'package:testing_flutter/core/constants/app_strings.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/agency.dart';
 import 'package:testing_flutter/models/broker_profile.dart';
@@ -151,8 +151,8 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Discover',
+                  Text(
+                    context.l10n.discover,
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -314,7 +314,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
             ),
             AppSpacing.gapH24,
             Text(
-              AppStrings.noResultsFound,
+              context.l10n.noResultsFound,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -373,7 +373,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
         context,
         isDark,
         icon: Icons.person_search_rounded,
-        title: AppStrings.activeBrokers,
+        title: context.l10n.activeBrokers,
         count: _brokers.length,
       ));
       for (final broker in _brokers) {
@@ -948,7 +948,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                     _sendLinkRequest(context, agencyId: agency.id);
                   },
                   icon: const Icon(Icons.link),
-                  label: const Text(AppStrings.connectWithAgency),
+                  label: Text(context.l10n.connectWithAgency),
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.sacredSaffron,
                     minimumSize: const Size(double.infinity, 48),
@@ -1068,7 +1068,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                     _sendLinkRequest(context, brokerId: broker.userId);
                   },
                   icon: const Icon(Icons.link),
-                  label: const Text(AppStrings.connectWithBroker),
+                  label: Text(context.l10n.connectWithBroker),
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.sacredSaffron,
                     minimumSize: const Size(double.infinity, 48),
@@ -1099,7 +1099,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
 
     String toUserName = '';
     if (agencyId != null) {
-      toUserName = (await agencyRepo.getAgency(agencyId))?.name ?? 'Agency';
+      toUserName = (await agencyRepo.getAgency(agencyId))?.name ?? context.l10n.agencyLabel;
     } else if (brokerId != null) {
       toUserName = (await brokerRepo.getBrokerProfile(brokerId))?.name ?? 'Broker';
     }
@@ -1114,8 +1114,8 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
 
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Connection request sent!'),
+      SnackBar(
+        content: Text(context.l10n.connectionRequestSent),
         behavior: SnackBarBehavior.floating,
       ),
     );

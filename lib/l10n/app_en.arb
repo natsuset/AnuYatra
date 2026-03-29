@@ -1,0 +1,1053 @@
+{
+  "@@locale": "en",
+
+  "appName": "Anuyatra",
+  "@appName": { "description": "Brand name — do not translate" },
+
+  "appNameStyled": "Anuyātrā",
+  "@appNameStyled": { "description": "Styled brand name with diacritics — do not translate" },
+
+  "appTagline": "The Real Matrimony Experience",
+  "@appTagline": {},
+
+  "appTitle": "Anuyatra - The Real Matrimony App",
+  "@appTitle": { "description": "Browser/OS title — do not translate the brand name" },
+
+  "enterPhoneTitle": "Enter your phone number",
+  "@enterPhoneTitle": {},
+
+  "enterPhoneSubtitle": "We'll send you a verification code",
+  "@enterPhoneSubtitle": {},
+
+  "sendOtp": "Send OTP",
+  "@sendOtp": {},
+
+  "verifyNumber": "Verify your number",
+  "@verifyNumber": {},
+
+  "verifyAndContinue": "Verify & Continue",
+  "@verifyAndContinue": {},
+
+  "resendCode": "Resend Code",
+  "@resendCode": {},
+
+  "completeProfile": "Complete Your Profile",
+  "@completeProfile": {},
+
+  "demoOtpHint": "Demo mode: Any phone number works.\nUse OTP code: 123456",
+  "@demoOtpHint": { "description": "Shown only in demo/dev builds — keep in English" },
+
+  "otpHint": "Hint: The OTP is 123456",
+  "@otpHint": { "description": "Demo hint — keep in English" },
+
+  "demoOtpAlways": "Demo: OTP code is always 123456",
+  "@demoOtpAlways": { "description": "Demo hint — keep in English" },
+
+  "invalidPhoneError": "Please enter a valid 10-digit phone number",
+  "@invalidPhoneError": {},
+
+  "invalidOtpError": "Please enter the complete 6-digit code",
+  "@invalidOtpError": {},
+
+  "nameRequired": "Name is required",
+  "@nameRequired": {},
+
+  "agencyNameRequired": "Agency name is required",
+  "@agencyNameRequired": {},
+
+  "welcome": "Welcome!",
+  "@welcome": {},
+
+  "registeringAs": "Registering as: {role}",
+  "@registeringAs": {
+    "placeholders": { "role": { "type": "String" } }
+  },
+
+  "settingUpAs": "Setting up as: {role}",
+  "@settingUpAs": {
+    "placeholders": { "role": { "type": "String" } }
+  },
+
+  "otpSentTo": "Enter the 6-digit code sent to {phone}",
+  "@otpSentTo": {
+    "placeholders": { "phone": { "type": "String" } }
+  },
+
+  "howToUseAnuyatra": "How would you like to use Anuyatra?",
+  "@howToUseAnuyatra": {},
+
+  "home": "Home",
+  "@home": {},
+
+  "dashboard": "Dashboard",
+  "@dashboard": {},
+
+  "settings": "Settings",
+  "@settings": {},
+
+  "messages": "Messages",
+  "@messages": {},
+
+  "profile": "Profile",
+  "@profile": {},
+
+  "myProfile": "My Profile",
+  "@myProfile": {},
+
+  "search": "Search",
+  "@search": {},
+
+  "discover": "Discover",
+  "@discover": {},
+
+  "sharedProfiles": "Shared Profiles",
+  "@sharedProfiles": {},
+
+  "linkRequests": "Link Requests",
+  "@linkRequests": {},
+
+  "agencySettings": "Agency Settings",
+  "@agencySettings": {},
+
+  "agencyInformation": "Agency Information",
+  "@agencyInformation": {},
+
+  "brokerRoster": "Broker Roster",
+  "@brokerRoster": {},
+
+  "quickActions": "Quick Actions",
+  "@quickActions": {},
+
+  "account": "Account",
+  "@account": {},
+
+  "appearance": "Appearance",
+  "@appearance": {},
+
+  "session": "Session",
+  "@session": {},
+
+  "anuyatraHub": "Anuyatra Hub",
+  "@anuyatraHub": {},
+
+  "save": "Save",
+  "@save": {},
+
+  "cancel": "Cancel",
+  "@cancel": {},
+
+  "submit": "Submit",
+  "@submit": {},
+
+  "done": "Done",
+  "@done": {},
+
+  "back": "Back",
+  "@back": {},
+
+  "next": "Next",
+  "@next": {},
+
+  "getStarted": "Get Started",
+  "@getStarted": {},
+
+  "logout": "Logout",
+  "@logout": {},
+
+  "accept": "Accept",
+  "@accept": {},
+
+  "decline": "Decline",
+  "@decline": {},
+
+  "findBrokers": "Find Brokers",
+  "@findBrokers": {},
+
+  "inviteBroker": "Invite Broker",
+  "@inviteBroker": {},
+
+  "sendInvite": "Send Invite",
+  "@sendInvite": {},
+
+  "connectWithAgency": "Connect with Agency",
+  "@connectWithAgency": {},
+
+  "connectWithBroker": "Connect with Broker",
+  "@connectWithBroker": {},
+
+  "viewProfile": "View Profile",
+  "@viewProfile": {},
+
+  "forwardToChild": "Forward to Child",
+  "@forwardToChild": {},
+
+  "interested": "Interested",
+  "@interested": {},
+
+  "maybe": "Maybe",
+  "@maybe": {},
+
+  "pass": "Pass",
+  "@pass": {},
+
+  "pending": "Pending",
+  "@pending": {},
+
+  "noProfilesShared": "No profiles shared yet",
+  "@noProfilesShared": {},
+
+  "noProfilesSharedHint": "Profiles shared by your brokers will appear here",
+  "@noProfilesSharedHint": {},
+
+  "noResultsFound": "No results found",
+  "@noResultsFound": {},
+
+  "noMessagesYet": "No messages yet",
+  "@noMessagesYet": {},
+
+  "noMessagesHint": "Send a message to start the conversation",
+  "@noMessagesHint": {},
+
+  "noConversationsYet": "No conversations yet",
+  "@noConversationsYet": {},
+
+  "noBrokersInAgency": "No brokers in your agency",
+  "@noBrokersInAgency": {},
+
+  "noClientsYet": "No clients yet",
+  "@noClientsYet": {},
+
+  "noBrokersConnected": "No Brokers Connected",
+  "@noBrokersConnected": {},
+
+  "noReceivedRequests": "No received requests",
+  "@noReceivedRequests": {},
+
+  "noSentRequests": "No sent requests",
+  "@noSentRequests": {},
+
+  "noSharedProfilesForCandidate": "Profiles shared by your parent will appear here for your review",
+  "@noSharedProfilesForCandidate": {},
+
+  "profileNotFound": "Profile not found",
+  "@profileNotFound": {},
+
+  "profileNotFoundTitle": "Profile Not Found",
+  "@profileNotFoundTitle": {},
+
+  "genericError": "Something went wrong. Please try again.",
+  "@genericError": {},
+
+  "sendOtpFailed": "Failed to send OTP. Please try again.",
+  "@sendOtpFailed": {},
+
+  "verificationFailed": "Verification failed. Please try again.",
+  "@verificationFailed": {},
+
+  "profileSetupFailed": "Profile setup failed",
+  "@profileSetupFailed": {},
+
+  "userNotFoundByPhone": "No user found with that phone number",
+  "@userNotFoundByPhone": {},
+
+  "notRegisteredAsBroker": "This user is not registered as a broker",
+  "@notRegisteredAsBroker": {},
+
+  "logoutConfirmTitle": "Logout",
+  "@logoutConfirmTitle": {},
+
+  "logoutConfirmMessage": "Are you sure you want to log out?",
+  "@logoutConfirmMessage": {},
+
+  "logoutConfirmBroker": "Are you sure you want to logout?",
+  "@logoutConfirmBroker": {},
+
+  "acceptRequestConfirm": "Accept this request?",
+  "@acceptRequestConfirm": {},
+
+  "declineRequestConfirm": "Decline this request?",
+  "@declineRequestConfirm": {},
+
+  "vivahaSamskara": "Vivaha Samskara",
+  "@vivahaSamskara": { "description": "Service name — may transliterate but not translate" },
+
+  "vivahaSamskaraDesc": "Premium wedding preparation services",
+  "@vivahaSamskaraDesc": {},
+
+  "trustVerification": "Trust Verification",
+  "@trustVerification": {},
+
+  "financialCompatibility": "Financial Compatibility",
+  "@financialCompatibility": {},
+
+  "comingSoon": "More features coming soon!",
+  "@comingSoon": {},
+
+  "comingSoonHint": "Virtual meetings, AI matching, and more",
+  "@comingSoonHint": {},
+
+  "comingSoonShort": "coming soon!",
+  "@comingSoonShort": {},
+
+  "activeBrokers": "Brokers",
+  "@activeBrokers": {},
+
+  "activeClients": "Clients",
+  "@activeClients": {},
+
+  "profilesManaged": "Profiles",
+  "@profilesManaged": {},
+
+  "profilesSharedStat": "Shared",
+  "@profilesSharedStat": {},
+
+  "pendingRequestsStat": "Pending",
+  "@pendingRequestsStat": {},
+
+  "darkMode": "Dark Mode",
+  "@darkMode": {},
+
+  "darkThemeActive": "Dark theme active",
+  "@darkThemeActive": {},
+
+  "lightThemeActive": "Light theme active",
+  "@lightThemeActive": {},
+
+  "routeNotFound": "Route not found",
+  "@routeNotFound": {},
+
+  "pageNotFound": "Page Not Found",
+  "@pageNotFound": {},
+
+  "goHome": "Go Home",
+  "@goHome": {},
+
+  "pleaseLogIn": "Please log in",
+  "@pleaseLogIn": {},
+
+  "phoneNumber": "Phone Number",
+  "@phoneNumber": {},
+
+  "roleLabel": "Role",
+  "@roleLabel": {},
+
+  "signOutSubtitle": "Sign out of your account",
+  "@signOutSubtitle": {},
+
+  "noNameSet": "No name set",
+  "@noNameSet": {},
+
+  "authErrorInvalidPhone": "Please enter a valid 10-digit Indian mobile number.",
+  "@authErrorInvalidPhone": {},
+
+  "authErrorSendOtpFailed": "Failed to send OTP. Please try again.",
+  "@authErrorSendOtpFailed": {},
+
+  "authErrorInvalidOtpWithHint": "Invalid OTP. Use \"{hint}\" for demo.",
+  "@authErrorInvalidOtpWithHint": {
+    "placeholders": { "hint": { "type": "String" } }
+  },
+
+  "authErrorInvalidOtp": "Invalid OTP. Please try again.",
+  "@authErrorInvalidOtp": {},
+
+  "authErrorVerificationFailed": "Verification failed. Please try again.",
+  "@authErrorVerificationFailed": {},
+
+  "authErrorProfileSetupFailed": "Profile setup failed: {detail}",
+  "@authErrorProfileSetupFailed": {
+    "placeholders": { "detail": { "type": "String" } }
+  },
+
+  "recentActivity": "Recent Activity",
+  "@recentActivity": {},
+
+  "noRecentActivity": "No recent activity",
+  "@noRecentActivity": {},
+
+  "recentActivityHint": "Activity from shared profiles and connections will appear here",
+  "@recentActivityHint": {},
+
+  "profileSharedActivity": "Profile shared",
+  "@profileSharedActivity": {},
+
+  "connectionRequestActivity": "Connection request",
+  "@connectionRequestActivity": {},
+
+  "welcomeBack": "Welcome back,",
+  "@welcomeBack": {},
+
+  "newBroker": "New Broker",
+  "@newBroker": {},
+
+  "gettingStarted": "Getting started",
+  "@gettingStarted": {},
+
+  "yrsExperience": "yrs experience",
+  "@yrsExperience": {},
+
+  "createProfileAction": "Create Profile",
+  "@createProfileAction": {},
+
+  "shareProfileAction": "Share Profile",
+  "@shareProfileAction": {},
+
+  "viewRequestsAction": "View Requests",
+  "@viewRequestsAction": {},
+
+  "connectedClients": "Connected Clients",
+  "@connectedClients": {},
+
+  "noConnectedClients": "No connected clients yet.",
+  "@noConnectedClients": {},
+
+  "brokerClientsHint": "When parents connect with you, they will appear here.",
+  "@brokerClientsHint": {},
+
+  "acceptedRequestFrom": "Accepted request from {name}",
+  "@acceptedRequestFrom": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "failedToAccept": "Failed to accept: {error}",
+  "@failedToAccept": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+
+  "declinedRequestFrom": "Declined request from {name}",
+  "@declinedRequestFrom": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "failedToDecline": "Failed to decline: {error}",
+  "@failedToDecline": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+
+  "lookingFor": "Looking for",
+  "@lookingFor": {},
+
+  "lookingForSection": "Looking For",
+  "@lookingForSection": {},
+
+  "listedWith": "Listed with",
+  "@listedWith": {},
+
+  "brokersLabel": "brokers",
+  "@brokersLabel": {},
+
+  "brokerConversationsHint": "When parents connect with you, conversations will appear here.",
+  "@brokerConversationsHint": {},
+
+  "managedProfiles": "Managed Profiles",
+  "@managedProfiles": {},
+
+  "noProfilesYetLabel": "No Profiles Yet",
+  "@noProfilesYetLabel": {},
+
+  "noProfilesYetHint": "No profiles yet. Create your first candidate profile.",
+  "@noProfilesYetHint": {},
+
+  "shareProfileWith": "Share Profile With",
+  "@shareProfileWith": {},
+
+  "noConnectedParents": "No connected parents to share with",
+  "@noConnectedParents": {},
+
+  "agencyLabel": "Agency",
+  "@agencyLabel": {},
+
+  "experienceLabel": "Experience",
+  "@experienceLabel": {},
+
+  "areasServedLabel": "Areas Served",
+  "@areasServedLabel": {},
+
+  "specializationsLabel": "Specializations",
+  "@specializationsLabel": {},
+
+  "yearsLabel": "years",
+  "@yearsLabel": {},
+
+  "linkedToParent": "Linked to Parent",
+  "@linkedToParent": {},
+
+  "notLinked": "Not Linked",
+  "@notLinked": {},
+
+  "notLinkedHint": "You are not linked to any parent yet.",
+  "@notLinkedHint": {},
+
+  "linkAction": "Link",
+  "@linkAction": {},
+
+  "profilesSharedWithYou": "Profiles Shared With You",
+  "@profilesSharedWithYou": {},
+
+  "profileAvailable": "profile available",
+  "@profileAvailable": {},
+
+  "profilesAvailable": "profiles available",
+  "@profilesAvailable": {},
+
+  "viewSharedProfiles": "View Shared Profiles",
+  "@viewSharedProfiles": {},
+
+  "seeProfilesForwardedByParent": "See profiles forwarded by your parent",
+  "@seeProfilesForwardedByParent": {},
+
+  "viewConnectionRequests": "View your connection requests",
+  "@viewConnectionRequests": {},
+
+  "markedAsInterested": "Marked as Interested",
+  "@markedAsInterested": {},
+
+  "markedAsPass": "Marked as Pass",
+  "@markedAsPass": {},
+
+  "linkToParentTitle": "Link to Parent",
+  "@linkToParentTitle": {},
+
+  "linkRequestSentTo": "Link request sent to {name}",
+  "@linkRequestSentTo": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "linkRequestMessage": "I would like to link my account to yours.",
+  "@linkRequestMessage": {},
+
+  "received": "Received",
+  "@received": {},
+
+  "sent": "Sent",
+  "@sent": {},
+
+  "requestAccepted": "Request accepted",
+  "@requestAccepted": {},
+
+  "requestDeclined": "Request declined",
+  "@requestDeclined": {},
+
+  "connectedWith": "Connected with",
+  "@connectedWith": {},
+
+  "call": "Call",
+  "@call": {},
+
+  "chat": "Chat",
+  "@chat": {},
+
+  "calling": "Calling",
+  "@calling": {},
+
+  "cityLabel": "City",
+  "@cityLabel": {},
+
+  "stateLabel": "State",
+  "@stateLabel": {},
+
+  "connectedBrokers": "Connected Brokers",
+  "@connectedBrokers": {},
+
+  "linkedChild": "Linked Child",
+  "@linkedChild": {},
+
+  "viewLinkRequests": "View Link Requests",
+  "@viewLinkRequests": {},
+
+  "agencyBrokersTitle": "Agency Brokers",
+  "@agencyBrokersTitle": {},
+
+  "notRegisteredBrokerFull": "{name} is not registered as a broker",
+  "@notRegisteredBrokerFull": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "inviteSentTo": "Invite sent to {phone}",
+  "@inviteSentTo": {
+    "placeholders": { "phone": { "type": "String" } }
+  },
+
+  "agencyClientsTitle": "Agency Clients",
+  "@agencyClientsTitle": {},
+
+  "viewAll": "View All",
+  "@viewAll": {},
+
+  "addNewBroker": "Add a new broker to your agency",
+  "@addNewBroker": {},
+
+  "agencySettingsSaved": "Agency settings saved!",
+  "@agencySettingsSaved": {},
+
+  "clearSearch": "Clear search",
+  "@clearSearch": {},
+
+  "yrsExp": "yrs exp",
+  "@yrsExp": {},
+
+  "connectionRequestSent": "Connection request sent!",
+  "@connectionRequestSent": {},
+
+  "profileCreated": "{name} created!",
+  "@profileCreated": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "bride": "Bride",
+  "@bride": {},
+
+  "groom": "Groom",
+  "@groom": {},
+
+  "yourName": "Your Name",
+  "@yourName": {},
+
+  "enterYourFullName": "Enter your full name",
+  "@enterYourFullName": {},
+
+  "agencyNameLabel": "Agency Name",
+  "@agencyNameLabel": {},
+
+  "aboutYou": "About You",
+  "@aboutYou": {},
+
+  "aboutYouHint": "Tell families about your matchmaking experience...",
+  "@aboutYouHint": {},
+
+  "yearsOfExperience": "Years of Experience",
+  "@yearsOfExperience": {},
+
+  "lookingForA": "Looking for a",
+  "@lookingForA": {},
+
+  "iAmA": "I am a",
+  "@iAmA": {},
+
+  "yourAge": "Your Age",
+  "@yourAge": {},
+
+  "stepBasicInfo": "Basic Info",
+  "@stepBasicInfo": {},
+
+  "stepAgencyDetails": "Agency Details",
+  "@stepAgencyDetails": {},
+
+  "stepContact": "Contact",
+  "@stepContact": {},
+
+  "stepExperience": "Experience",
+  "@stepExperience": {},
+
+  "stepBusinessDetails": "Business Details",
+  "@stepBusinessDetails": {},
+
+  "stepChildDetails": "Child Details",
+  "@stepChildDetails": {},
+
+  "stepFamilyDetails": "Family Details",
+  "@stepFamilyDetails": {},
+
+  "stepPersonal": "Personal",
+  "@stepPersonal": {},
+
+  "agencyDetailsSection": "Agency Details",
+  "@agencyDetailsSection": {},
+
+  "descriptionLabel": "Description",
+  "@descriptionLabel": {},
+
+  "descriptionHint": "Describe your agency and services...",
+  "@descriptionHint": {},
+
+  "specializationsCommaSeparated": "Specializations (comma-separated)",
+  "@specializationsCommaSeparated": {},
+
+  "contactInformationSection": "Contact Information",
+  "@contactInformationSection": {},
+
+  "emailLabel": "Email",
+  "@emailLabel": {},
+
+  "officePhoneLabel": "Office Phone",
+  "@officePhoneLabel": {},
+
+  "websiteOptional": "Website (optional)",
+  "@websiteOptional": {},
+
+  "addMoreDetailsLater": "You can add more details later from Agency Settings",
+  "@addMoreDetailsLater": {},
+
+  "experienceExpertiseSection": "Experience & Expertise",
+  "@experienceExpertiseSection": {},
+
+  "areasServedCommaSeparated": "Areas Served (comma-separated)",
+  "@areasServedCommaSeparated": {},
+
+  "languagesSpokenCommaSeparated": "Languages Spoken (comma-separated)",
+  "@languagesSpokenCommaSeparated": {},
+
+  "businessDetailsSection": "Business Details",
+  "@businessDetailsSection": {},
+
+  "officeAddressOptional": "Office Address (optional)",
+  "@officeAddressOptional": {},
+
+  "feeStructureOptional": "Fee Structure (optional)",
+  "@feeStructureOptional": {},
+
+  "workingHoursOptional": "Working Hours (optional)",
+  "@workingHoursOptional": {},
+
+  "childDetailsSection": "Your Child's Details",
+  "@childDetailsSection": {},
+
+  "childDetailsHint": "This information helps brokers find suitable matches",
+  "@childDetailsHint": {},
+
+  "childNameLabel": "Child's Name",
+  "@childNameLabel": {},
+
+  "fullNameHint": "Full name",
+  "@fullNameHint": {},
+
+  "heightLabel": "Height",
+  "@heightLabel": {},
+
+  "dietLabel": "Diet",
+  "@dietLabel": {},
+
+  "dietVegetarian": "Vegetarian",
+  "@dietVegetarian": {},
+
+  "dietNonVeg": "Non-Veg",
+  "@dietNonVeg": {},
+
+  "dietEggetarian": "Eggetarian",
+  "@dietEggetarian": {},
+
+  "dietVegan": "Vegan",
+  "@dietVegan": {},
+
+  "dietJain": "Jain",
+  "@dietJain": {},
+
+  "educationLabel": "Education",
+  "@educationLabel": {},
+
+  "professionLabel": "Profession",
+  "@professionLabel": {},
+
+  "emailOptionalLabel": "Your Email (optional)",
+  "@emailOptionalLabel": {},
+
+  "familyInformationSection": "Family Information",
+  "@familyInformationSection": {},
+
+  "familyTypeLabel": "Family Type",
+  "@familyTypeLabel": {},
+
+  "jointFamilyLabel": "Joint Family",
+  "@jointFamilyLabel": {},
+
+  "nuclearFamilyLabel": "Nuclear Family",
+  "@nuclearFamilyLabel": {},
+
+  "fatherOccupationLabel": "Father's Occupation",
+  "@fatherOccupationLabel": {},
+
+  "motherOccupationLabel": "Mother's Occupation",
+  "@motherOccupationLabel": {},
+
+  "aboutFamilyLabel": "About Family",
+  "@aboutFamilyLabel": {},
+
+  "aboutFamilyHint": "Briefly describe your family background...",
+  "@aboutFamilyHint": {},
+
+  "shareWithChildDesc": "Share this profile with your child for their opinion",
+  "@shareWithChildDesc": {},
+
+  "noChildLinkedMsg": "No child account is linked to your profile yet.",
+  "@noChildLinkedMsg": {},
+
+  "askChildToLink": "Ask your child to create an account and link it to yours.",
+  "@askChildToLink": {},
+
+  "linkedChildLabel": "Linked child",
+  "@linkedChildLabel": {},
+
+  "noChildLinkedLabel": "No child linked",
+  "@noChildLinkedLabel": {},
+
+  "profileForwardedTo": "Profile forwarded to {name}",
+  "@profileForwardedTo": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "forwardProfileButton": "Forward Profile",
+  "@forwardProfileButton": {},
+
+  "viewBrokerProfile": "View Broker Profile",
+  "@viewBrokerProfile": {},
+
+  "muteNotifications": "Mute Notifications",
+  "@muteNotifications": {},
+
+  "clearChat": "Clear Chat",
+  "@clearChat": {},
+
+  "callBroker": "Call Broker",
+  "@callBroker": {},
+
+  "startRecording": "Start Recording",
+  "@startRecording": {},
+
+  "voiceNoteComingSoon": "Voice note feature coming soon!",
+  "@voiceNoteComingSoon": {},
+
+  "reportProfile": "Report Profile",
+  "@reportProfile": {},
+
+  "contactBroker": "Contact Broker",
+  "@contactBroker": {},
+
+  "shareFeatureComingSoon": "Share feature coming soon!",
+  "@shareFeatureComingSoon": {},
+
+  "saveFeatureComingSoon": "Save feature coming soon!",
+  "@saveFeatureComingSoon": {},
+
+  "saveToDevice": "Save to device",
+  "@saveToDevice": {},
+
+  "profileShareMessage": "Here's a profile I think would be perfect for you. Take a look at the details below.",
+  "@profileShareMessage": {},
+
+  "yourShortlist": "Your Shortlist",
+  "@yourShortlist": {},
+
+  "sortBy": "Sort by",
+  "@sortBy": {},
+
+  "filter": "Filter",
+  "@filter": {},
+
+  "exportList": "Export list",
+  "@exportList": {},
+
+  "noProfilesInShortlist": "No profiles in shortlist",
+  "@noProfilesInShortlist": {},
+
+  "shortlistHint": "Profiles you save or show interest in will appear here",
+  "@shortlistHint": {},
+
+  "browseProfiles": "Browse Profiles",
+  "@browseProfiles": {},
+
+  "trustAndVerification": "Trust & Verification",
+  "@trustAndVerification": {},
+
+  "inviteVerifiers": "Invite Verifiers",
+  "@inviteVerifiers": {},
+
+  "sendInvites": "Send Invites",
+  "@sendInvites": {},
+
+  "completeVerification": "Complete Verification",
+  "@completeVerification": {},
+
+  "uploadDocuments": "Upload Documents",
+  "@uploadDocuments": {},
+
+  "trustReport": "Trust Report",
+  "@trustReport": {},
+
+  "download": "Download",
+  "@download": {},
+
+  "startingFinancialDiscussion": "Starting financial discussion...",
+  "@startingFinancialDiscussion": {},
+
+  "weddingBudgetPlanner": "Wedding Budget Planner",
+  "@weddingBudgetPlanner": {},
+
+  "startPlanning": "Start Planning",
+  "@startPlanning": {},
+
+  "completeProfileAction": "Complete Profile",
+  "@completeProfileAction": {},
+
+  "completeNow": "Complete Now",
+  "@completeNow": {},
+
+  "financialCounseling": "Financial Counseling",
+  "@financialCounseling": {},
+
+  "bookSession": "Book Session",
+  "@bookSession": {},
+
+  "start": "Start",
+  "@start": {},
+
+  "later": "Later",
+  "@later": {},
+
+  "bookingInitiated": "booking initiated!",
+  "@bookingInitiated": {},
+
+  "joiningMeeting": "Joining meeting...",
+  "@joiningMeeting": {},
+
+  "rescheduleMeeting": "Reschedule Meeting",
+  "@rescheduleMeeting": {},
+
+  "rescheduleMeetingDesc": "Choose a new time for your virtual family meet.",
+  "@rescheduleMeetingDesc": {},
+
+  "reschedule": "Reschedule",
+  "@reschedule": {},
+
+  "schedule": "Schedule",
+  "@schedule": {},
+
+  "openingMeetingScheduler": "Opening meeting scheduler...",
+  "@openingMeetingScheduler": {},
+
+  "helpComingSoon": "Help & Support coming soon",
+  "@helpComingSoon": {},
+
+  "helpLabel": "Help",
+  "@helpLabel": {},
+
+  "designSystemDemo": "Design System Demo",
+  "@designSystemDemo": { "description": "Dev-only screen title — keep in English" },
+
+  "language": "Language",
+  "@language": {},
+
+  "systemDefault": "System Default",
+  "@systemDefault": {},
+
+  "english": "English",
+  "@english": {},
+
+  "hindi": "Hindi",
+  "@hindi": {},
+
+  "telugu": "Telugu",
+  "@telugu": {},
+
+  "notSet": "Not set",
+  "@notSet": {},
+
+  "online": "Online",
+  "@online": {},
+
+  "offline": "Offline",
+  "@offline": {},
+
+  "yes": "Yes",
+  "@yes": {},
+
+  "no": "No",
+  "@no": {},
+
+  "none": "None",
+  "@none": {},
+
+  "linked": "Linked",
+  "@linked": {},
+
+  "markedAsMaybe": "Marked as Maybe",
+  "@markedAsMaybe": {},
+
+  "typeAMessage": "Type a message",
+  "@typeAMessage": {},
+
+  "community": "Community",
+  "@community": {},
+
+  "caste": "Caste",
+  "@caste": {},
+
+  "gotra": "Gotra",
+  "@gotra": {},
+
+  "manglikStatus": "Manglik Status",
+  "@manglikStatus": {},
+
+  "annualIncome": "Annual Income",
+  "@annualIncome": {},
+
+  "complexion": "Complexion",
+  "@complexion": {},
+
+  "smoking": "Smoking",
+  "@smoking": {},
+
+  "drinking": "Drinking",
+  "@drinking": {},
+
+  "ownHouse": "Own House",
+  "@ownHouse": {},
+
+  "ownCar": "Own Car",
+  "@ownCar": {},
+
+  "willingToRelocate": "Willing to Relocate",
+  "@willingToRelocate": {},
+
+  "rashi": "Rashi",
+  "@rashi": {},
+
+  "nakshatra": "Nakshatra",
+  "@nakshatra": {},
+
+  "birthPlace": "Birth Place",
+  "@birthPlace": {},
+
+  "birthTime": "Birth Time",
+  "@birthTime": {},
+
+  "familyValues": "Family Values",
+  "@familyValues": {},
+
+  "siblings": "Siblings",
+  "@siblings": {},
+
+  "brothers": "Brothers",
+  "@brothers": {},
+
+  "sisters": "Sisters",
+  "@sisters": {},
+
+  "childLabel": "Child",
+  "@childLabel": {},
+
+  "brokerSharesHint": "Your connected brokers will share profiles here for your review",
+  "@brokerSharesHint": {},
+
+  "lookingForValue": "Looking for {value}",
+  "@lookingForValue": {
+    "placeholders": { "value": { "type": "String" } }
+  },
+
+  "resultsCount": "{count} results",
+  "@resultsCount": {
+    "placeholders": { "count": { "type": "String" } }
+  },
+
+  "personalInformationSection": "Personal Information",
+  "@personalInformationSection": {},
+
+  "canCompleteLater": "You can complete more details from your profile later",
+  "@canCompleteLater": {},
+
+  "candidateLinkHint": "You can link to your parent later and they can fill detailed profile information",
+  "@candidateLinkHint": {},
+
+  "candidateInfoBox": "After creating your account, link to your parent from the Home screen. Your parent and broker will manage detailed profile information.",
+  "@candidateInfoBox": {}
+
+}
