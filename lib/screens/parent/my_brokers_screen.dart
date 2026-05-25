@@ -10,7 +10,7 @@ import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/models/broker_profile.dart';
 import 'package:testing_flutter/models/link_request.dart';
-import 'package:testing_flutter/theme/app_theme.dart';
+import 'package:testing_flutter/core/theme/app_theme.dart';
 
 class MyBrokersScreen extends ConsumerStatefulWidget {
   const MyBrokersScreen({super.key});
@@ -419,7 +419,9 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                       _loadData();
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Connected with $displayName'),
+                          content: Text(
+                            context.l10n.connectedWithName(displayName),
+                          ),
                           behavior: SnackBarBehavior.floating,
                           backgroundColor: AppColors.success,
                           shape: RoundedRectangleBorder(
@@ -457,7 +459,9 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                       _loadData();
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Declined request from $displayName'),
+                          content: Text(
+                            context.l10n.declinedRequestFrom(displayName),
+                          ),
                           behavior: SnackBarBehavior.floating,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
@@ -667,7 +671,9 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Call $displayName'),
+                          content: Text(
+                            context.l10n.callingName(displayName),
+                          ),
                           behavior: SnackBarBehavior.floating,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
@@ -1053,7 +1059,9 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                         onPressed: () {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('Call ${broker.phoneNumber}'),
+                              content: Text(
+                                context.l10n.callingName(broker.phoneNumber),
+                              ),
                               behavior: SnackBarBehavior.floating,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),

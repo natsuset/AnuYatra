@@ -10,6 +10,59 @@ class AppTheme {
   AppTheme._();
 
   // ============================================
+  // BRAND COLOR ALIASES (kept for screens that reference `AppTheme.x`
+  // directly; new code should prefer `AppColors.x`)
+  // ============================================
+
+  static const Color sacredSaffron = AppColors.sacredSaffron;
+  static const Color deepMaroon = AppColors.deepMaroon;
+  static const Color statusGreen = AppColors.chatGreen;
+  static const Color whatsAppGray = AppColors.chatGray;
+
+  // ============================================
+  // THEME-AWARE HELPERS
+  // ============================================
+
+  /// Whether the current theme is dark.
+  static bool isDark(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark;
+
+  /// Primary text colour that adapts to light / dark theme.
+  static Color primaryText(BuildContext context) => isDark(context)
+      ? AppColors.darkPrimaryText
+      : AppColors.lightPrimaryText;
+
+  /// Secondary text colour that adapts to light / dark theme.
+  static Color secondaryText(BuildContext context) => isDark(context)
+      ? AppColors.darkSecondaryText
+      : AppColors.lightSecondaryText;
+
+  /// Tertiary text colour that adapts to light / dark theme.
+  static Color tertiaryText(BuildContext context) => isDark(context)
+      ? AppColors.darkTertiaryText
+      : AppColors.lightTertiaryText;
+
+  /// Surface / card colour that adapts to light / dark theme.
+  static Color cardSurface(BuildContext context) =>
+      isDark(context) ? AppColors.darkSurface : AppColors.lightSurface;
+
+  /// Background colour that adapts to light / dark theme.
+  static Color background(BuildContext context) =>
+      isDark(context) ? AppColors.darkBackground : AppColors.lightBackground;
+
+  /// Border colour that adapts to light / dark theme.
+  static Color border(BuildContext context) =>
+      isDark(context) ? AppColors.darkBorder : AppColors.lightBorder;
+
+  /// Divider colour that adapts to light / dark theme.
+  static Color divider(BuildContext context) =>
+      isDark(context) ? AppColors.darkDivider : AppColors.lightDivider;
+
+  /// AppBar background that adapts to light / dark theme.
+  static Color appBarBackground(BuildContext context) =>
+      isDark(context) ? AppColors.darkSurface : deepMaroon;
+
+  // ============================================
   // LIGHT THEME
   // ============================================
 

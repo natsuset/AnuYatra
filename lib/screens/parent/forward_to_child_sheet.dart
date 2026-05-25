@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/app_user.dart';
 
@@ -199,14 +200,16 @@ class _ForwardToChildSheetState extends ConsumerState<ForwardToChildSheet> {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Profile forwarded to ${childUser.displayName}'),
+                      content: Text(
+                        context.l10n.profileForwardedTo(childUser.displayName),
+                      ),
                       behavior: SnackBarBehavior.floating,
                       backgroundColor: AppColors.success,
                     ),
                   );
                 },
                 icon: const Icon(Icons.send_rounded, size: 18),
-                label: const Text('Forward Profile'),
+                label: Text(context.l10n.forwardProfileButton),
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.sacredSaffron,
                   foregroundColor: Colors.white,

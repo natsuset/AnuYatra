@@ -372,6 +372,14 @@
   "personalInformationSection": "వ్యక్తిగత సమాచారం",
   "canCompleteLater": "మీరు తర్వాత మీ ప్రొఫైల్ నుండి మరిన్ని వివరాలు నమోదు చేయవచ్చు",
   "candidateLinkHint": "మీరు తర్వాత మీ తల్లిదండ్రులకు లింక్ చేయవచ్చు",
-  "candidateInfoBox": "ఖాతా సృష్టించిన తర్వాత, హోమ్ స్క్రీన్ నుండి మీ తల్లిదండ్రులకు లింక్ చేయండి."
+  "candidateInfoBox": "ఖాతా సృష్టించిన తర్వాత, హోమ్ స్క్రీన్ నుండి మీ తల్లిదండ్రులకు లింక్ చేయండి.",
+
+  "welcomeTo": "స్వాగతం",
+  "connectedWithName": "{name}తో కనెక్ట్ అయ్యారు",
+  "callingName": "{name}కు కాల్ చేస్తున్నాము",
+  "profileCreatedFor": "{name} కోసం ప్రొఫైల్ సృష్టించబడింది!",
+  "shareProfileWithClientsButton": "క్లయింట్‌లతో ప్రొఫైల్‌ను భాగస్వామ్యం చేయండి",
+  "toggleThemeTooltip": "థీమ్ మార్చండి",
+  "searchBrokersAgenciesHint": "బ్రోకర్లు, ఏజెన్సీలు, నగరాలను శోధించండి..."
 
 }

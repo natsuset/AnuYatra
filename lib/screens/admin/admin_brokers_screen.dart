@@ -249,7 +249,9 @@ class _AdminBrokersScreenState extends ConsumerState<AdminBrokersScreen> {
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Invite sent to ${brokerUser.displayName}'),
+                    content: Text(
+                      context.l10n.inviteSentTo(brokerUser.displayName),
+                    ),
                     backgroundColor: AppColors.success,
                   ),
                 );

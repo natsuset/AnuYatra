@@ -1091,4 +1091,33 @@ class AppLocalizationsTe extends AppLocalizations {
   @override
   String get candidateInfoBox =>
       'ఖాతా సృష్టించిన తర్వాత, హోమ్ స్క్రీన్ నుండి మీ తల్లిదండ్రులకు లింక్ చేయండి.';
+
+  @override
+  String get welcomeTo => 'స్వాగతం';
+
+  @override
+  String connectedWithName(String name) {
+    return '$nameతో కనెక్ట్ అయ్యారు';
+  }
+
+  @override
+  String callingName(String name) {
+    return '$nameకు కాల్ చేస్తున్నాము';
+  }
+
+  @override
+  String profileCreatedFor(String name) {
+    return '$name కోసం ప్రొఫైల్ సృష్టించబడింది!';
+  }
+
+  @override
+  String get shareProfileWithClientsButton =>
+      'క్లయింట్‌లతో ప్రొఫైల్‌ను భాగస్వామ్యం చేయండి';
+
+  @override
+  String get toggleThemeTooltip => 'థీమ్ మార్చండి';
+
+  @override
+  String get searchBrokersAgenciesHint =>
+      'బ్రోకర్లు, ఏజెన్సీలు, నగరాలను శోధించండి...';
 }

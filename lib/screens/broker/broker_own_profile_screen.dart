@@ -85,7 +85,7 @@ class _BrokerOwnProfileScreenState extends ConsumerState<BrokerOwnProfileScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Profile'),
+        title: Text(context.l10n.myProfile),
       ),
       body: ListView(
         padding: AppSpacing.allMd,

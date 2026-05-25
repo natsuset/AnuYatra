@@ -10,9 +10,8 @@ const _uuid = Uuid();
 
 /// Hive-backed implementation of [MessagingRepository].
 ///
-/// Messages are stored per-conversation as a JSON array (matching the
-/// existing LocalStorageService behaviour). The message storage format
-/// will be migrated to individual keys in a later phase.
+/// Messages are stored per-conversation as a JSON array. The format
+/// will be migrated to individual keys in a later phase (see PLAN_DELTA §1.2).
 class HiveMessagingRepository implements MessagingRepository {
   final Box<String> _conversations;
   final Box<String> _messages;

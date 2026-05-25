@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 
 class ShareProfileSheet extends StatelessWidget {
   const ShareProfileSheet({super.key});
@@ -7,7 +8,7 @@ class ShareProfileSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16.0),
-      child: const Text('Share profile with clients'),
+      child: Text(context.l10n.shareProfileWithClientsButton),
     );
   }
 }

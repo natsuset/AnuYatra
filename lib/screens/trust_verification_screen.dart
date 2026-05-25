@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:testing_flutter/models/trust_verification.dart';
 import 'package:testing_flutter/data/revolutionary_features_data.dart';
-import 'package:testing_flutter/theme/app_theme.dart';
+import 'package:testing_flutter/core/theme/app_theme.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 
 class TrustVerificationScreen extends StatefulWidget {
@@ -56,7 +56,7 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
     final userTrust = RevolutionaryFeaturesData.mockTrustVerifications.first;
 
     return Scaffold(
-      backgroundColor: AppColors.warmBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -304,19 +304,20 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
   }
 
   Widget _buildTrustStatusCard(TrustVerification trust) {
+    final isDark = AppTheme.isDark(context);
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardSurface(context),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.06),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
           BoxShadow(
-            color: AppColors.trustBlue.withValues(alpha: 0.1),
+            color: AppColors.trustBlue.withValues(alpha: isDark ? 0.2 : 0.1),
             blurRadius: 40,
             offset: const Offset(0, 16),
             spreadRadius: -8,
@@ -429,14 +430,15 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
   }
 
   Widget _buildVerificationBreakdown(TrustVerification trust) {
+    final isDark = AppTheme.isDark(context);
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardSurface(context),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -535,9 +537,9 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardSurface(context),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200, width: 1),
+        border: Border.all(color: AppTheme.divider(context), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -660,7 +662,7 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppTheme.cardSurface(context),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: color.withValues(alpha: 0.2)),
         ),

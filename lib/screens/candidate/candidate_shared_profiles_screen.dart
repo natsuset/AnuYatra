@@ -279,7 +279,7 @@ class _ProfileCard extends StatelessWidget {
                     child: OutlinedButton.icon(
                       onPressed: onPass,
                       icon: const Icon(Icons.close, size: 18),
-                      label: const Text('Pass'),
+                      label: Text(context.l10n.pass),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: isDark
                             ? AppColors.darkSecondaryText

@@ -5,6 +5,7 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/candidate_profile.dart';
@@ -166,8 +167,8 @@ class _BrokerProfilesScreenState extends ConsumerState<BrokerProfilesScreen> {
     if (parentIds.isEmpty) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No connected parents to share with'),
+        SnackBar(
+          content: Text(context.l10n.noConnectedParents),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -291,7 +292,7 @@ class _EmptyState extends StatelessWidget {
                 context.pushNamed(RouteNames.brokerCreateProfile);
               },
               icon: const Icon(Icons.person_add_alt_1_rounded, size: 20),
-              label: const Text('Create Profile'),
+              label: Text(context.l10n.createProfileAction),
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.sacredSaffron,
                 foregroundColor: Colors.white,

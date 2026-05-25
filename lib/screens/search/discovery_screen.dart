@@ -10,7 +10,7 @@ import 'package:testing_flutter/models/agency.dart';
 import 'package:testing_flutter/models/broker_profile.dart';
 import 'package:testing_flutter/models/link_request.dart';
 import 'package:testing_flutter/models/search_filter.dart';
-import 'package:testing_flutter/theme/app_theme.dart';
+import 'package:testing_flutter/core/theme/app_theme.dart';
 
 class DiscoveryScreen extends ConsumerStatefulWidget {
   const DiscoveryScreen({super.key});
@@ -193,7 +193,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
           fontSize: 15,
         ),
         decoration: InputDecoration(
-          hintText: 'Search brokers, agencies, cities...',
+          hintText: context.l10n.searchBrokersAgenciesHint,
           hintStyle: TextStyle(
             color: isDark ? AppColors.darkTertiaryText : AppColors.lightTertiaryText,
             fontSize: 15,
@@ -339,7 +339,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                 _performSearch();
               },
               icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: const Text('Clear search'),
+              label: Text(context.l10n.clearSearch),
               style: TextButton.styleFrom(
                 foregroundColor: AppColors.sacredSaffron,
               ),
@@ -926,7 +926,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                 ],
                 // Specializations
                 if (agency.specializations.isNotEmpty) ...[
-                  Text('Specializations', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.primaryText(context))),
+                  Text(context.l10n.specializationsLabel, style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.primaryText(context))),
                   AppSpacing.gapH8,
                   Wrap(
                     spacing: 8, runSpacing: 6,
@@ -1099,7 +1099,9 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
 
     String toUserName = '';
     if (agencyId != null) {
-      toUserName = (await agencyRepo.getAgency(agencyId))?.name ?? context.l10n.agencyLabel;
+      final agency = await agencyRepo.getAgency(agencyId);
+      if (!context.mounted) return;
+      toUserName = agency?.name ?? context.l10n.agencyLabel;
     } else if (brokerId != null) {
       toUserName = (await brokerRepo.getBrokerProfile(brokerId))?.name ?? 'Broker';
     }

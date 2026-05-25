@@ -6,6 +6,7 @@ import 'package:testing_flutter/common/widgets/atoms/app_button.dart';
 import 'package:testing_flutter/common/widgets/atoms/app_loading.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/theme_provider.dart';
 import 'package:testing_flutter/core/theme/theme_extensions.dart';
 
@@ -27,7 +28,7 @@ class DesignSystemDemoScreen extends ConsumerWidget {
           // Theme toggle button
           IconButton(
             icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
-            tooltip: 'Toggle Theme',
+            tooltip: context.l10n.toggleThemeTooltip,
             onPressed: () {
               ref.read(themeModeProvider.notifier).toggleTheme();
             },
@@ -42,8 +43,8 @@ class DesignSystemDemoScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Welcome to', style: context.bodyMedium),
-                Text('Anuyātrā', style: context.displaySmall),
+                Text(context.l10n.welcomeTo, style: context.bodyMedium),
+                Text(context.l10n.appNameStyled, style: context.displaySmall),
                 AppSpacing.sm.verticalSpace,
                 Text(
                   'Explore our new design system with dark mode support!',

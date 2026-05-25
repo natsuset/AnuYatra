@@ -285,7 +285,9 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Accepted request from ${request.fromUserName}'),
+            content: Text(
+              context.l10n.acceptedRequestFrom(request.fromUserName),
+            ),
             backgroundColor: AppColors.success,
             behavior: SnackBarBehavior.floating,
           ),
@@ -295,7 +297,7 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to accept: $e'),
+            content: Text(context.l10n.failedToAccept(e.toString())),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
           ),
@@ -312,7 +314,9 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Declined request from ${request.fromUserName}'),
+            content: Text(
+              context.l10n.declinedRequestFrom(request.fromUserName),
+            ),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -321,7 +325,7 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to decline: $e'),
+            content: Text(context.l10n.failedToDecline(e.toString())),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
           ),

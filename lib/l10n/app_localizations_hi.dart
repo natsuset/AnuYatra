@@ -1083,4 +1083,32 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get candidateInfoBox =>
       'खाता बनाने के बाद, होम स्क्रीन से अपने माता-पिता से जुड़ें।';
+
+  @override
+  String get welcomeTo => 'स्वागत है';
+
+  @override
+  String connectedWithName(String name) {
+    return '$name से जुड़े';
+  }
+
+  @override
+  String callingName(String name) {
+    return '$name को कॉल कर रहे हैं';
+  }
+
+  @override
+  String profileCreatedFor(String name) {
+    return '$name के लिए प्रोफ़ाइल बनाई गई!';
+  }
+
+  @override
+  String get shareProfileWithClientsButton =>
+      'ग्राहकों के साथ प्रोफ़ाइल साझा करें';
+
+  @override
+  String get toggleThemeTooltip => 'थीम बदलें';
+
+  @override
+  String get searchBrokersAgenciesHint => 'ब्रोकर, एजेंसी, शहर खोजें...';
 }

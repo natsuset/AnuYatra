@@ -1048,6 +1048,32 @@
   "@candidateLinkHint": {},
 
   "candidateInfoBox": "After creating your account, link to your parent from the Home screen. Your parent and broker will manage detailed profile information.",
-  "@candidateInfoBox": {}
+  "@candidateInfoBox": {},
+
+  "welcomeTo": "Welcome to",
+  "@welcomeTo": {},
+
+  "connectedWithName": "Connected with {name}",
+  "@connectedWithName": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "callingName": "Calling {name}",
+  "@callingName": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "profileCreatedFor": "Profile for {name} created!",
+  "@profileCreatedFor": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "shareProfileWithClientsButton": "Share profile with clients",
+  "@shareProfileWithClientsButton": {},
+
+  "toggleThemeTooltip": "Toggle Theme",
+  "@toggleThemeTooltip": {},
+
+  "searchBrokersAgenciesHint": "Search brokers, agencies, cities..."
 
 }

@@ -2133,6 +2133,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'After creating your account, link to your parent from the Home screen. Your parent and broker will manage detailed profile information.'**
   String get candidateInfoBox;
+
+  /// No description provided for @welcomeTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to'**
+  String get welcomeTo;
+
+  /// No description provided for @connectedWithName.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected with {name}'**
+  String connectedWithName(String name);
+
+  /// No description provided for @callingName.
+  ///
+  /// In en, this message translates to:
+  /// **'Calling {name}'**
+  String callingName(String name);
+
+  /// No description provided for @profileCreatedFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile for {name} created!'**
+  String profileCreatedFor(String name);
+
+  /// No description provided for @shareProfileWithClientsButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Share profile with clients'**
+  String get shareProfileWithClientsButton;
+
+  /// No description provided for @toggleThemeTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Toggle Theme'**
+  String get toggleThemeTooltip;
+
+  /// No description provided for @searchBrokersAgenciesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search brokers, agencies, cities...'**
+  String get searchBrokersAgenciesHint;
 }
 
 class _AppLocalizationsDelegate

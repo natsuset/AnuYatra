@@ -5,6 +5,7 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:uuid/uuid.dart';
 import 'package:testing_flutter/models/candidate_profile.dart';
@@ -111,7 +112,7 @@ class _ProfileCreateEditScreenState
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Profile for ${profile.name} created!'),
+          content: Text(context.l10n.profileCreatedFor(profile.name)),
           backgroundColor: AppColors.success,
         ),
       );
@@ -125,7 +126,7 @@ class _ProfileCreateEditScreenState
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Profile'),
+        title: Text(context.l10n.createProfileAction),
         actions: [
           TextButton(
             onPressed: _isSaving ? null : _saveProfile,
@@ -136,7 +137,7 @@ class _ProfileCreateEditScreenState
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : Text(
-                    'Save',
+                    context.l10n.save,
                     style: TextStyle(
                       color: AppColors.sacredSaffron,
                       fontWeight: FontWeight.w600,
@@ -159,9 +160,15 @@ class _ProfileCreateEditScreenState
             ),
             AppSpacing.gapH8,
             SegmentedButton<Gender>(
-              segments: const [
-                ButtonSegment(value: Gender.bride, label: Text('Bride')),
-                ButtonSegment(value: Gender.groom, label: Text('Groom')),
+              segments: [
+                ButtonSegment(
+                  value: Gender.bride,
+                  label: Text(context.l10n.bride),
+                ),
+                ButtonSegment(
+                  value: Gender.groom,
+                  label: Text(context.l10n.groom),
+                ),
               ],
               selected: {_gender},
               onSelectionChanged: (s) => setState(() => _gender = s.first),

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:testing_flutter/theme/app_theme.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/theme/app_theme.dart';
 import 'package:testing_flutter/models/premium_service.dart';
 import 'package:testing_flutter/data/premium_services_data.dart';
-import 'package:testing_flutter/widgets/service_feature_card.dart';
-import 'package:testing_flutter/widgets/service_progress_card.dart';
+import 'package:testing_flutter/common/widgets/molecules/service_feature_card.dart';
+import 'package:testing_flutter/common/widgets/molecules/service_progress_card.dart';
 
 class BeautyTransformationScreen extends StatelessWidget {
   const BeautyTransformationScreen({super.key});
@@ -16,7 +15,7 @@ class BeautyTransformationScreen extends StatelessWidget {
     )!;
 
     return Scaffold(
-      backgroundColor: AppColors.warmBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: CustomScrollView(
         slivers: [
           // Custom App Bar with service theme
@@ -291,11 +290,13 @@ class BeautyTransformationScreen extends StatelessWidget {
                 margin: EdgeInsets.only(bottom: isLast ? 0 : 20),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppTheme.cardSurface(context),
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: Colors.black.withValues(
+                        alpha: AppTheme.isDark(context) ? 0.2 : 0.05,
+                      ),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -355,11 +356,13 @@ class BeautyTransformationScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardSurface(context),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: Colors.black.withValues(
+              alpha: AppTheme.isDark(context) ? 0.25 : 0.08,
+            ),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),

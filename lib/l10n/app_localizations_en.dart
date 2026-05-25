@@ -1081,4 +1081,31 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get candidateInfoBox =>
       'After creating your account, link to your parent from the Home screen. Your parent and broker will manage detailed profile information.';
+
+  @override
+  String get welcomeTo => 'Welcome to';
+
+  @override
+  String connectedWithName(String name) {
+    return 'Connected with $name';
+  }
+
+  @override
+  String callingName(String name) {
+    return 'Calling $name';
+  }
+
+  @override
+  String profileCreatedFor(String name) {
+    return 'Profile for $name created!';
+  }
+
+  @override
+  String get shareProfileWithClientsButton => 'Share profile with clients';
+
+  @override
+  String get toggleThemeTooltip => 'Toggle Theme';
+
+  @override
+  String get searchBrokersAgenciesHint => 'Search brokers, agencies, cities...';
 }

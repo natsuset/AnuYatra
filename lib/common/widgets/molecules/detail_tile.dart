@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
-import 'package:testing_flutter/theme/app_theme.dart';
+import 'package:testing_flutter/core/theme/app_theme.dart';
 
 /// A compact label-value tile used in profile detail grids.
 /// Follows atomic design principles — MOLECULE level.

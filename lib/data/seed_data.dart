@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:testing_flutter/core/services/local_storage_service.dart';
+import 'package:testing_flutter/core/data/app_data_module.dart';
 import 'package:testing_flutter/models/app_user.dart';
 import 'package:testing_flutter/models/user_role.dart';
 import 'package:testing_flutter/models/agency.dart';
@@ -19,9 +19,21 @@ class SeedConfig {
 
 /// Seeds the local Hive database with realistic demo data on first launch.
 /// Creates agencies, brokers, parents, candidates, connections, and conversations.
-Future<void> seedDemoData(LocalStorageService storage) async {
+///
+/// Drives off [AppDataModule] so seeding works against any backend the module
+/// has been initialized with (Hive today, Firebase / API in the future).
+/// First-launch detection uses `userRepository.isEmpty`.
+Future<void> seedDemoData(AppDataModule data) async {
   if (!SeedConfig.enabled) return;
-  if (!storage.isFirstLaunch) return;
+  if (!(await data.userRepository.isEmpty)) return;
+
+  final userRepo = data.userRepository;
+  final agencyRepo = data.agencyRepository;
+  final brokerRepo = data.brokerRepository;
+  final profileRepo = data.profileRepository;
+  final linkRepo = data.linkRepository;
+  final sharedRepo = data.sharedProfileRepository;
+  final messagingRepo = data.messagingRepository;
 
   final now = DateTime.now();
 
@@ -118,7 +130,7 @@ Future<void> seedDemoData(LocalStorageService storage) async {
     parentUser1, parentUser2,
     candidateUser1,
   ]) {
-    await storage.saveUser(user);
+    await userRepo.saveUser(user);
   }
 
   // ─── AGENCIES ──────────────────────────────
@@ -149,12 +161,12 @@ Future<void> seedDemoData(LocalStorageService storage) async {
     createdAt: now.subtract(const Duration(days: 200)),
   );
 
-  await storage.saveAgency(agency1);
-  await storage.saveAgency(agency2);
+  await agencyRepo.saveAgency(agency1);
+  await agencyRepo.saveAgency(agency2);
 
   // ─── BROKER PROFILES ──────────────────────────────
 
-  await storage.saveBrokerProfile(BrokerProfile(
+  await brokerRepo.saveBrokerProfile(BrokerProfile(
     userId: 'broker-001',
     agencyId: 'agency-001',
     name: 'Sunita Verma',
@@ -171,7 +183,7 @@ Future<void> seedDemoData(LocalStorageService storage) async {
     createdAt: now.subtract(const Duration(days: 300)),
   ));
 
-  await storage.saveBrokerProfile(BrokerProfile(
+  await brokerRepo.saveBrokerProfile(BrokerProfile(
     userId: 'broker-002',
     agencyId: 'agency-001',
     name: 'Amit Patel',
@@ -188,7 +200,7 @@ Future<void> seedDemoData(LocalStorageService storage) async {
     createdAt: now.subtract(const Duration(days: 250)),
   ));
 
-  await storage.saveBrokerProfile(BrokerProfile(
+  await brokerRepo.saveBrokerProfile(BrokerProfile(
     userId: 'broker-003',
     name: 'Kavita Reddy',
     phoneNumber: '+919812345003',
@@ -204,7 +216,7 @@ Future<void> seedDemoData(LocalStorageService storage) async {
     createdAt: now.subtract(const Duration(days: 180)),
   ));
 
-  await storage.saveBrokerProfile(BrokerProfile(
+  await brokerRepo.saveBrokerProfile(BrokerProfile(
     userId: 'broker-004',
     agencyId: 'agency-002',
     name: 'Deepak Mishra',
@@ -223,7 +235,7 @@ Future<void> seedDemoData(LocalStorageService storage) async {
 
   // ─── PARENT PROFILES ──────────────────────────────
 
-  await storage.saveParentProfile(ParentProfile(
+  await profileRepo.saveParentProfile(ParentProfile(
     userId: 'parent-001',
     name: 'Ramesh Kumar',
     lookingFor: LookingFor.groom,
@@ -235,7 +247,7 @@ Future<void> seedDemoData(LocalStorageService storage) async {
     createdAt: now.subtract(const Duration(days: 60)),
   ));
 
-  await storage.saveParentProfile(ParentProfile(
+  await profileRepo.saveParentProfile(ParentProfile(
     userId: 'parent-002',
     name: 'Meera Nair',
     lookingFor: LookingFor.bride,
@@ -436,13 +448,13 @@ Future<void> seedDemoData(LocalStorageService storage) async {
   ];
 
   for (final candidate in candidates) {
-    await storage.saveCandidateProfile(candidate);
+    await profileRepo.saveCandidateProfile(candidate);
   }
 
   // ─── LINK REQUESTS (pre-established connections) ──────────────
 
   // Parent 1 connected to Broker 1
-  await storage.saveLinkRequest(LinkRequest(
+  await linkRepo.saveLinkRequest(LinkRequest(
     id: 'lr-001',
     fromUserId: 'parent-001',
     toUserId: 'broker-001',
@@ -455,7 +467,7 @@ Future<void> seedDemoData(LocalStorageService storage) async {
   ));
 
   // Parent 2 connected to Broker 3
-  await storage.saveLinkRequest(LinkRequest(
+  await linkRepo.saveLinkRequest(LinkRequest(
     id: 'lr-002',
     fromUserId: 'parent-002',
     toUserId: 'broker-003',
@@ -468,7 +480,7 @@ Future<void> seedDemoData(LocalStorageService storage) async {
   ));
 
   // Agency 1 invited Broker 1 (accepted)
-  await storage.saveLinkRequest(LinkRequest(
+  await linkRepo.saveLinkRequest(LinkRequest(
     id: 'lr-003',
     fromUserId: 'admin-001',
     toUserId: 'broker-001',
@@ -481,7 +493,7 @@ Future<void> seedDemoData(LocalStorageService storage) async {
   ));
 
   // Agency 1 invited Broker 2 (accepted)
-  await storage.saveLinkRequest(LinkRequest(
+  await linkRepo.saveLinkRequest(LinkRequest(
     id: 'lr-004',
     fromUserId: 'admin-001',
     toUserId: 'broker-002',
@@ -494,7 +506,7 @@ Future<void> seedDemoData(LocalStorageService storage) async {
   ));
 
   // Child linked to Parent 1
-  await storage.saveLinkRequest(LinkRequest(
+  await linkRepo.saveLinkRequest(LinkRequest(
     id: 'lr-005',
     fromUserId: 'candidate-001',
     toUserId: 'parent-001',
@@ -507,7 +519,7 @@ Future<void> seedDemoData(LocalStorageService storage) async {
   ));
 
   // Pending: Parent 1 wants to connect with Broker 3
-  await storage.saveLinkRequest(LinkRequest(
+  await linkRepo.saveLinkRequest(LinkRequest(
     id: 'lr-006',
     fromUserId: 'parent-001',
     toUserId: 'broker-003',
@@ -521,7 +533,7 @@ Future<void> seedDemoData(LocalStorageService storage) async {
   // ─── SHARED PROFILES ──────────────────────────────
 
   // Broker 1 shared profiles with Parent 1
-  await storage.saveSharedProfile(SharedProfile(
+  await sharedRepo.saveSharedProfile(SharedProfile(
     id: 'sp-001',
     profileId: 'cp-003',
     sharedByUserId: 'broker-001',
@@ -530,7 +542,7 @@ Future<void> seedDemoData(LocalStorageService storage) async {
     parentResponse: SharedProfileResponse.interested,
   ));
 
-  await storage.saveSharedProfile(SharedProfile(
+  await sharedRepo.saveSharedProfile(SharedProfile(
     id: 'sp-002',
     profileId: 'cp-007',
     sharedByUserId: 'broker-001',
@@ -540,7 +552,7 @@ Future<void> seedDemoData(LocalStorageService storage) async {
   ));
 
   // Broker 3 shared profile with Parent 2
-  await storage.saveSharedProfile(SharedProfile(
+  await sharedRepo.saveSharedProfile(SharedProfile(
     id: 'sp-003',
     profileId: 'cp-005',
     sharedByUserId: 'broker-003',
@@ -558,7 +570,7 @@ Future<void> seedDemoData(LocalStorageService storage) async {
     lastMessageAt: now.subtract(const Duration(hours: 3)),
     unreadCount: 1,
   );
-  await storage.saveConversation(conv1);
+  await messagingRepo.saveConversation(conv1);
 
   final conv2 = Conversation(
     id: 'conv-002',
@@ -567,7 +579,7 @@ Future<void> seedDemoData(LocalStorageService storage) async {
     lastMessageAt: now.subtract(const Duration(days: 1)),
     unreadCount: 0,
   );
-  await storage.saveConversation(conv2);
+  await messagingRepo.saveConversation(conv2);
 
   // ─── MESSAGES ──────────────────────────────
 
@@ -613,7 +625,7 @@ Future<void> seedDemoData(LocalStorageService storage) async {
   ];
 
   for (final msg in messages1) {
-    await storage.saveMessage(msg);
+    await messagingRepo.saveMessage(msg);
   }
 
   // Conversation 2: Parent 2 <-> Broker 3
@@ -639,7 +651,7 @@ Future<void> seedDemoData(LocalStorageService storage) async {
   ];
 
   for (final msg in messages2) {
-    await storage.saveMessage(msg);
+    await messagingRepo.saveMessage(msg);
   }
 
   // ─── PRINT DEMO CREDENTIALS ──────────────────────────────

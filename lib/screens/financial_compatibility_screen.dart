@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:testing_flutter/models/financial_profile.dart';
 import 'package:testing_flutter/data/revolutionary_features_data.dart';
-import 'package:testing_flutter/theme/app_theme.dart';
+import 'package:testing_flutter/core/theme/app_theme.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 
 class FinancialCompatibilityScreen extends StatefulWidget {
@@ -61,7 +61,7 @@ class _FinancialCompatibilityScreenState
     final marketInsights = RevolutionaryFeaturesData.marketInsights;
 
     return Scaffold(
-      backgroundColor: AppColors.warmBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -314,19 +314,20 @@ class _FinancialCompatibilityScreenState
   }
 
   Widget _buildFinancialProfileCard(FinancialProfile profile) {
+    final isDark = AppTheme.isDark(context);
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardSurface(context),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.06),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
           BoxShadow(
-            color: AppColors.successDark.withValues(alpha: 0.1),
+            color: AppColors.successDark.withValues(alpha: isDark ? 0.2 : 0.1),
             blurRadius: 40,
             offset: const Offset(0, 16),
             spreadRadius: -8,
@@ -462,14 +463,15 @@ class _FinancialCompatibilityScreenState
   }
 
   Widget _buildMatchCard(FinancialCompatibility compatibility) {
+    final isDark = AppTheme.isDark(context);
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardSurface(context),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -655,14 +657,15 @@ class _FinancialCompatibilityScreenState
   }
 
   Widget _buildCompatibilityBreakdown(FinancialCompatibility compatibility) {
+    final isDark = AppTheme.isDark(context);
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardSurface(context),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -714,7 +717,7 @@ class _FinancialCompatibilityScreenState
         const SizedBox(height: 8),
         LinearProgressIndicator(
           value: score / 100,
-          backgroundColor: Colors.grey.shade200,
+          backgroundColor: AppTheme.divider(context),
           valueColor: AlwaysStoppedAnimation<Color>(color),
           minHeight: 6,
         ),
@@ -723,14 +726,15 @@ class _FinancialCompatibilityScreenState
   }
 
   Widget _buildMarketInsights(Map<String, dynamic> insights) {
+    final isDark = AppTheme.isDark(context);
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardSurface(context),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -847,7 +851,7 @@ class _FinancialCompatibilityScreenState
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppTheme.cardSurface(context),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: color.withValues(alpha: 0.2)),
         ),

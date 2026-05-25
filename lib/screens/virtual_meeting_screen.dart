@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:testing_flutter/models/virtual_meeting.dart';
 import 'package:testing_flutter/data/revolutionary_features_data.dart';
-import 'package:testing_flutter/theme/app_theme.dart';
+import 'package:testing_flutter/core/theme/app_theme.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:intl/intl.dart';
 
@@ -64,7 +64,7 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
     final meetingHistory = RevolutionaryFeaturesData.meetingHistory;
 
     return Scaffold(
-      backgroundColor: AppColors.warmBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -374,19 +374,20 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
   }
 
   Widget _buildMeetingStatsCard(Map<String, dynamic> stats) {
+    final isDark = AppTheme.isDark(context);
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardSurface(context),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.06),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
           BoxShadow(
-            color: AppColors.meetingPurple.withValues(alpha: 0.1),
+            color: AppColors.meetingPurple.withValues(alpha: isDark ? 0.2 : 0.1),
             blurRadius: 40,
             offset: const Offset(0, 16),
             spreadRadius: -8,
@@ -498,11 +499,13 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardSurface(context),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withValues(
+              alpha: AppTheme.isDark(context) ? 0.2 : 0.04,
+            ),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -594,7 +597,9 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
+                    color: AppTheme.isDark(context)
+                        ? AppColors.darkSurfaceVariant
+                        : Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -663,9 +668,9 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardSurface(context),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppTheme.divider(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -692,7 +697,7 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
                       size: 16,
                       color: index < meeting.feedback!.overallRating
                           ? Colors.amber
-                          : Colors.grey.shade300,
+                          : AppTheme.divider(context),
                     );
                   }),
                 ),
@@ -760,7 +765,7 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppTheme.cardSurface(context),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: AppColors.meetingPurple.withValues(alpha: 0.2),
@@ -885,7 +890,7 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardSurface(context),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
@@ -954,7 +959,7 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
           Icon(
             Icons.video_call_outlined,
             size: 64,
-            color: Colors.grey.shade400,
+            color: AppTheme.tertiaryText(context),
           ),
           const SizedBox(height: 16),
           Text(
@@ -996,7 +1001,7 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
       padding: const EdgeInsets.all(40),
       child: Column(
         children: [
-          Icon(Icons.history, size: 64, color: Colors.grey.shade400),
+          Icon(Icons.history, size: 64, color: AppTheme.tertiaryText(context)),
           const SizedBox(height: 16),
           Text(
             'No Meeting History',
@@ -1116,11 +1121,15 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    return Container(color: AppColors.warmBackground, child: _tabBar);
+    return Container(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: _tabBar,
+    );
   }
 
   @override
   bool shouldRebuild(_SliverTabBarDelegate oldDelegate) {
-    return false;
+    // Must rebuild when the theme (and thus the tab-bar background) changes.
+    return true;
   }
 }

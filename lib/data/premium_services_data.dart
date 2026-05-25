@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:testing_flutter/models/premium_service.dart';
-import 'package:testing_flutter/theme/app_theme.dart';
+import 'package:testing_flutter/core/theme/app_theme.dart';
 
 class PremiumServicesData {
   static List<PremiumService> get services => [

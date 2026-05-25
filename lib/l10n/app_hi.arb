@@ -372,6 +372,14 @@
   "personalInformationSection": "व्यक्तिगत जानकारी",
   "canCompleteLater": "आप बाद में अपनी प्रोफ़ाइल से अधिक विवरण भर सकते हैं",
   "candidateLinkHint": "आप बाद में अपने माता-पिता से जुड़ सकते हैं",
-  "candidateInfoBox": "खाता बनाने के बाद, होम स्क्रीन से अपने माता-पिता से जुड़ें।"
+  "candidateInfoBox": "खाता बनाने के बाद, होम स्क्रीन से अपने माता-पिता से जुड़ें।",
+
+  "welcomeTo": "स्वागत है",
+  "connectedWithName": "{name} से जुड़े",
+  "callingName": "{name} को कॉल कर रहे हैं",
+  "profileCreatedFor": "{name} के लिए प्रोफ़ाइल बनाई गई!",
+  "shareProfileWithClientsButton": "ग्राहकों के साथ प्रोफ़ाइल साझा करें",
+  "toggleThemeTooltip": "थीम बदलें",
+  "searchBrokersAgenciesHint": "ब्रोकर, एजेंसी, शहर खोजें..."
 
 }

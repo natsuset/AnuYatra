@@ -1,4 +1,3 @@
-import 'package:testing_flutter/models/profile.dart';
 import 'package:testing_flutter/models/parent_profile.dart';
 
 enum Gender {
@@ -198,36 +197,6 @@ class CandidateProfile {
     if (gotra != null && gotra!.isNotEmpty) filled++;
     return ((filled / total) * 100).round();
   }
-
-  /// Convert from legacy Profile model for backward compatibility
-  factory CandidateProfile.fromLegacyProfile(Profile profile, {
-    required String createdByUserId,
-    Gender gender = Gender.bride,
-  }) => CandidateProfile(
-    id: profile.id,
-    createdByUserId: createdByUserId,
-    name: profile.name,
-    age: profile.age,
-    gender: gender,
-    profession: profile.profession,
-    education: profile.education,
-    city: profile.city,
-    community: profile.community,
-    height: profile.height,
-    religion: profile.religion,
-    caste: profile.caste,
-    motherTongue: profile.motherTongue,
-    maritalStatus: profile.maritalStatus,
-    aboutMe: profile.aboutMe,
-    familyBackground: profile.familyBackground,
-    interests: profile.interests,
-    fatherOccupation: profile.fatherOccupation,
-    motherOccupation: profile.motherOccupation,
-    siblings: profile.siblings,
-    photos: profile.photos,
-    createdAt: profile.createdAt,
-    updatedAt: profile.createdAt,
-  );
 
   Map<String, dynamic> toJson() => {
     'id': id,

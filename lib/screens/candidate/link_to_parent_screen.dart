@@ -5,6 +5,7 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/link_request.dart';
 import 'package:testing_flutter/models/user_role.dart';
@@ -77,7 +78,9 @@ class _LinkToParentScreenState extends ConsumerState<LinkToParentScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Link request sent to $_foundParentName!'),
+          content: Text(
+            context.l10n.linkRequestSentTo(_foundParentName ?? ''),
+          ),
           backgroundColor: AppColors.success,
         ),
       );
@@ -90,7 +93,7 @@ class _LinkToParentScreenState extends ConsumerState<LinkToParentScreen> {
     final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Link to Parent')),
+      appBar: AppBar(title: Text(context.l10n.linkToParentTitle)),
       body: ListView(
         padding: AppSpacing.allLg,
         children: [

@@ -9,9 +9,8 @@ import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/theme/app_theme.dart';
 import 'package:testing_flutter/core/routing/app_router.dart';
 import 'package:testing_flutter/core/data/app_data_module.dart';
-import 'package:testing_flutter/core/services/local_storage_service.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
-import 'package:testing_flutter/core/constants/app_strings.dart';
+import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/data/seed_data.dart';
 import 'package:testing_flutter/l10n/app_localizations.dart';
 
@@ -27,17 +26,11 @@ void main() async {
       // Initialize the repository layer (opens all Hive boxes internally)
       final dataModule = await AppDataModule.initLocal();
 
-      // Initialize legacy storage service (shares the same Hive boxes).
-      // Screens will be migrated to repository providers incrementally;
-      // until then, both coexist reading from the same underlying boxes.
-      final storage = LocalStorageService();
-      await storage.init();
-
-      // Seed demo data ONLY on first launch (when database is empty)
-      // This only runs once - subsequent app opens skip this entirely
-      if (storage.isFirstLaunch) {
+      // Seed demo data ONLY on first launch (when the user store is empty).
+      // The seeder itself re-checks `userRepository.isEmpty` so re-runs are safe.
+      if (await dataModule.userRepository.isEmpty) {
         debugPrint('First launch detected - seeding demo data...');
-        await seedDemoData(storage);
+        await seedDemoData(dataModule);
         debugPrint('Demo data seeded successfully');
       }
 
@@ -50,9 +43,6 @@ void main() async {
       runApp(
         ProviderScope(
           overrides: [
-            // Legacy storage provider (screens still use this)
-            localStorageServiceProvider.overrideWithValue(storage),
-            // New repository providers
             authRepositoryProvider
                 .overrideWithValue(dataModule.authRepository),
             userRepositoryProvider
@@ -119,7 +109,9 @@ class _AnuyatraAppState extends ConsumerState<AnuyatraApp> {
     final router = ref.watch(appRouterProvider);
 
     return MaterialApp.router(
-      title: AppStrings.appTitle,
+      // Resolved at the localized layer so the OS task-switcher title
+      // honours the active locale.
+      onGenerateTitle: (ctx) => ctx.l10n.appTitle,
 
       // Localization
       locale: locale,

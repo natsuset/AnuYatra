@@ -11,7 +11,7 @@ import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/candidate_profile.dart';
 import 'package:testing_flutter/models/shared_profile.dart';
 import 'package:testing_flutter/screens/parent/forward_to_child_sheet.dart';
-import 'package:testing_flutter/theme/app_theme.dart';
+import 'package:testing_flutter/core/theme/app_theme.dart';
 import 'package:testing_flutter/common/widgets/atoms/theme_toggle_button.dart';
 
 /// Parent home screen: shows shared profiles from brokers with response actions.
