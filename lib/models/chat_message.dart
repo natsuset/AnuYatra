@@ -66,7 +66,7 @@ class ChatMessage {
       (e) => e.name == (json['type'] as String?),
       orElse: () => ChatMessageType.text,
     ),
-    timestamp: DateTime.tryParse(json['timestamp'] as String? ?? '') ?? DateTime.now(),
+    timestamp: DateTime.tryParse(json['timestamp'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0),
     isRead: json['isRead'] as bool? ?? false,
     profileId: json['profileId'] as String?,
     attachmentUrl: json['attachmentUrl'] as String?,

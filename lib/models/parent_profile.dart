@@ -246,7 +246,7 @@ class ParentProfile {
     preferredCommunities: (json['preferredCommunities'] as List<dynamic>?)?.cast<String>() ?? [],
     preferredMinAge: json['preferredMinAge'] as int?,
     preferredMaxAge: json['preferredMaxAge'] as int?,
-    createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+    createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0),
     // Contact
     email: json['email'] as String?,
     whatsAppNumber: json['whatsAppNumber'] as String?,

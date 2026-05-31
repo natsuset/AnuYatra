@@ -70,18 +70,19 @@ class HiveAgencyRepository implements AgencyRepository {
 
   @override
   Future<List<Agency>> getAllAgencies({int? limit, int? offset}) async {
-    var results = _agencies.values
+    final results = _agencies.values
         .map((raw) => Agency.fromJson(jsonDecode(raw) as Map<String, dynamic>))
-        .toList();
+        .toList()
+      // Highest rating first; ties broken by newest createdAt.
+      ..sort((a, b) {
+        final r = b.rating.compareTo(a.rating);
+        return r != 0 ? r : b.createdAt.compareTo(a.createdAt);
+      });
 
-    if (offset != null && offset > 0) {
-      results = results.skip(offset).toList();
-    }
-    if (limit != null && limit > 0) {
-      results = results.take(limit).toList();
-    }
-
-    return results;
+    Iterable<Agency> view = results;
+    if (offset != null && offset > 0) view = view.skip(offset);
+    if (limit != null && limit > 0) view = view.take(limit);
+    return identical(view, results) ? results : view.toList();
   }
 
   @override

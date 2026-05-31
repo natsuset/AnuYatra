@@ -89,7 +89,7 @@ class LinkRequest {
       (e) => e.name == (json['status'] as String?),
       orElse: () => LinkRequestStatus.pending,
     ),
-    createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+    createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0),
     respondedAt: json['respondedAt'] != null ? DateTime.parse(json['respondedAt'] as String) : null,
     note: json['note'] as String?,
   );

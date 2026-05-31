@@ -299,8 +299,8 @@ class CandidateProfile {
     deduplicationKey: json['deduplicationKey'] as String?,
     listedWithBrokersCount: json['listedWithBrokersCount'] as int? ?? 1,
     searchTags: (json['searchTags'] as List<dynamic>?)?.cast<String>() ?? [],
-    createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
-    updatedAt: DateTime.tryParse(json['updatedAt'] as String? ?? '') ?? DateTime.now(),
+    createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0),
+    updatedAt: DateTime.tryParse(json['updatedAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0),
     // New fields
     dateOfBirth: json['dateOfBirth'] != null ? DateTime.parse(json['dateOfBirth'] as String) : null,
     annualIncome: json['annualIncome'] as String?,

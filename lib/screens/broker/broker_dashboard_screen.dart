@@ -6,6 +6,7 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/data/repositories/broker_repository.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
@@ -21,7 +22,7 @@ class BrokerDashboardScreen extends ConsumerStatefulWidget {
 
 class _BrokerDashboardScreenState
     extends ConsumerState<BrokerDashboardScreen> {
-  Map<String, int> _stats = {};
+  BrokerStats _stats = BrokerStats.empty;
   BrokerProfile? _brokerProfile;
   List<_ActivityData> _activities = [];
 
@@ -133,28 +134,28 @@ class _BrokerDashboardScreenState
               children: [
                 _StatCard(
                   label: l10n.connectedClients,
-                  value: _stats['activeClients'] ?? 0,
+                  value: _stats.activeClients,
                   icon: Icons.people_alt_rounded,
                   color: AppColors.info,
                   isDark: isDark,
                 ),
                 _StatCard(
                   label: l10n.managedProfiles,
-                  value: _stats['profilesManaged'] ?? 0,
+                  value: _stats.profilesManaged,
                   icon: Icons.badge_rounded,
                   color: AppColors.success,
                   isDark: isDark,
                 ),
                 _StatCard(
                   label: l10n.profilesSharedStat,
-                  value: _stats['profilesShared'] ?? 0,
+                  value: _stats.profilesShared,
                   icon: Icons.share_rounded,
                   color: AppColors.sacredSaffron,
                   isDark: isDark,
                 ),
                 _StatCard(
                   label: l10n.pendingRequestsStat,
-                  value: _stats['pendingRequests'] ?? 0,
+                  value: _stats.pendingRequests,
                   icon: Icons.pending_actions_rounded,
                   color: AppColors.warning,
                   isDark: isDark,

@@ -18,6 +18,23 @@ import 'package:testing_flutter/core/data/local/hive_link_repository.dart';
 import 'package:testing_flutter/core/data/local/hive_shared_profile_repository.dart';
 import 'package:testing_flutter/core/data/local/hive_messaging_repository.dart';
 
+/// Hive box names. Kept as constants so they are referenced by symbol
+/// rather than copy-pasted literals — a typo would silently create a new
+/// (empty) box instead of opening the existing data.
+class _HiveBoxes {
+  _HiveBoxes._();
+  static const users = 'users';
+  static const session = 'session';
+  static const agencies = 'agencies';
+  static const brokerProfiles = 'brokerProfiles';
+  static const parentProfiles = 'parentProfiles';
+  static const candidateProfiles = 'candidateProfiles';
+  static const linkRequests = 'linkRequests';
+  static const sharedProfiles = 'sharedProfiles';
+  static const conversations = 'conversations';
+  static const messages = 'messages';
+}
+
 /// Factory that creates and wires all repository implementations.
 ///
 /// This is the single DI root for the app. To switch from local Hive
@@ -57,18 +74,30 @@ class AppDataModule {
   /// Opens all required Hive boxes, creates the Hive-backed repository
   /// implementations, and wires cross-repository dependencies.
   static Future<AppDataModule> initLocal() async {
-    // Open all boxes
-    final usersBox = await Hive.openBox<String>('users');
-    final sessionBox = await Hive.openBox<String>('session');
-    final agenciesBox = await Hive.openBox<String>('agencies');
-    final brokerProfilesBox = await Hive.openBox<String>('brokerProfiles');
-    final parentProfilesBox = await Hive.openBox<String>('parentProfiles');
-    final candidateProfilesBox =
-        await Hive.openBox<String>('candidateProfiles');
-    final linkRequestsBox = await Hive.openBox<String>('linkRequests');
-    final sharedProfilesBox = await Hive.openBox<String>('sharedProfiles');
-    final conversationsBox = await Hive.openBox<String>('conversations');
-    final messagesBox = await Hive.openBox<String>('messages');
+    // Open all boxes in parallel — they're independent, and Hive box
+    // opens are I/O-bound. Cuts cold-start vs sequential awaits.
+    final boxes = await Future.wait([
+      Hive.openBox<String>(_HiveBoxes.users),
+      Hive.openBox<String>(_HiveBoxes.session),
+      Hive.openBox<String>(_HiveBoxes.agencies),
+      Hive.openBox<String>(_HiveBoxes.brokerProfiles),
+      Hive.openBox<String>(_HiveBoxes.parentProfiles),
+      Hive.openBox<String>(_HiveBoxes.candidateProfiles),
+      Hive.openBox<String>(_HiveBoxes.linkRequests),
+      Hive.openBox<String>(_HiveBoxes.sharedProfiles),
+      Hive.openBox<String>(_HiveBoxes.conversations),
+      Hive.openBox<String>(_HiveBoxes.messages),
+    ]);
+    final usersBox = boxes[0];
+    final sessionBox = boxes[1];
+    final agenciesBox = boxes[2];
+    final brokerProfilesBox = boxes[3];
+    final parentProfilesBox = boxes[4];
+    final candidateProfilesBox = boxes[5];
+    final linkRequestsBox = boxes[6];
+    final sharedProfilesBox = boxes[7];
+    final conversationsBox = boxes[8];
+    final messagesBox = boxes[9];
 
     // Create repositories (order matters for dependency wiring)
     final authRepo = HiveAuthRepository();

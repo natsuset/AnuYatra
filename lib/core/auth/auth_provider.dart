@@ -1,11 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
+import 'package:testing_flutter/core/auth/profile_setup_data.dart';
 import 'package:testing_flutter/core/data/repositories/auth_repository.dart';
 import 'package:testing_flutter/core/data/repositories/user_repository.dart';
 import 'package:testing_flutter/core/data/repositories/profile_repository.dart';
 import 'package:testing_flutter/core/data/repositories/agency_repository.dart';
 import 'package:testing_flutter/core/data/repositories/broker_repository.dart';
+import 'package:testing_flutter/core/errors/app_exceptions.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/user_role.dart';
 import 'package:testing_flutter/models/broker_profile.dart';
@@ -31,12 +33,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
     required ProfileRepository profileRepo,
     required AgencyRepository agencyRepo,
     required BrokerRepository brokerRepo,
+    AuthState initialState = const AuthInitial(),
   })  : _authRepo = authRepo,
         _userRepo = userRepo,
         _profileRepo = profileRepo,
         _agencyRepo = agencyRepo,
         _brokerRepo = brokerRepo,
-        super(const AuthInitial());
+        super(initialState);
 
   /// Check if user is already logged in (on app start)
   Future<void> checkAuthStatus() async {
@@ -157,80 +160,60 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> completeProfileSetup({
     required String uid,
     required String displayName,
-    required UserRole role,
-    // Agency-specific
-    String? agencyName,
-    String? agencyCity,
-    String? agencyState,
-    String? agencyDescription,
-    List<String>? agencySpecializations,
-    // Broker-specific
-    String? brokerBio,
-    List<String>? brokerSpecializations,
-    List<String>? brokerAreasServed,
-    int? brokerExperienceYears,
-    // Parent-specific
-    String? lookingFor, // 'bride' or 'groom'
-    String? parentCity,
-    String? parentState,
-    // Candidate-specific (minimal at setup)
-    int? candidateAge,
-    String? candidateGender,
+    required ProfileSetupData data,
   }) async {
     state = const AuthLoading();
 
     try {
       // Update the user's display name
       final user = await _userRepo.getUser(uid);
-      if (user == null) throw Exception('User not found');
+      if (user == null) {
+        throw NotFoundException(entityType: 'User', id: uid);
+      }
 
       final updatedUser = user.copyWith(displayName: displayName);
       await _userRepo.saveUser(updatedUser);
 
-      // Create role-specific profile
-      switch (role) {
-        case UserRole.agencyAdmin:
+      // Create role-specific profile. The sealed [ProfileSetupData]
+      // hierarchy makes this switch exhaustive at compile time.
+      switch (data) {
+        case AgencySetupData():
           final agency = await _agencyRepo.createAgency(
             adminUserId: uid,
-            name: agencyName ?? '$displayName\'s Agency',
-            city: agencyCity ?? '',
-            state: agencyState ?? '',
-            description: agencyDescription ?? '',
-            specializations: agencySpecializations ?? [],
+            name: data.name ?? '$displayName\'s Agency',
+            city: data.city,
+            state: data.state,
+            description: data.description,
+            specializations: data.specializations,
           );
           await _userRepo.saveUser(
               updatedUser.copyWith(agencyId: agency.id));
-          break;
-
-        case UserRole.broker:
+        case BrokerSetupData():
           await _brokerRepo.saveBrokerProfile(BrokerProfile(
             userId: uid,
             name: displayName,
             phoneNumber: user.phoneNumber,
-            bio: brokerBio ?? '',
-            specializations: brokerSpecializations ?? [],
-            areasServed: brokerAreasServed ?? [],
-            experienceYears: brokerExperienceYears ?? 0,
+            bio: data.bio,
+            specializations: data.specializations,
+            areasServed: data.areasServed,
+            experienceYears: data.experienceYears,
             lastSeen: DateTime.now(),
             createdAt: DateTime.now(),
           ));
-          break;
-
-        case UserRole.parent:
-          final looking = lookingFor == 'groom'
+        case ParentSetupData():
+          final looking = data.lookingFor == 'groom'
               ? LookingFor.groom
               : LookingFor.bride;
           await _profileRepo.saveParentProfile(ParentProfile(
             userId: uid,
             name: displayName,
             lookingFor: looking,
-            city: parentCity ?? '',
-            state: parentState ?? '',
+            city: data.city,
+            state: data.state,
             createdAt: DateTime.now(),
           ));
-          break;
-
-        case UserRole.candidate:
+        case CandidateSetupData():
+          // Candidate setup is minimal; parent + broker manage details later.
           break;
       }
 
@@ -271,6 +254,20 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 }
 
+/// Seed for the [authProvider] initial state.
+///
+/// Override this in `main.dart` (via `ProviderScope.overrides`) with the
+/// already-resolved auth state when the app boots. Defaults to [AuthInitial]
+/// so unit tests and accidental misuse fall back to the unauthenticated path.
+///
+/// This is the mechanism that eliminates the role-selection flash on cold
+/// start: by resolving `userRepository.getCurrentUser()` before `runApp` and
+/// overriding this provider with `AuthAuthenticated(user)`, the router's
+/// first redirect already sees the correct state.
+final authInitialStateProvider = Provider<AuthState>((ref) {
+  return const AuthInitial();
+});
+
 /// Riverpod provider for AuthNotifier
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   return AuthNotifier(
@@ -279,5 +276,6 @@ final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
     profileRepo: ref.watch(profileRepositoryProvider),
     agencyRepo: ref.watch(agencyRepositoryProvider),
     brokerRepo: ref.watch(brokerRepositoryProvider),
+    initialState: ref.watch(authInitialStateProvider),
   );
 });

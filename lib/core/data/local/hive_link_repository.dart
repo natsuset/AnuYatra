@@ -8,6 +8,7 @@ import 'package:testing_flutter/core/data/repositories/link_repository.dart';
 import 'package:testing_flutter/core/data/repositories/messaging_repository.dart';
 import 'package:testing_flutter/core/data/repositories/user_repository.dart';
 import 'package:testing_flutter/core/data/repositories/agency_repository.dart';
+import 'package:testing_flutter/core/errors/app_exceptions.dart';
 import 'package:testing_flutter/models/link_request.dart';
 
 const _uuid = Uuid();
@@ -72,7 +73,9 @@ class HiveLinkRepository implements LinkRepository {
   @override
   Future<LinkRequest> acceptLinkRequest(String requestId) async {
     final request = await getLinkRequest(requestId);
-    if (request == null) throw Exception('Link request not found');
+    if (request == null) {
+      throw NotFoundException(entityType: 'LinkRequest', id: requestId);
+    }
 
     final updated = request.copyWith(
       status: LinkRequestStatus.accepted,
@@ -88,7 +91,9 @@ class HiveLinkRepository implements LinkRepository {
   @override
   Future<LinkRequest> declineLinkRequest(String requestId) async {
     final request = await getLinkRequest(requestId);
-    if (request == null) throw Exception('Link request not found');
+    if (request == null) {
+      throw NotFoundException(entityType: 'LinkRequest', id: requestId);
+    }
 
     final updated = request.copyWith(
       status: LinkRequestStatus.declined,

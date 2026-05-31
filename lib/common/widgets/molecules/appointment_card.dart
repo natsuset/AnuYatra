@@ -1,23 +1,41 @@
 import 'package:flutter/material.dart';
-import 'package:testing_flutter/models/premium_service.dart';
+import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/theme/app_theme.dart';
+import 'package:testing_flutter/models/premium_service.dart';
 import 'package:intl/intl.dart';
 
+/// Compact card that summarises a [ServiceAppointment].
+///
+/// Layout: date column on the left, title + expert + location in the middle,
+/// and a "Join" (for online appointments) or "Go" (for in-person) action button
+/// on the right. The card has no built-in navigation — the caller passes
+/// [onAction] to decide what tapping the button does.
 class AppointmentCard extends StatelessWidget {
   final ServiceAppointment appointment;
 
-  const AppointmentCard({super.key, required this.appointment});
+  /// Invoked when the user taps the right-hand action button.
+  /// When `null`, the button is disabled.
+  final VoidCallback? onAction;
+
+  const AppointmentCard({
+    super.key,
+    required this.appointment,
+    this.onAction,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final isDark = AppTheme.isDark(context);
+    final isOnline = appointment.location.toLowerCase() == 'online';
+
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: AppSpacing.allMd,
       decoration: BoxDecoration(
         color: AppTheme.cardSurface(context),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppSpacing.cardRadius,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.08),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -28,10 +46,10 @@ class AppointmentCard extends StatelessWidget {
         children: [
           // Date/Time section
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: AppSpacing.allSm,
             decoration: BoxDecoration(
               color: AppTheme.sacredSaffron.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: AppSpacing.roundedSm,
             ),
             child: Column(
               children: [
@@ -62,7 +80,7 @@ class AppointmentCard extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(width: 12),
+          AppSpacing.gapW12,
 
           // Appointment details
           Expanded(
@@ -108,9 +126,7 @@ class AppointmentCard extends StatelessWidget {
                 Row(
                   children: [
                     Icon(
-                      appointment.location == 'Online'
-                          ? Icons.video_call
-                          : Icons.location_on,
+                      isOnline ? Icons.video_call : Icons.location_on,
                       size: 14,
                       color: AppTheme.tertiaryText(context),
                     ),
@@ -133,23 +149,23 @@ class AppointmentCard extends StatelessWidget {
             ),
           ),
 
-          // Action button
+          // Action button (caller decides what tapping it does).
           SizedBox(
             width: 56,
             height: 32,
             child: ElevatedButton(
-              onPressed: () {
-                // TODO: Join/Navigate to appointment
-              },
+              onPressed: onAction,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.sacredSaffron,
+                disabledBackgroundColor:
+                    AppTheme.sacredSaffron.withValues(alpha: 0.4),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: AppSpacing.roundedSm,
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 4),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxs),
               ),
               child: Text(
-                appointment.location == 'Online' ? 'Join' : 'Go',
+                isOnline ? 'Join' : 'Go',
                 style: const TextStyle(fontSize: 10, color: Colors.white),
               ),
             ),

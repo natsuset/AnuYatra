@@ -70,24 +70,24 @@ class AppTypography {
   // ============================================
 
   static TextStyle titleLarge({Color? color}) => GoogleFonts.inter(
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: FontWeight.w600,
     height: 1.27,
     color: color,
   );
 
   static TextStyle titleMedium({Color? color}) => GoogleFonts.inter(
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: FontWeight.w600,
-    height: 1.50,
+    height: 1.45,
     letterSpacing: 0.15,
     color: color,
   );
 
   static TextStyle titleSmall({Color? color}) => GoogleFonts.inter(
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: FontWeight.w600,
-    height: 1.43,
+    height: 1.40,
     letterSpacing: 0.1,
     color: color,
   );
@@ -97,15 +97,15 @@ class AppTypography {
   // ============================================
 
   static TextStyle bodyLarge({Color? color}) => GoogleFonts.inter(
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: FontWeight.w400,
-    height: 1.50,
+    height: 1.45,
     letterSpacing: 0.5,
     color: color,
   );
 
   static TextStyle bodyMedium({Color? color}) => GoogleFonts.inter(
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: FontWeight.w400,
     height: 1.43,
     letterSpacing: 0.25,
@@ -113,9 +113,9 @@ class AppTypography {
   );
 
   static TextStyle bodySmall({Color? color}) => GoogleFonts.inter(
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: FontWeight.w400,
-    height: 1.33,
+    height: 1.38,
     letterSpacing: 0.4,
     color: color,
   );
@@ -125,15 +125,15 @@ class AppTypography {
   // ============================================
 
   static TextStyle labelLarge({Color? color}) => GoogleFonts.inter(
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: FontWeight.w500,
-    height: 1.43,
+    height: 1.4,
     letterSpacing: 0.1,
     color: color,
   );
 
   static TextStyle labelMedium({Color? color}) => GoogleFonts.inter(
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: FontWeight.w500,
     height: 1.33,
     letterSpacing: 0.5,
@@ -141,7 +141,7 @@ class AppTypography {
   );
 
   static TextStyle labelSmall({Color? color}) => GoogleFonts.inter(
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: FontWeight.w500,
     height: 1.45,
     letterSpacing: 0.5,
@@ -162,7 +162,7 @@ class AppTypography {
 
   /// Profile subtitle (age, location)
   static TextStyle profileSubtitle({Color? color}) => GoogleFonts.inter(
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: FontWeight.w400,
     height: 1.4,
     color: color,
@@ -179,7 +179,7 @@ class AppTypography {
 
   /// Caption with icon
   static TextStyle caption({Color? color}) => GoogleFonts.inter(
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: FontWeight.w400,
     height: 1.33,
     color: color,

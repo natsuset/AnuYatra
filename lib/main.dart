@@ -10,6 +10,7 @@ import 'package:testing_flutter/core/theme/app_theme.dart';
 import 'package:testing_flutter/core/routing/app_router.dart';
 import 'package:testing_flutter/core/data/app_data_module.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
+import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/data/seed_data.dart';
 import 'package:testing_flutter/l10n/app_localizations.dart';
@@ -34,6 +35,14 @@ void main() async {
         debugPrint('Demo data seeded successfully');
       }
 
+      // Pre-resolve auth state BEFORE runApp so the router's first redirect
+      // already sees the correct authenticated/unauthenticated state.
+      // Eliminates the role-selection screen flash on cold start for logged-in users.
+      final currentUser = await dataModule.userRepository.getCurrentUser();
+      final AuthState initialAuthState = currentUser != null
+          ? AuthAuthenticated(user: currentUser)
+          : const AuthInitial();
+
       // Allow runtime font fetching — on devices with network access,
       // Inter and Poppins will load from Google Fonts CDN.
       // On restricted environments (sandboxed simulators), they gracefully
@@ -43,6 +52,7 @@ void main() async {
       runApp(
         ProviderScope(
           overrides: [
+            authInitialStateProvider.overrideWithValue(initialAuthState),
             authRepositoryProvider
                 .overrideWithValue(dataModule.authRepository),
             userRepositoryProvider
@@ -81,29 +91,11 @@ void main() async {
   });
 }
 
-class AnuyatraApp extends ConsumerStatefulWidget {
+class AnuyatraApp extends ConsumerWidget {
   const AnuyatraApp({super.key});
 
   @override
-  ConsumerState<AnuyatraApp> createState() => _AnuyatraAppState();
-}
-
-class _AnuyatraAppState extends ConsumerState<AnuyatraApp> {
-  @override
-  void initState() {
-    super.initState();
-    // Check auth status on app start - defer to avoid router race condition
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        ref.read(authProvider.notifier).checkAuthStatus().catchError((error) {
-          debugPrint('Error checking auth status: $error');
-        });
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
     final locale = ref.watch(localeProvider);
     final router = ref.watch(appRouterProvider);

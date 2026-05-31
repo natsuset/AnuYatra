@@ -57,7 +57,12 @@ class HiveBrokerRepository implements BrokerRepository {
     var results = _brokerProfiles.values
         .map((raw) =>
             BrokerProfile.fromJson(jsonDecode(raw) as Map<String, dynamic>))
-        .toList();
+        .toList()
+      // Highest rating first; ties broken by newest createdAt.
+      ..sort((a, b) {
+        final r = b.rating.compareTo(a.rating);
+        return r != 0 ? r : b.createdAt.compareTo(a.createdAt);
+      });
 
     if (offset != null && offset > 0) {
       results = results.skip(offset).toList();
@@ -132,7 +137,7 @@ class HiveBrokerRepository implements BrokerRepository {
   }
 
   @override
-  Future<Map<String, int>> getBrokerStats(String brokerUserId) async {
+  Future<BrokerStats> getBrokerStats(String brokerUserId) async {
     final clients =
         (await _linkRepo.getConnectedParentIds(brokerUserId)).length;
     final profiles =
@@ -143,16 +148,16 @@ class HiveBrokerRepository implements BrokerRepository {
     final pending =
         (await _linkRepo.getPendingRequestsFor(brokerUserId)).length;
 
-    return {
-      'activeClients': clients,
-      'profilesManaged': profiles,
-      'profilesShared': shared,
-      'pendingRequests': pending,
-    };
+    return BrokerStats(
+      activeClients: clients,
+      profilesManaged: profiles,
+      profilesShared: shared,
+      pendingRequests: pending,
+    );
   }
 
   @override
-  Future<Map<String, int>> getAgencyStats(String agencyId) async {
+  Future<AgencyStats> getAgencyStats(String agencyId) async {
     final brokers = await getBrokersByAgency(agencyId);
 
     int totalClients = 0;
@@ -164,10 +169,10 @@ class HiveBrokerRepository implements BrokerRepository {
           (await _profileRepo.getCandidatesByBroker(broker.userId)).length;
     }
 
-    return {
-      'totalBrokers': brokers.length,
-      'totalClients': totalClients,
-      'totalProfiles': totalProfiles,
-    };
+    return AgencyStats(
+      totalBrokers: brokers.length,
+      totalClients: totalClients,
+      totalProfiles: totalProfiles,
+    );
   }
 }

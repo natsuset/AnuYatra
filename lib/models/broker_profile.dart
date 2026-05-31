@@ -129,8 +129,8 @@ class BrokerProfile {
     rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
     bio: json['bio'] as String? ?? '',
     isOnline: json['isOnline'] as bool? ?? false,
-    lastSeen: DateTime.tryParse(json['lastSeen'] as String? ?? '') ?? DateTime.now(),
-    createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+    lastSeen: DateTime.tryParse(json['lastSeen'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0),
+    createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0),
     // New fields
     email: json['email'] as String?,
     officeAddress: json['officeAddress'] as String?,

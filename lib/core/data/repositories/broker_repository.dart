@@ -1,5 +1,48 @@
 import 'package:testing_flutter/models/broker_profile.dart';
 
+/// Dashboard statistics for a single broker.
+class BrokerStats {
+  final int activeClients;
+  final int profilesManaged;
+  final int profilesShared;
+  final int pendingRequests;
+
+  const BrokerStats({
+    required this.activeClients,
+    required this.profilesManaged,
+    required this.profilesShared,
+    required this.pendingRequests,
+  });
+
+  /// Zero-valued stats, useful for initial/loading states.
+  static const empty = BrokerStats(
+    activeClients: 0,
+    profilesManaged: 0,
+    profilesShared: 0,
+    pendingRequests: 0,
+  );
+}
+
+/// Dashboard statistics for an agency aggregated across its brokers.
+class AgencyStats {
+  final int totalBrokers;
+  final int totalClients;
+  final int totalProfiles;
+
+  const AgencyStats({
+    required this.totalBrokers,
+    required this.totalClients,
+    required this.totalProfiles,
+  });
+
+  /// Zero-valued stats, useful for initial/loading states.
+  static const empty = AgencyStats(
+    totalBrokers: 0,
+    totalClients: 0,
+    totalProfiles: 0,
+  );
+}
+
 /// Contract for broker profile CRUD, search, and stats.
 abstract class BrokerRepository {
   /// Persist a broker profile (create or update).
@@ -28,13 +71,8 @@ abstract class BrokerRepository {
   });
 
   /// Get dashboard statistics for a broker.
-  ///
-  /// Returns a map with keys: activeClients, profilesManaged,
-  /// profilesShared, pendingRequests.
-  Future<Map<String, int>> getBrokerStats(String brokerUserId);
+  Future<BrokerStats> getBrokerStats(String brokerUserId);
 
-  /// Get dashboard statistics for an agency.
-  ///
-  /// Returns a map with keys: totalBrokers, totalClients, totalProfiles.
-  Future<Map<String, int>> getAgencyStats(String agencyId);
+  /// Get dashboard statistics for an agency aggregated across its brokers.
+  Future<AgencyStats> getAgencyStats(String agencyId);
 }

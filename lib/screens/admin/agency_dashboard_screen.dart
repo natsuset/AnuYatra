@@ -6,6 +6,7 @@ import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/data/repositories/broker_repository.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
@@ -24,7 +25,7 @@ class AgencyDashboardScreen extends ConsumerStatefulWidget {
 
 class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
   Agency? _agency;
-  Map<String, int> _stats = {'totalBrokers': 0, 'totalClients': 0, 'totalProfiles': 0};
+  AgencyStats _stats = AgencyStats.empty;
   List<BrokerProfile> _brokers = [];
   Map<String, AppUser?> _brokerUsers = {};
   bool _loading = true;
@@ -189,7 +190,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
   }
 
   Widget _buildStatCards(
-    Map<String, int> stats,
+    AgencyStats stats,
     bool isDark,
     ThemeData theme,
   ) {
@@ -200,7 +201,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
             icon: Icons.people_outline,
             iconColor: AppColors.info,
             label: context.l10n.activeBrokers,
-            value: '${stats['totalBrokers'] ?? 0}',
+            value: '${stats.totalBrokers}',
             isDark: isDark,
           ),
         ),
@@ -210,7 +211,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
             icon: Icons.family_restroom,
             iconColor: AppColors.sacredSaffron,
             label: context.l10n.activeClients,
-            value: '${stats['totalClients'] ?? 0}',
+            value: '${stats.totalClients}',
             isDark: isDark,
           ),
         ),
@@ -220,7 +221,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
             icon: Icons.person_outline,
             iconColor: AppColors.success,
             label: context.l10n.profilesManaged,
-            value: '${stats['totalProfiles'] ?? 0}',
+            value: '${stats.totalProfiles}',
             isDark: isDark,
           ),
         ),

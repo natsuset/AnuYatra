@@ -58,7 +58,7 @@ class SharedProfile {
     profileId: json['profileId'] as String? ?? '',
     sharedByUserId: json['sharedByUserId'] as String? ?? '',
     sharedWithUserId: json['sharedWithUserId'] as String? ?? '',
-    sharedAt: DateTime.tryParse(json['sharedAt'] as String? ?? '') ?? DateTime.now(),
+    sharedAt: DateTime.tryParse(json['sharedAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0),
     parentResponse: SharedProfileResponse.values.firstWhere(
       (e) => e.name == (json['parentResponse'] as String?),
       orElse: () => SharedProfileResponse.pending,

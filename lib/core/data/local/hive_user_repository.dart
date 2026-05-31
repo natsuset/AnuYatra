@@ -4,6 +4,7 @@ import 'package:hive_ce/hive.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:testing_flutter/core/data/repositories/user_repository.dart';
+import 'package:testing_flutter/core/errors/app_exceptions.dart';
 import 'package:testing_flutter/models/app_user.dart';
 import 'package:testing_flutter/models/user_role.dart';
 
@@ -56,6 +57,15 @@ class HiveUserRepository implements UserRepository {
     required UserRole role,
     String? photoUrl,
   }) async {
+    // Reject duplicates so the call site can surface a clear error instead
+    // of silently creating a second account for the same phone number.
+    final existing = await getUserByPhone(phoneNumber);
+    if (existing != null) {
+      throw DuplicateException(
+        entityType: 'User',
+        message: 'A user with phone $phoneNumber already exists.',
+      );
+    }
     final uid = _uuid.v4();
     final user = AppUser(
       uid: uid,
@@ -92,17 +102,19 @@ class HiveUserRepository implements UserRepository {
 
   @override
   Future<List<AppUser>> getAllUsers({int? limit, int? offset}) async {
-    var results = _users.values
+    final results = _users.values
         .map((raw) => AppUser.fromJson(jsonDecode(raw) as Map<String, dynamic>))
-        .toList();
+        .toList()
+      // Newest first — deterministic order across calls.
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-    if (offset != null && offset > 0) {
-      results = results.skip(offset).toList();
-    }
-    if (limit != null && limit > 0) {
-      results = results.take(limit).toList();
-    }
-
-    return results;
+    return _paginate(results, limit: limit, offset: offset);
   }
+}
+
+List<T> _paginate<T>(List<T> all, {int? limit, int? offset}) {
+  Iterable<T> view = all;
+  if (offset != null && offset > 0) view = view.skip(offset);
+  if (limit != null && limit > 0) view = view.take(limit);
+  return identical(view, all) ? all : view.toList();
 }

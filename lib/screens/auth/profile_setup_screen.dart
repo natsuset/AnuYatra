@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
+import 'package:testing_flutter/core/auth/profile_setup_data.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
@@ -131,34 +132,56 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
     }
   }
 
+  /// Build a role-specific [ProfileSetupData] from the form controllers.
+  /// Only fields relevant to [role] are read.
+  ProfileSetupData _buildSetupData(UserRole role) {
+    List<String> splitCsv(String raw) => raw.isEmpty
+        ? const []
+        : raw.split(',').map((s) => s.trim()).toList();
+
+    switch (role) {
+      case UserRole.agencyAdmin:
+        return AgencySetupData(
+          name: _agencyNameController.text.trim().isEmpty
+              ? null
+              : _agencyNameController.text.trim(),
+          city: _agencyCityController.text.trim(),
+          state: _agencyStateController.text.trim(),
+          description: _agencyDescController.text.trim(),
+          specializations: splitCsv(_agencySpecializations),
+        );
+      case UserRole.broker:
+        return BrokerSetupData(
+          bio: _brokerBioController.text.trim(),
+          specializations: splitCsv(_brokerSpecializations),
+          areasServed: splitCsv(_brokerAreasServed),
+          experienceYears:
+              int.tryParse(_brokerExpController.text.trim()) ?? 0,
+        );
+      case UserRole.parent:
+        return ParentSetupData(
+          lookingFor: _lookingFor,
+          city: _parentCityController.text.trim(),
+          state: _parentStateController.text.trim(),
+        );
+      case UserRole.candidate:
+        return CandidateSetupData(
+          age: int.tryParse(_candidateAgeController.text.trim()),
+          gender: _candidateGender,
+        );
+    }
+  }
+
   void _submitProfile(String uid, UserRole role) {
     if (!_formKey.currentState!.validate()) return;
+
+    final data = _buildSetupData(role);
 
     // Submit basic registration through auth provider
     ref.read(authProvider.notifier).completeProfileSetup(
       uid: uid,
       displayName: _nameController.text.trim(),
-      role: role,
-      agencyName: _agencyNameController.text.trim(),
-      agencyCity: _agencyCityController.text.trim(),
-      agencyState: _agencyStateController.text.trim(),
-      agencyDescription: _agencyDescController.text.trim(),
-      agencySpecializations: _agencySpecializations.isNotEmpty
-          ? _agencySpecializations.split(',').map((s) => s.trim()).toList()
-          : null,
-      brokerBio: _brokerBioController.text.trim(),
-      brokerExperienceYears: int.tryParse(_brokerExpController.text.trim()),
-      brokerAreasServed: _brokerAreasServed.isNotEmpty
-          ? _brokerAreasServed.split(',').map((s) => s.trim()).toList()
-          : null,
-      brokerSpecializations: _brokerSpecializations.isNotEmpty
-          ? _brokerSpecializations.split(',').map((s) => s.trim()).toList()
-          : null,
-      lookingFor: _lookingFor,
-      parentCity: _parentCityController.text.trim(),
-      parentState: _parentStateController.text.trim(),
-      candidateAge: int.tryParse(_candidateAgeController.text.trim()),
-      candidateGender: _candidateGender,
+      data: data,
     );
 
     // Save enriched fields after a short delay to let auth complete

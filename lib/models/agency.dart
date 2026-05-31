@@ -98,7 +98,7 @@ class Agency {
     areasServed: (json['areasServed'] as List<dynamic>?)?.cast<String>() ?? [],
     rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
     isActive: json['isActive'] as bool? ?? true,
-    createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+    createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0),
     // New fields
     email: json['email'] as String?,
     phone: json['phone'] as String?,

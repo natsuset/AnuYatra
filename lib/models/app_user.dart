@@ -42,7 +42,7 @@ class AppUser {
       orElse: () => UserRole.parent,
     ),
     agencyId: json['agencyId'] as String?,
-    createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+    createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0),
     isActive: json['isActive'] as bool? ?? true,
   );
 
