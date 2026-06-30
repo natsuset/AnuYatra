@@ -20,7 +20,8 @@ class AgencyDashboardScreen extends ConsumerStatefulWidget {
   const AgencyDashboardScreen({super.key});
 
   @override
-  ConsumerState<AgencyDashboardScreen> createState() => _AgencyDashboardScreenState();
+  ConsumerState<AgencyDashboardScreen> createState() =>
+      _AgencyDashboardScreenState();
 }
 
 class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
@@ -52,7 +53,6 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
     final stats = await brokerRepo.getAgencyStats(agencyId);
     final brokers = await brokerRepo.getBrokersByAgency(agencyId);
     final brokerUsers = <String, AppUser?>{};
-
     for (final broker in brokers) {
       brokerUsers[broker.userId] = await userRepo.getUser(broker.userId);
     }
@@ -67,348 +67,162 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
     });
   }
 
+  /// Brokers ranked by an activity score (clients + profiles), then rating.
+  List<BrokerProfile> get _leaderboard {
+    final list = [..._brokers];
+    list.sort((a, b) {
+      final sa = a.clientCount + a.profilesManaged;
+      final sb = b.clientCount + b.profilesManaged;
+      if (sb != sa) return sb.compareTo(sa);
+      return b.rating.compareTo(a.rating);
+    });
+    return list;
+  }
+
+  void _openBroker(String brokerUserId) {
+    context.pushNamed(RouteNames.adminBrokerDetail,
+        pathParameters: {'id': brokerUserId});
+  }
+
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     if (authState is! AuthAuthenticated) {
-      return Scaffold(
-        body: Center(child: Text(context.l10n.pleaseLogIn)),
-      );
+      return Scaffold(body: Center(child: Text(context.l10n.pleaseLogIn)));
     }
 
     final user = authState.user;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final palette = context.palette;
 
     if (_loading) {
-      return Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
+
+    final leaderboard = _leaderboard;
 
     return Scaffold(
       appBar: const BrandedAppBar(),
-      body: CustomScrollView(
-        slivers: [
-          // ---- Agency header ----
-          SliverAppBar(
-            expandedHeight: 180,
-            floating: false,
-            pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary], begin: Alignment.topLeft, end: Alignment.bottomRight),
-                ),
-                child: SafeArea(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      AppSpacing.lg,
-                      AppSpacing.xxl,
-                      AppSpacing.lg,
-                      AppSpacing.lg,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              width: 48,
-                              height: 48,
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
-                                borderRadius: AppSpacing.roundedMd,
-                              ),
-                              child: const Icon(
-                                Icons.business,
-                                color: Colors.white,
-                                size: 24,
-                              ),
-                            ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    _agency?.name ?? 'My Agency',
-                                    style: theme.textTheme.titleLarge?.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  if (_agency != null)
-                                    Text(
-                                      '${_agency!.city}, ${_agency!.state}',
-                                      style: const TextStyle(
-                                        color: Colors.white70,
-                                        fontSize: 14,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+      body: RefreshIndicator(
+        onRefresh: _loadData,
+        child: CustomScrollView(
+          slivers: [
+            // ── Agency header ──────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: _AgencyHeader(agency: _agency, theme: theme, colors: colors),
             ),
-          ),
 
-          // ---- Body ----
-          SliverPadding(
-            padding: AppSpacing.allMd,
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                // Stat cards row
-                _buildStatCards(_stats, isDark, theme),
-
-                const SizedBox(height: 20),
-
-                // Broker roster preview
-                _buildBrokerRoster(context, _brokers, _brokerUsers, isDark, theme),
-
-                AppSpacing.gapH16,
-
-                // Quick action: Invite Broker
-                _buildInviteBrokerAction(context, isDark, theme, ref, user.uid, user.displayName),
-              ]),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatCards(
-    AgencyStats stats,
-    bool isDark,
-    ThemeData theme,
-  ) {
-    return Row(
-      children: [
-        Expanded(
-          child: _StatCard(
-            icon: Icons.people_outline,
-            iconColor: context.palette.info,
-            label: context.l10n.activeBrokers,
-            value: '${stats.totalBrokers}',
-            isDark: isDark,
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _StatCard(
-            icon: Icons.family_restroom,
-            iconColor: Theme.of(context).colorScheme.primary,
-            label: context.l10n.activeClients,
-            value: '${stats.totalClients}',
-            isDark: isDark,
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _StatCard(
-            icon: Icons.person_outline,
-            iconColor: context.palette.success,
-            label: context.l10n.profilesManaged,
-            value: '${stats.totalProfiles}',
-            isDark: isDark,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBrokerRoster(
-    BuildContext context,
-    List<BrokerProfile> brokers,
-    Map<String, AppUser?> brokerUsers,
-    bool isDark,
-    ThemeData theme,
-  ) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: AppSpacing.roundedLg,
-        side: BorderSide(
-          color: isDark ? Theme.of(context).colorScheme.outline : Theme.of(context).colorScheme.outline,
-          width: 0.5,
-        ),
-      ),
-      color: isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, AppSpacing.md, 20, AppSpacing.xs),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  context.l10n.brokerRoster,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                if (brokers.length > 4)
-                  TextButton(
-                    onPressed: () {
-                      context.goNamed(RouteNames.adminBrokers);
-                    },
-                    child: Text(context.l10n.viewAll),
-                  ),
-              ],
-            ),
-          ),
-          if (brokers.isEmpty)
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Center(
-                child: Column(
+            // ── KPI strip ──────────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+                child: Row(
                   children: [
-                    Icon(
-                      Icons.group_off_outlined,
-                      size: 40,
-                      color: isDark
-                          ? Theme.of(context).colorScheme.onSurfaceVariant
-                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                    Expanded(
+                      child: _Kpi(
+                        label: context.l10n.activeBrokers,
+                        value: _stats.totalBrokers,
+                        icon: Icons.groups_rounded,
+                        color: palette.info,
+                      ),
                     ),
-                    AppSpacing.gapH8,
-                    Text(
-                      'No brokers yet',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: isDark
-                            ? Theme.of(context).colorScheme.onSurfaceVariant
-                            : Theme.of(context).colorScheme.onSurfaceVariant,
+                    AppSpacing.gapW12,
+                    Expanded(
+                      child: _Kpi(
+                        label: context.l10n.activeClients,
+                        value: _stats.totalClients,
+                        icon: Icons.family_restroom_rounded,
+                        color: colors.primary,
+                      ),
+                    ),
+                    AppSpacing.gapW12,
+                    Expanded(
+                      child: _Kpi(
+                        label: context.l10n.profilesManaged,
+                        value: _stats.totalProfiles,
+                        icon: Icons.badge_rounded,
+                        color: palette.success,
                       ),
                     ),
                   ],
                 ),
               ),
-            )
-          else
-            ...brokers.take(4).map((broker) {
-              final user = brokerUsers[broker.userId];
-              return ListTile(
-                leading: CircleAvatar(
-                  backgroundColor:
-                      Theme.of(context).colorScheme.secondary.withValues(alpha: 0.12),
-                  child: Text(
-                    broker.name.isNotEmpty
-                        ? broker.name[0].toUpperCase()
-                        : '?',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
-                      fontWeight: FontWeight.bold,
+            ),
+
+            // ── Leaderboard header ─────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.leaderboard_rounded,
+                            size: 20, color: palette.warning),
+                        AppSpacing.gapW8,
+                        Text('Broker Performance',
+                            style: theme.textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w700)),
+                      ],
                     ),
-                  ),
+                    if (_brokers.length > 3)
+                      TextButton(
+                        onPressed: () =>
+                            context.goNamed(RouteNames.adminBrokers),
+                        child: Text(context.l10n.viewAll),
+                      ),
+                  ],
                 ),
-                title: Text(
-                  broker.name,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+              ),
+            ),
+
+            if (leaderboard.isEmpty)
+              SliverToBoxAdapter(
+                child: _EmptyBrokers(theme: theme, colors: colors),
+              )
+            else
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                sliver: SliverList.separated(
+                  itemCount: leaderboard.take(5).length,
+                  separatorBuilder: (_, __) => AppSpacing.gapH8,
+                  itemBuilder: (context, i) {
+                    final b = leaderboard[i];
+                    return _LeaderboardTile(
+                      rank: i + 1,
+                      broker: b,
+                      isActive: _brokerUsers[b.userId]?.isActive ?? true,
+                      onTap: () => _openBroker(b.userId),
+                      theme: theme,
+                      colors: colors,
+                      palette: palette,
+                    );
+                  },
                 ),
-                subtitle: Text(
-                  '${broker.clientCount} clients \u2022 ${broker.profilesManaged} profiles',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: isDark
-                        ? Theme.of(context).colorScheme.onSurfaceVariant
-                        : Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+              ),
+
+            // ── Invite broker ──────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 28),
+                child: _InviteCard(
+                  theme: theme,
+                  colors: colors,
+                  onTap: () => _showInviteDialog(
+                      context, ref, user.uid, user.displayName),
                 ),
-                trailing: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: (user?.isActive ?? false)
-                        ? context.palette.success.withValues(alpha: 0.12)
-                        : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.12),
-                    borderRadius: AppSpacing.roundedXs,
-                  ),
-                  child: Text(
-                    (user?.isActive ?? false) ? 'Active' : 'Inactive',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: (user?.isActive ?? false)
-                          ? context.palette.success
-                          : Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-              );
-            }),
-          AppSpacing.gapH8,
-        ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildInviteBrokerAction(
-    BuildContext context,
-    bool isDark,
-    ThemeData theme,
-    WidgetRef ref,
-    String userId,
-    String userName,
-  ) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: AppSpacing.roundedLg,
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-          width: 1,
-        ),
-      ),
-      color: isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface,
-      child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 20, vertical: AppSpacing.xs),
-        leading: Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
-            borderRadius: AppSpacing.roundedMd,
-          ),
-          child: Icon(
-            Icons.person_add_outlined,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
-        title: Text(
-          context.l10n.inviteBroker,
-          style: theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        subtitle: Text(context.l10n.addNewBroker),
-        trailing: Icon(
-          Icons.chevron_right,
-          color: Theme.of(context).colorScheme.primary,
-        ),
-        onTap: () {
-          _showInviteDialog(context, ref, userId, userName);
-        },
-      ),
-    );
-  }
-
-  void _showInviteDialog(BuildContext context, WidgetRef ref, String currentUserId, String currentUserName) {
+  void _showInviteDialog(BuildContext context, WidgetRef ref,
+      String currentUserId, String currentUserName) {
     final phoneController = TextEditingController();
     showDialog(
       context: context,
@@ -417,8 +231,8 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
         content: TextField(
           controller: phoneController,
           keyboardType: TextInputType.phone,
-          decoration: InputDecoration(
-            labelText: context.l10n.phoneNumber,
+          decoration: const InputDecoration(
+            labelText: 'Phone number',
             hintText: 'Enter broker phone number',
             prefixIcon: Icon(Icons.phone),
             border: OutlineInputBorder(),
@@ -455,7 +269,8 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('${brokerUser.displayName} is not registered as a broker'),
+                      content: Text(
+                          '${brokerUser.displayName} is not registered as a broker'),
                       backgroundColor: context.palette.warning,
                     ),
                   );
@@ -475,17 +290,13 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(
-                      context.l10n.inviteSentTo(brokerUser.displayName),
-                    ),
+                    content:
+                        Text(context.l10n.inviteSentTo(brokerUser.displayName)),
                     backgroundColor: context.palette.success,
                   ),
                 );
               }
             },
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-            ),
             child: Text(context.l10n.sendInvite),
           ),
         ],
@@ -494,72 +305,350 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Stat card
-// ---------------------------------------------------------------------------
-class _StatCard extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
-  final String label;
-  final String value;
-  final bool isDark;
+// ─── Agency header ──────────────────────────────────────────────────
 
-  const _StatCard({
-    required this.icon,
-    required this.iconColor,
-    required this.label,
-    required this.value,
-    required this.isDark,
-  });
+class _AgencyHeader extends StatelessWidget {
+  const _AgencyHeader(
+      {required this.agency, required this.theme, required this.colors});
+  final Agency? agency;
+  final ThemeData theme;
+  final ColorScheme colors;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-        side: BorderSide(
-          color: isDark ? Theme.of(context).colorScheme.outline : Theme.of(context).colorScheme.outline,
-          width: 0.5,
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [colors.primary, colors.secondary],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
       ),
-      color: isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface,
-      child: Padding(
-        padding: AppSpacing.allMd,
-        child: Column(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(10),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 22),
+          child: Row(
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: AppSpacing.roundedMd,
+                ),
+                child: const Icon(Icons.business_rounded,
+                    color: Colors.white, size: 26),
               ),
-              child: Icon(icon, color: iconColor, size: 20),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: isDark
-                    ? Theme.of(context).colorScheme.onSurface
-                    : Theme.of(context).colorScheme.onSurface,
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      agency?.name ?? 'My Agency',
+                      style: theme.textTheme.titleLarge?.copyWith(
+                          color: Colors.white, fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (agency != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        '${agency!.city}, ${agency!.state}',
+                        style:
+                            const TextStyle(color: Colors.white70, fontSize: 13),
+                      ),
+                    ],
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                color: isDark
-                    ? Theme.of(context).colorScheme.onSurfaceVariant
-                    : Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
+              if ((agency?.rating ?? 0) > 0)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.18),
+                    borderRadius: AppSpacing.roundedFull,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.star_rounded,
+                          size: 15, color: Colors.white),
+                      const SizedBox(width: 4),
+                      Text(agency!.rating.toStringAsFixed(1),
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13)),
+                    ],
+                  ),
+                ),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+}
+
+// ─── KPI tile ────────────────────────────────────────────────────────
+
+class _Kpi extends StatelessWidget {
+  const _Kpi(
+      {required this.label,
+      required this.value,
+      required this.icon,
+      required this.color});
+  final String label;
+  final int value;
+  final IconData icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(
+          vertical: AppSpacing.md, horizontal: AppSpacing.sm),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: AppSpacing.roundedLg,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color, size: 20),
+          AppSpacing.gapH12,
+          Text('$value',
+              style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: theme.colorScheme.onSurface,
+                  height: 1.0)),
+          const SizedBox(height: 2),
+          Text(label,
+              style: theme.textTheme.labelSmall
+                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Leaderboard tile ─────────────────────────────────────────────────
+
+class _LeaderboardTile extends StatelessWidget {
+  const _LeaderboardTile({
+    required this.rank,
+    required this.broker,
+    required this.isActive,
+    required this.onTap,
+    required this.theme,
+    required this.colors,
+    required this.palette,
+  });
+
+  final int rank;
+  final BrokerProfile broker;
+  final bool isActive;
+  final VoidCallback onTap;
+  final ThemeData theme;
+  final ColorScheme colors;
+  final AppPalette palette;
+
+  Color get _rankColor => switch (rank) {
+        1 => const Color(0xFFFFB300),
+        2 => const Color(0xFF90A4AE),
+        3 => const Color(0xFFA1887F),
+        _ => colors.onSurfaceVariant,
+      };
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: colors.surface,
+      borderRadius: AppSpacing.roundedLg,
+      child: InkWell(
+        borderRadius: AppSpacing.roundedLg,
+        onTap: onTap,
+        child: Container(
+          padding: AppSpacing.allSm,
+          decoration: BoxDecoration(
+            borderRadius: AppSpacing.roundedLg,
+            border: Border.all(color: colors.outlineVariant, width: 0.5),
+          ),
+          child: Row(
+            children: [
+              // Rank
+              SizedBox(
+                width: 28,
+                child: Center(
+                  child: rank <= 3
+                      ? Icon(Icons.emoji_events_rounded,
+                          color: _rankColor, size: 22)
+                      : Text('$rank',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: colors.onSurfaceVariant)),
+                ),
+              ),
+              AppSpacing.gapW8,
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: colors.secondary.withValues(alpha: 0.14),
+                child: Text(
+                  broker.name.isNotEmpty ? broker.name[0].toUpperCase() : '?',
+                  style: TextStyle(
+                      color: colors.secondary, fontWeight: FontWeight.w700),
+                ),
+              ),
+              AppSpacing.gapW12,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(broker.name,
+                              style: theme.textTheme.bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.w600),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis),
+                        ),
+                        if (!isActive) ...[
+                          AppSpacing.gapW8,
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 1),
+                            decoration: BoxDecoration(
+                              color: colors.onSurfaceVariant
+                                  .withValues(alpha: 0.12),
+                              borderRadius: AppSpacing.roundedFull,
+                            ),
+                            child: Text('Inactive',
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                    color: colors.onSurfaceVariant)),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${broker.clientCount} clients · ${broker.profilesManaged} profiles',
+                      style: theme.textTheme.bodySmall
+                          ?.copyWith(color: colors.onSurfaceVariant),
+                    ),
+                  ],
+                ),
+              ),
+              if (broker.rating > 0)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.star_rounded, size: 15, color: palette.warning),
+                    const SizedBox(width: 2),
+                    Text(broker.rating.toStringAsFixed(1),
+                        style: theme.textTheme.labelMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: palette.warning)),
+                  ],
+                ),
+              AppSpacing.gapW4,
+              Icon(Icons.chevron_right, color: colors.outline, size: 20),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Invite card ──────────────────────────────────────────────────────
+
+class _InviteCard extends StatelessWidget {
+  const _InviteCard(
+      {required this.theme, required this.colors, required this.onTap});
+  final ThemeData theme;
+  final ColorScheme colors;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: AppSpacing.roundedLg,
+        onTap: onTap,
+        child: Container(
+          padding: AppSpacing.allMd,
+          decoration: BoxDecoration(
+            borderRadius: AppSpacing.roundedLg,
+            border: Border.all(color: colors.primary.withValues(alpha: 0.3)),
+            color: colors.primary.withValues(alpha: 0.04),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: colors.primary.withValues(alpha: 0.12),
+                  borderRadius: AppSpacing.roundedMd,
+                ),
+                child: Icon(Icons.person_add_rounded, color: colors.primary),
+              ),
+              AppSpacing.gapW16,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(context.l10n.inviteBroker,
+                        style: theme.textTheme.titleSmall
+                            ?.copyWith(fontWeight: FontWeight.w700)),
+                    Text('Add a broker to your agency by phone',
+                        style: theme.textTheme.bodySmall
+                            ?.copyWith(color: colors.onSurfaceVariant)),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right, color: colors.primary),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Empty brokers ────────────────────────────────────────────────────
+
+class _EmptyBrokers extends StatelessWidget {
+  const _EmptyBrokers({required this.theme, required this.colors});
+  final ThemeData theme;
+  final ColorScheme colors;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+      child: Column(
+        children: [
+          Icon(Icons.group_off_outlined, size: 48, color: colors.outlineVariant),
+          AppSpacing.gapH12,
+          Text('No brokers yet',
+              style: theme.textTheme.titleSmall
+                  ?.copyWith(fontWeight: FontWeight.w600)),
+          AppSpacing.gapH4,
+          Text('Invite brokers to start building your agency roster.',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodySmall
+                  ?.copyWith(color: colors.onSurfaceVariant)),
+        ],
       ),
     );
   }

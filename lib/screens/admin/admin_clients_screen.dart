@@ -20,11 +20,30 @@ class AdminClientsScreen extends ConsumerStatefulWidget {
 class _AdminClientsScreenState extends ConsumerState<AdminClientsScreen> {
   List<_ClientInfo> _clients = [];
   bool _loading = true;
+  final _searchCtrl = TextEditingController();
+  String _query = '';
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  List<_ClientInfo> get _filtered {
+    final q = _query.trim().toLowerCase();
+    if (q.isEmpty) return _clients;
+    return _clients.where((c) {
+      return c.name.toLowerCase().contains(q) ||
+          c.city.toLowerCase().contains(q) ||
+          c.lookingFor.toLowerCase().contains(q) ||
+          c.brokerNames.any((b) => b.toLowerCase().contains(q));
+    }).toList();
   }
 
   Future<void> _loadData() async {
@@ -150,12 +169,63 @@ class _AdminClientsScreenState extends ConsumerState<AdminClientsScreen> {
                 ),
               ),
             )
-          : ListView.separated(
+          : Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.xs),
+                  child: TextField(
+                    controller: _searchCtrl,
+                    onChanged: (v) => setState(() => _query = v),
+                    textInputAction: TextInputAction.search,
+                    decoration: InputDecoration(
+                      hintText: 'Search clients, city, broker…',
+                      prefixIcon: const Icon(Icons.search_rounded),
+                      suffixIcon: _query.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.close_rounded),
+                              onPressed: () {
+                                _searchCtrl.clear();
+                                setState(() => _query = '');
+                              },
+                            )
+                          : null,
+                      isDense: true,
+                      filled: true,
+                      fillColor: theme.colorScheme.surfaceContainerHighest
+                          .withValues(alpha: 0.4),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 12, horizontal: 12),
+                      border: OutlineInputBorder(
+                        borderRadius: AppSpacing.roundedMd,
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: _filtered.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.search_off_rounded,
+                                  size: 48,
+                                  color: theme.colorScheme.outlineVariant),
+                              AppSpacing.gapH12,
+                              Text('No clients match your search',
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                      color:
+                                          theme.colorScheme.onSurfaceVariant)),
+                            ],
+                          ),
+                        )
+                      : ListView.separated(
               padding: AppSpacing.allMd,
-              itemCount: _clients.length,
+              itemCount: _filtered.length,
               separatorBuilder: (_, __) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
-                final client = _clients[index];
+                final client = _filtered[index];
                 return Material(
                   color: Colors.transparent,
                   child: InkWell(
@@ -250,6 +320,9 @@ class _AdminClientsScreenState extends ConsumerState<AdminClientsScreen> {
                 ),
                 );
               },
+                      ),
+                ),
+              ],
             ),
     );
   }

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
+import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/models/broker_profile.dart';
 import 'package:testing_flutter/models/link_request.dart';
 import 'package:testing_flutter/models/user_role.dart';
@@ -21,11 +23,30 @@ class _AdminBrokersScreenState extends ConsumerState<AdminBrokersScreen> {
   List<BrokerProfile> _brokers = [];
   Map<String, ({int clientCount, int profileCount})> _brokerStats = {};
   bool _loading = true;
+  final _searchCtrl = TextEditingController();
+  String _query = '';
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  List<BrokerProfile> get _filtered {
+    final q = _query.trim().toLowerCase();
+    if (q.isEmpty) return _brokers;
+    return _brokers.where((b) {
+      return b.name.toLowerCase().contains(q) ||
+          b.phoneNumber.toLowerCase().contains(q) ||
+          b.specializations.any((s) => s.toLowerCase().contains(q)) ||
+          b.areasServed.any((a) => a.toLowerCase().contains(q));
+    }).toList();
   }
 
   Future<void> _loadData() async {
@@ -92,26 +113,87 @@ class _AdminBrokersScreenState extends ConsumerState<AdminBrokersScreen> {
       ),
       body: _brokers.isEmpty
           ? _buildEmptyState(context, isDark, theme, ref, user.uid, user.displayName)
-          : ListView.separated(
-              padding: EdgeInsets.fromLTRB(
-                AppSpacing.md,
-                AppSpacing.md,
-                AppSpacing.md,
-                80,
-              ),
-              itemCount: _brokers.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 10),
-              itemBuilder: (context, index) {
-                final broker = _brokers[index];
-                final s = _brokerStats[broker.userId] ?? (clientCount: 0, profileCount: 0);
-                return _BrokerCard(
-                  broker: broker,
-                  clientCount: s.clientCount,
-                  profileCount: s.profileCount,
-                  isDark: isDark,
-                  theme: theme,
-                );
-              },
+          : Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.xs),
+                  child: TextField(
+                    controller: _searchCtrl,
+                    onChanged: (v) => setState(() => _query = v),
+                    textInputAction: TextInputAction.search,
+                    decoration: InputDecoration(
+                      hintText: 'Search brokers, specialization, area…',
+                      prefixIcon: const Icon(Icons.search_rounded),
+                      suffixIcon: _query.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.close_rounded),
+                              onPressed: () {
+                                _searchCtrl.clear();
+                                setState(() => _query = '');
+                              },
+                            )
+                          : null,
+                      isDense: true,
+                      filled: true,
+                      fillColor: theme.colorScheme.surfaceContainerHighest
+                          .withValues(alpha: 0.4),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 12, horizontal: 12),
+                      border: OutlineInputBorder(
+                        borderRadius: AppSpacing.roundedMd,
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Builder(
+                    builder: (context) {
+                      final filtered = _filtered;
+                      if (filtered.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.search_off_rounded,
+                                  size: 48,
+                                  color: theme.colorScheme.outlineVariant),
+                              AppSpacing.gapH12,
+                              Text('No brokers match your search',
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                      color:
+                                          theme.colorScheme.onSurfaceVariant)),
+                            ],
+                          ),
+                        );
+                      }
+                      return ListView.separated(
+                        padding: const EdgeInsets.fromLTRB(
+                            AppSpacing.md, AppSpacing.xs, AppSpacing.md, 80),
+                        itemCount: filtered.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 10),
+                        itemBuilder: (context, index) {
+                          final broker = filtered[index];
+                          final s = _brokerStats[broker.userId] ??
+                              (clientCount: 0, profileCount: 0);
+                          return _BrokerCard(
+                            broker: broker,
+                            clientCount: s.clientCount,
+                            profileCount: s.profileCount,
+                            isDark: isDark,
+                            theme: theme,
+                            onTap: () => context.pushNamed(
+                              RouteNames.adminBrokerDetail,
+                              pathParameters: {'id': broker.userId},
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
     );
   }
@@ -277,6 +359,7 @@ class _BrokerCard extends StatelessWidget {
   final int profileCount;
   final bool isDark;
   final ThemeData theme;
+  final VoidCallback onTap;
 
   const _BrokerCard({
     required this.broker,
@@ -284,12 +367,14 @@ class _BrokerCard extends StatelessWidget {
     required this.profileCount,
     required this.isDark,
     required this.theme,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 0,
+      clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
         side: BorderSide(
@@ -298,7 +383,9 @@ class _BrokerCard extends StatelessWidget {
         ),
       ),
       color: isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface,
-      child: Padding(
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
         padding: AppSpacing.allMd,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -440,6 +527,7 @@ class _BrokerCard extends StatelessWidget {
             ],
           ],
         ),
+      ),
       ),
     );
   }

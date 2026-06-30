@@ -39,6 +39,7 @@ class RouteNames {
   static const adminBrokers = 'admin-brokers';
   static const adminClients = 'admin-clients';
   static const adminSettings = 'admin-settings';
+  static const adminBrokerDetail = 'admin-broker-detail';
 
   // Shared
   static const profileView = 'profile-view';
@@ -89,6 +90,7 @@ class RouteNames {
   static const adminBrokersPath = '/admin/brokers';
   static const adminClientsPath = '/admin/clients';
   static const adminSettingsPath = '/admin/settings';
+  static const adminBrokerDetailPath = '/admin/broker/:id';
 
   static const profileViewPath = '/profile/:id';
   static const chatPath = '/chat/:conversationId';

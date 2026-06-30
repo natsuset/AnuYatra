@@ -52,6 +52,7 @@ import 'package:testing_flutter/screens/admin/agency_dashboard_screen.dart';
 import 'package:testing_flutter/screens/admin/admin_brokers_screen.dart';
 import 'package:testing_flutter/screens/admin/admin_clients_screen.dart';
 import 'package:testing_flutter/screens/admin/agency_settings_screen.dart';
+import 'package:testing_flutter/screens/admin/admin_broker_detail_screen.dart';
 
 // Shared screens
 import 'package:testing_flutter/screens/profile/profile_view_screen.dart';
@@ -383,6 +384,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: RouteNames.brokerAstrologyMatch,
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const BrokerAstrologyMatchScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.adminBrokerDetailPath,
+        name: RouteNames.adminBrokerDetail,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => AdminBrokerDetailScreen(
+          brokerUserId: state.pathParameters['id']!,
+        ),
       ),
       GoRoute(
         path: RouteNames.linkRequestsPath,

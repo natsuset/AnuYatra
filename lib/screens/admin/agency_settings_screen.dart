@@ -24,6 +24,9 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
   late TextEditingController _descController;
   late TextEditingController _cityController;
   late TextEditingController _stateController;
+  late TextEditingController _emailController;
+  late TextEditingController _phoneController;
+  late TextEditingController _websiteController;
   bool _editing = false;
   bool _saving = false;
   Agency? _agency;
@@ -35,6 +38,9 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
     _descController = TextEditingController();
     _cityController = TextEditingController();
     _stateController = TextEditingController();
+    _emailController = TextEditingController();
+    _phoneController = TextEditingController();
+    _websiteController = TextEditingController();
 
     // Load agency data
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -57,6 +63,9 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
       _descController.text = agency.description;
       _cityController.text = agency.city;
       _stateController.text = agency.state;
+      _emailController.text = agency.email ?? '';
+      _phoneController.text = agency.phone ?? '';
+      _websiteController.text = agency.website ?? '';
       setState(() => _agency = agency);
     }
   }
@@ -78,6 +87,9 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
         description: _descController.text.trim(),
         city: _cityController.text.trim(),
         state: _stateController.text.trim(),
+        email: _emailController.text.trim(),
+        phone: _phoneController.text.trim(),
+        website: _websiteController.text.trim(),
       );
       await agencyRepo.saveAgency(updated);
     }
@@ -104,6 +116,9 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
     _descController.dispose();
     _cityController.dispose();
     _stateController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _websiteController.dispose();
     super.dispose();
   }
 
@@ -190,6 +205,23 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
                     AppSpacing.gapW12,
                     Expanded(
                       child: _buildField(context.l10n.stateLabel, _stateController, _editing),
+                    ),
+                  ],
+                ),
+                AppSpacing.gapH12,
+                _buildField('Contact email', _emailController, _editing,
+                    keyboardType: TextInputType.emailAddress),
+                AppSpacing.gapH12,
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildField('Phone', _phoneController, _editing,
+                          keyboardType: TextInputType.phone),
+                    ),
+                    AppSpacing.gapW12,
+                    Expanded(
+                      child: _buildField('Website', _websiteController, _editing,
+                          keyboardType: TextInputType.url),
                     ),
                   ],
                 ),
@@ -347,11 +379,13 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
     TextEditingController controller,
     bool enabled, {
     int maxLines = 1,
+    TextInputType? keyboardType,
   }) {
     return TextFormField(
       controller: controller,
       enabled: enabled,
       maxLines: maxLines,
+      keyboardType: keyboardType,
       decoration: InputDecoration(
         labelText: label,
         border: OutlineInputBorder(borderRadius: AppSpacing.roundedMd),
