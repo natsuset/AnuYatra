@@ -58,8 +58,16 @@ abstract class LinkRepository {
   /// Get parent user IDs connected to a broker.
   Future<List<String>> getConnectedParentIds(String brokerUserId);
 
-  /// Get the linked child user ID for a parent, or null.
+  /// Get the linked child user ID for a parent, or null. Convenience for
+  /// the common single-child case; equivalent to the first entry of
+  /// [getLinkedChildIds].
   Future<String?> getLinkedChildId(String parentUserId);
+
+  /// All candidate (child) user IDs linked to [parentUserId] via accepted
+  /// `childToParent` link requests. Newest accepted first. Returns the empty
+  /// list when no child is linked. Supports the "one parent, multiple
+  /// unmarried children" case (PRODUCT_PLAN Part 5 #8).
+  Future<List<String>> getLinkedChildIds(String parentUserId);
 
   /// Get the linked parent user ID for a candidate, or null.
   Future<String?> getLinkedParentId(String childUserId);

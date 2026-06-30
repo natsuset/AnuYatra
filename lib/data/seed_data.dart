@@ -9,6 +9,8 @@ import 'package:testing_flutter/models/candidate_profile.dart';
 import 'package:testing_flutter/models/link_request.dart';
 import 'package:testing_flutter/models/shared_profile.dart';
 import 'package:testing_flutter/models/chat_message.dart';
+import 'package:testing_flutter/models/client_engagement.dart';
+import 'package:testing_flutter/models/broker_follow_up.dart';
 
 /// Toggle to enable/disable seeding on first launch.
 /// Set to `false` to skip seeding entirely (e.g. for production).
@@ -34,6 +36,8 @@ Future<void> seedDemoData(AppDataModule data) async {
   final linkRepo = data.linkRepository;
   final sharedRepo = data.sharedProfileRepository;
   final messagingRepo = data.messagingRepository;
+  final engagementRepo = data.clientEngagementRepository;
+  final followUpRepo = data.brokerFollowUpRepository;
 
   final now = DateTime.now();
 
@@ -113,6 +117,23 @@ Future<void> seedDemoData(AppDataModule data) async {
     createdAt: now.subtract(const Duration(days: 45)),
   );
 
+  // Additional clients for broker-001 (Sunita Verma) — richer demo
+  final parentUser3 = AppUser(
+    uid: 'parent-003',
+    phoneNumber: '+919800001003',
+    displayName: 'Suresh Iyer',
+    role: UserRole.parent,
+    createdAt: now.subtract(const Duration(days: 20)),
+  );
+
+  final parentUser4 = AppUser(
+    uid: 'parent-004',
+    phoneNumber: '+919800001004',
+    displayName: 'Lakshmi Menon',
+    role: UserRole.parent,
+    createdAt: now.subtract(const Duration(days: 9)),
+  );
+
   // ─── CANDIDATE USERS ──────────────────────────────
 
   final candidateUser1 = AppUser(
@@ -127,7 +148,7 @@ Future<void> seedDemoData(AppDataModule data) async {
   for (final user in [
     adminUser1, adminUser2,
     brokerUser1, brokerUser2, brokerUser3, brokerUser4,
-    parentUser1, parentUser2,
+    parentUser1, parentUser2, parentUser3, parentUser4,
     candidateUser1,
   ]) {
     await userRepo.saveUser(user);
@@ -259,6 +280,36 @@ Future<void> seedDemoData(AppDataModule data) async {
     createdAt: now.subtract(const Duration(days: 45)),
   ));
 
+  await profileRepo.saveParentProfile(ParentProfile(
+    userId: 'parent-003',
+    name: 'Suresh Iyer',
+    lookingFor: LookingFor.bride,
+    city: 'Bangalore',
+    state: 'Karnataka',
+    preferredCommunities: ['Hindu', 'Tamil', 'Telugu'],
+    preferredMinAge: 24,
+    preferredMaxAge: 29,
+    childName: 'Arjun Iyer',
+    childProfession: 'Product Manager',
+    childEducation: 'MBA, IIM Bangalore',
+    createdAt: now.subtract(const Duration(days: 20)),
+  ));
+
+  await profileRepo.saveParentProfile(ParentProfile(
+    userId: 'parent-004',
+    name: 'Lakshmi Menon',
+    lookingFor: LookingFor.groom,
+    city: 'Chennai',
+    state: 'Tamil Nadu',
+    preferredCommunities: ['Hindu', 'Kerala', 'Tamil'],
+    preferredMinAge: 28,
+    preferredMaxAge: 34,
+    childName: 'Divya Menon',
+    childProfession: 'Dentist (BDS)',
+    childEducation: 'BDS, SRM Chennai',
+    createdAt: now.subtract(const Duration(days: 9)),
+  ));
+
   // ─── CANDIDATE PROFILES ──────────────────────────────
 
   final candidates = [
@@ -283,7 +334,18 @@ Future<void> seedDemoData(AppDataModule data) async {
       fatherOccupation: 'Business Owner',
       motherOccupation: 'Homemaker',
       siblings: '1 elder brother (married)',
-      photos: ['https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400'],
+      rashi: 'Taurus',
+      nakshatra: 'Rohini',
+      manglikStatus: 'No',
+      gotra: 'Bharadwaj',
+      photos: const [
+        // Demo placeholders. Swap with real photo URLs (or local-sandbox paths
+        // once self-upload lands in Slice 9) when you have curated assets.
+        'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600',
+        'https://images.unsplash.com/photo-1611601679835-2ea0aebef4e2?w=600',
+        'https://images.unsplash.com/photo-1601057434348-c5f29f0d4f70?w=600',
+        'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600',
+      ],
       brokerIds: ['broker-001'],
       candidateUserId: 'candidate-001',
       createdAt: now.subtract(const Duration(days: 50)),
@@ -310,7 +372,16 @@ Future<void> seedDemoData(AppDataModule data) async {
       fatherOccupation: 'CA',
       motherOccupation: 'Teacher',
       siblings: '1 younger sister',
-      photos: ['https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400'],
+      rashi: 'Cancer',
+      nakshatra: 'Pushya',
+      manglikStatus: 'No',
+      gotra: 'Kashyap',
+      photos: const [
+        'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=600',
+        'https://images.unsplash.com/photo-1623082574085-2acec7cffd00?w=600',
+        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600',
+        'https://images.unsplash.com/photo-1589156280159-27698a70f29e?w=600',
+      ],
       brokerIds: ['broker-001'],
       createdAt: now.subtract(const Duration(days: 45)),
       updatedAt: now.subtract(const Duration(days: 5)),
@@ -336,7 +407,16 @@ Future<void> seedDemoData(AppDataModule data) async {
       fatherOccupation: 'Industrialist',
       motherOccupation: 'Homemaker',
       siblings: '2 sisters (both married)',
-      photos: ['https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400'],
+      rashi: 'Virgo',
+      nakshatra: 'Hasta',
+      manglikStatus: 'No',
+      gotra: 'Vatsa',
+      photos: const [
+        'https://images.unsplash.com/photo-1499996860823-5214fcc65f8f?w=600',
+        'https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?w=600',
+        'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=600',
+        'https://images.unsplash.com/photo-1604072366595-e75dc92d6bdc?w=600',
+      ],
       brokerIds: ['broker-002'],
       createdAt: now.subtract(const Duration(days: 40)),
       updatedAt: now.subtract(const Duration(days: 8)),
@@ -362,7 +442,16 @@ Future<void> seedDemoData(AppDataModule data) async {
       fatherOccupation: 'Agriculturist',
       motherOccupation: 'Government Employee',
       siblings: '1 younger brother',
-      photos: ['https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400'],
+      rashi: 'Pisces',
+      nakshatra: 'Revati',
+      manglikStatus: 'No',
+      gotra: 'Gautam',
+      photos: const [
+        'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600',
+        'https://images.unsplash.com/photo-1610483178922-67d2a45a4f6a?w=600',
+        'https://images.unsplash.com/photo-1576766125535-b9b3a0e8e3e6?w=600',
+        'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600',
+      ],
       brokerIds: ['broker-003'],
       createdAt: now.subtract(const Duration(days: 35)),
       updatedAt: now.subtract(const Duration(days: 3)),
@@ -388,7 +477,16 @@ Future<void> seedDemoData(AppDataModule data) async {
       fatherOccupation: 'Professor',
       motherOccupation: 'Principal',
       siblings: '1 elder sister (married)',
-      photos: ['https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400'],
+      rashi: 'Capricorn',
+      nakshatra: 'Shravana',
+      manglikStatus: 'Yes',
+      gotra: 'Atri',
+      photos: const [
+        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600',
+        'https://images.unsplash.com/photo-1599842057874-37393e9342df?w=600',
+        'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=600',
+        'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=600',
+      ],
       brokerIds: ['broker-003'],
       createdAt: now.subtract(const Duration(days: 30)),
       updatedAt: now.subtract(const Duration(days: 2)),
@@ -414,7 +512,12 @@ Future<void> seedDemoData(AppDataModule data) async {
       fatherOccupation: 'Army Officer (Retd.)',
       motherOccupation: 'Homemaker',
       siblings: '1 elder brother (Army)',
-      photos: ['https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400'],
+      photos: const [
+        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600',
+        'https://images.unsplash.com/photo-1567008386577-c70d1eb6e6cf?w=600',
+        'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=600',
+        'https://images.unsplash.com/photo-1611601679835-2ea0aebef4e2?w=600',
+      ],
       brokerIds: ['broker-004'],
       createdAt: now.subtract(const Duration(days: 25)),
       updatedAt: now.subtract(const Duration(days: 1)),
@@ -440,7 +543,16 @@ Future<void> seedDemoData(AppDataModule data) async {
       fatherOccupation: 'Diamond Merchant',
       motherOccupation: 'Homemaker',
       siblings: '1 younger brother',
-      photos: ['https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400'],
+      rashi: 'Scorpio',
+      nakshatra: 'Anuradha',
+      manglikStatus: 'No',
+      gotra: 'Kaushik',
+      photos: const [
+        'https://images.unsplash.com/photo-1463453091185-61582044d556?w=600',
+        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600',
+        'https://images.unsplash.com/photo-1531891437562-4301cf35b7e4?w=600',
+        'https://images.unsplash.com/photo-1546961342-ea5f62d5a27b?w=600',
+      ],
       brokerIds: ['broker-001'],
       createdAt: now.subtract(const Duration(days: 20)),
       updatedAt: now.subtract(const Duration(days: 1)),
@@ -530,6 +642,44 @@ Future<void> seedDemoData(AppDataModule data) async {
     note: 'Looking for matches in South India as well.',
   ));
 
+  // Parent 3 (Suresh Iyer) connected to Broker 1
+  await linkRepo.saveLinkRequest(LinkRequest(
+    id: 'lr-007',
+    fromUserId: 'parent-003',
+    toUserId: 'broker-001',
+    fromUserName: 'Suresh Iyer',
+    toUserName: 'Sunita Verma',
+    type: LinkRequestType.parentToBroker,
+    status: LinkRequestStatus.accepted,
+    createdAt: now.subtract(const Duration(days: 18)),
+    respondedAt: now.subtract(const Duration(days: 18)),
+  ));
+
+  // Parent 4 (Lakshmi Menon) connected to Broker 1
+  await linkRepo.saveLinkRequest(LinkRequest(
+    id: 'lr-008',
+    fromUserId: 'parent-004',
+    toUserId: 'broker-001',
+    fromUserName: 'Lakshmi Menon',
+    toUserName: 'Sunita Verma',
+    type: LinkRequestType.parentToBroker,
+    status: LinkRequestStatus.accepted,
+    createdAt: now.subtract(const Duration(days: 7)),
+    respondedAt: now.subtract(const Duration(days: 7)),
+  ));
+
+  // Pending: a new parent wants to connect with Broker 1 (needs attention)
+  await linkRepo.saveLinkRequest(LinkRequest(
+    id: 'lr-009',
+    fromUserId: 'parent-002',
+    toUserId: 'broker-001',
+    fromUserName: 'Meera Nair',
+    toUserName: 'Sunita Verma',
+    type: LinkRequestType.parentToBroker,
+    createdAt: now.subtract(const Duration(hours: 6)),
+    note: 'Referred by Ramesh ji. Looking for a groom for my daughter.',
+  ));
+
   // ─── SHARED PROFILES ──────────────────────────────
 
   // Broker 1 shared profiles with Parent 1
@@ -558,7 +708,211 @@ Future<void> seedDemoData(AppDataModule data) async {
     sharedByUserId: 'broker-003',
     sharedWithUserId: 'parent-002',
     sharedAt: now.subtract(const Duration(days: 8)),
-    parentResponse: SharedProfileResponse.maybe,
+    // The `maybe` response was retired in Slice 6 — seed-data picks
+    // `pending` instead so the new UI doesn't have to render a deprecated state.
+    parentResponse: SharedProfileResponse.pending,
+  ));
+
+  // Profiles shared directly with candidate-001 (Ananya Kumar) by her parent
+  await sharedRepo.saveSharedProfile(SharedProfile(
+    id: 'sp-004',
+    profileId: 'cp-003',
+    sharedByUserId: 'parent-001',
+    sharedWithUserId: 'candidate-001',
+    sharedAt: now.subtract(const Duration(days: 12)),
+    parentResponse: SharedProfileResponse.interested,
+  ));
+
+  await sharedRepo.saveSharedProfile(SharedProfile(
+    id: 'sp-005',
+    profileId: 'cp-005',
+    sharedByUserId: 'parent-001',
+    sharedWithUserId: 'candidate-001',
+    sharedAt: now.subtract(const Duration(days: 7)),
+    parentResponse: SharedProfileResponse.interested,
+  ));
+
+  await sharedRepo.saveSharedProfile(SharedProfile(
+    id: 'sp-006',
+    profileId: 'cp-007',
+    sharedByUserId: 'broker-001',
+    sharedWithUserId: 'candidate-001',
+    sharedAt: now.subtract(const Duration(days: 3)),
+    parentResponse: SharedProfileResponse.pending,
+  ));
+
+  // Broker 1 → Parent 3 (Suresh Iyer, seeking a bride) — varied statuses
+  await sharedRepo.saveSharedProfile(SharedProfile(
+    id: 'sp-007',
+    profileId: 'cp-002', // Priya Mehta (bride)
+    sharedByUserId: 'broker-001',
+    sharedWithUserId: 'parent-003',
+    sharedAt: now.subtract(const Duration(days: 3)),
+    parentResponse: SharedProfileResponse.interested,
+  ));
+
+  await sharedRepo.saveSharedProfile(SharedProfile(
+    id: 'sp-008',
+    profileId: 'cp-001', // Ananya Kumar (bride)
+    sharedByUserId: 'broker-001',
+    sharedWithUserId: 'parent-003',
+    sharedAt: now.subtract(const Duration(days: 4)),
+    parentResponse: SharedProfileResponse.pass,
+  ));
+
+  await sharedRepo.saveSharedProfile(SharedProfile(
+    id: 'sp-009',
+    profileId: 'cp-006', // Sneha Singh (bride)
+    sharedByUserId: 'broker-001',
+    sharedWithUserId: 'parent-003',
+    sharedAt: now.subtract(const Duration(days: 1)),
+    parentResponse: SharedProfileResponse.pending,
+  ));
+
+  // Broker 1 → Parent 4 (Lakshmi Menon, seeking a groom)
+  await sharedRepo.saveSharedProfile(SharedProfile(
+    id: 'sp-010',
+    profileId: 'cp-003', // Rahul Patel (groom)
+    sharedByUserId: 'broker-001',
+    sharedWithUserId: 'parent-004',
+    sharedAt: now.subtract(const Duration(hours: 5)),
+    parentResponse: SharedProfileResponse.pending,
+  ));
+
+  await sharedRepo.saveSharedProfile(SharedProfile(
+    id: 'sp-011',
+    profileId: 'cp-005', // Vikram Naidu (groom)
+    sharedByUserId: 'broker-001',
+    sharedWithUserId: 'parent-004',
+    sharedAt: now.subtract(const Duration(days: 1)),
+    parentResponse: SharedProfileResponse.interested,
+  ));
+
+  // ─── CLIENT ENGAGEMENTS (payment / subscription per broker client) ──────
+
+  // Parent 1 — fully paid & active, sharing live
+  await engagementRepo.save(ClientEngagement.create(
+    brokerUserId: 'broker-001',
+    parentUserId: 'parent-001',
+    stage: EngagementStage.active,
+    planName: 'Premium · 6 Months',
+    amountPaid: 25000,
+    paidAt: now.subtract(const Duration(days: 50)),
+    sharingStartsAt: now.subtract(const Duration(days: 48)),
+    validUntil: now.add(const Duration(days: 132)),
+    budgetExpectation: 'Wedding budget ₹30–50 L',
+    expectedIncomeMin: '₹18 LPA+',
+    requirementNotes:
+        'Well-educated groom, Hindu/Gujarati, settled in Mumbai or abroad. '
+        'Family values important.',
+    createdAt: now.subtract(const Duration(days: 55)),
+  ));
+
+  // Parent 3 — connected but NOT paid yet (sharing gated)
+  await engagementRepo.save(ClientEngagement.create(
+    brokerUserId: 'broker-001',
+    parentUserId: 'parent-003',
+    stage: EngagementStage.connected,
+    budgetExpectation: 'Wedding budget ₹20–30 L',
+    expectedIncomeMin: '₹12 LPA+',
+    requirementNotes:
+        'Bride for son Arjun (PM, IIM-B). Prefers Tamil/Telugu Hindu family, '
+        'Bangalore-based.',
+    createdAt: now.subtract(const Duration(days: 18)),
+  ));
+
+  // Parent 4 — PAID, but sharing scheduled to start in 5 days
+  await engagementRepo.save(ClientEngagement.create(
+    brokerUserId: 'broker-001',
+    parentUserId: 'parent-004',
+    stage: EngagementStage.paid,
+    planName: 'Standard · 3 Months',
+    amountPaid: 12000,
+    paidAt: now.subtract(const Duration(days: 2)),
+    sharingStartsAt: now.add(const Duration(days: 5)),
+    validUntil: now.add(const Duration(days: 88)),
+    budgetExpectation: 'Wedding budget ₹15–25 L',
+    expectedIncomeMin: '₹10 LPA+',
+    requirementNotes:
+        'Groom for daughter Divya (Dentist). Kerala/Tamil Hindu, Chennai '
+        'preferred.',
+    createdAt: now.subtract(const Duration(days: 7)),
+  ));
+
+  // Broker 3 — Parent 2 active
+  await engagementRepo.save(ClientEngagement.create(
+    brokerUserId: 'broker-003',
+    parentUserId: 'parent-002',
+    stage: EngagementStage.active,
+    planName: 'Premium · 6 Months',
+    amountPaid: 22000,
+    paidAt: now.subtract(const Duration(days: 38)),
+    sharingStartsAt: now.subtract(const Duration(days: 36)),
+    validUntil: now.add(const Duration(days: 144)),
+    budgetExpectation: 'Wedding budget ₹25–40 L',
+    expectedIncomeMin: '₹15 LPA+',
+    requirementNotes: 'Bride from Kerala/Tamil community, Bangalore or Chennai.',
+    createdAt: now.subtract(const Duration(days: 40)),
+  ));
+
+  // ─── BROKER FOLLOW-UPS / REMINDERS ──────────────────────────────────────
+
+  await followUpRepo.save(BrokerFollowUp(
+    id: 'fu-001',
+    brokerUserId: 'broker-001',
+    clientUserId: 'parent-001',
+    candidateProfileId: 'cp-007',
+    title: 'Call Ramesh about Rohan Desai\'s profile',
+    notes: 'He wanted to discuss family background before deciding.',
+    dueAt: DateTime(now.year, now.month, now.day, 17, 0),
+    priority: FollowUpPriority.high,
+    createdAt: now.subtract(const Duration(days: 2)),
+  ));
+
+  await followUpRepo.save(BrokerFollowUp(
+    id: 'fu-002',
+    brokerUserId: 'broker-001',
+    clientUserId: 'parent-003',
+    title: 'Collect payment from Suresh to start sharing',
+    notes: 'Connected 18 days ago, still on free tier.',
+    dueAt: now.add(const Duration(days: 1)),
+    priority: FollowUpPriority.high,
+    createdAt: now.subtract(const Duration(days: 1)),
+  ));
+
+  await followUpRepo.save(BrokerFollowUp(
+    id: 'fu-003',
+    brokerUserId: 'broker-001',
+    clientUserId: 'parent-004',
+    title: 'Shortlist 3 more grooms for Divya',
+    notes: 'Sharing goes live in 5 days — line up profiles.',
+    dueAt: now.add(const Duration(days: 2)),
+    priority: FollowUpPriority.normal,
+    createdAt: now.subtract(const Duration(hours: 12)),
+  ));
+
+  await followUpRepo.save(BrokerFollowUp(
+    id: 'fu-004',
+    brokerUserId: 'broker-001',
+    clientUserId: 'parent-003',
+    candidateProfileId: 'cp-002',
+    title: 'Relay Suresh\'s interest in Priya Mehta',
+    notes: 'Inform the candidate side and arrange a call.',
+    dueAt: now.subtract(const Duration(days: 1)),
+    priority: FollowUpPriority.normal,
+    createdAt: now.subtract(const Duration(days: 2)),
+  ));
+
+  await followUpRepo.save(BrokerFollowUp(
+    id: 'fu-005',
+    brokerUserId: 'broker-001',
+    clientUserId: 'parent-001',
+    title: 'Send anniversary wishes to Kumar family',
+    dueAt: now.add(const Duration(days: 6)),
+    priority: FollowUpPriority.low,
+    isDone: true,
+    completedAt: now.subtract(const Duration(days: 1)),
+    createdAt: now.subtract(const Duration(days: 4)),
   ));
 
   // ─── CONVERSATIONS ──────────────────────────────
@@ -654,6 +1008,53 @@ Future<void> seedDemoData(AppDataModule data) async {
     await messagingRepo.saveMessage(msg);
   }
 
+  // Conversation 3: Parent 3 (Suresh) <-> Broker 1 (Sunita) — with a share
+  final conv3 = Conversation(
+    id: 'conv-003',
+    participantIds: ['parent-003', 'broker-001'],
+    lastMessagePreview: 'Suresh ji is interested in Priya\'s profile.',
+    lastMessageAt: now.subtract(const Duration(days: 3)),
+    unreadCount: 2,
+  );
+  await messagingRepo.saveConversation(conv3);
+
+  final messages3 = [
+    ChatMessage(
+      id: 'msg-007',
+      conversationId: 'conv-003',
+      senderId: 'broker-001',
+      recipientId: 'parent-003',
+      content:
+          'Namaste Suresh ji! Happy to help find a bride for Arjun. I\'ll start sharing profiles once we activate your plan.',
+      timestamp: now.subtract(const Duration(days: 17)),
+      isRead: true,
+    ),
+    ChatMessage(
+      id: 'msg-008',
+      conversationId: 'conv-003',
+      senderId: 'broker-001',
+      recipientId: 'parent-003',
+      content: 'Here is a profile I think is a strong match.',
+      type: ChatMessageType.profileShare,
+      profileId: 'cp-002',
+      timestamp: now.subtract(const Duration(days: 3, hours: 2)),
+      isRead: true,
+    ),
+    ChatMessage(
+      id: 'msg-009',
+      conversationId: 'conv-003',
+      senderId: 'parent-003',
+      recipientId: 'broker-001',
+      content: 'We like Priya\'s profile very much. Please arrange a call.',
+      timestamp: now.subtract(const Duration(days: 3)),
+      isRead: false,
+    ),
+  ];
+
+  for (final msg in messages3) {
+    await messagingRepo.saveMessage(msg);
+  }
+
   // ─── PRINT DEMO CREDENTIALS ──────────────────────────────
 
   if (SeedConfig.printCredentials) {
@@ -670,8 +1071,10 @@ Future<void> seedDemoData(AppDataModule data) async {
     debugPrint('║   Kavita Reddy    +91 9812345003  (independent)     ║');
     debugPrint('║   Deepak Mishra   +91 9812345004  (agency)          ║');
     debugPrint('║ Parents                                             ║');
-    debugPrint('║   Ramesh Kumar    +91 9800001001                    ║');
-    debugPrint('║   Meera Nair      +91 9800001002                    ║');
+    debugPrint('║   Ramesh Kumar    +91 9800001001  (Broker: Sunita)  ║');
+    debugPrint('║   Meera Nair      +91 9800001002  (Broker: Kavita)  ║');
+    debugPrint('║   Suresh Iyer     +91 9800001003  (Broker: Sunita)  ║');
+    debugPrint('║   Lakshmi Menon   +91 9800001004  (Broker: Sunita)  ║');
     debugPrint('║ Candidates                                          ║');
     debugPrint('║   Ananya Kumar    +91 9700001001                    ║');
     debugPrint('╚══════════════════════════════════════════════════════╝');

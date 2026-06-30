@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/models/user_role.dart';
@@ -102,13 +102,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     vertical: AppSpacing.xxs,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.sacredSaffron.withValues(alpha: 0.1),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                     borderRadius: AppSpacing.roundedSm,
                   ),
                   child: Text(
                     l10n.registeringAs(_selectedRole!.displayName),
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: AppColors.sacredSaffron,
+                      color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -184,7 +184,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 child: FilledButton(
                   onPressed: isLoading ? null : _sendOtp,
                   style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.sacredSaffron,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: AppSpacing.roundedMd,
                     ),
@@ -216,21 +216,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 margin: EdgeInsets.only(bottom: AppSpacing.lg),
                 padding: AppSpacing.allSm,
                 decoration: BoxDecoration(
-                  color: AppColors.info.withValues(alpha: 0.08),
+                  color: context.palette.info.withValues(alpha: 0.08),
                   borderRadius: AppSpacing.roundedMd,
                   border: Border.all(
-                    color: AppColors.info.withValues(alpha: 0.2),
+                    color: context.palette.info.withValues(alpha: 0.2),
                   ),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.info_outline, size: 20, color: AppColors.info),
+                    Icon(Icons.info_outline, size: 20, color: context.palette.info),
                     AppSpacing.gapW12,
                     Expanded(
                       child: Text(
                         l10n.demoOtpHint,
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: AppColors.info,
+                          color: context.palette.info,
                           height: 1.4,
                         ),
                       ),

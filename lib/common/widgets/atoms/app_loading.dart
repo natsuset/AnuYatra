@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/constants/app_typography.dart';
 
@@ -49,7 +48,7 @@ class AppLoadingIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final effectiveColor = color ?? AppColors.sacredSaffron;
+    final effectiveColor = color ?? Theme.of(context).colorScheme.primary;
 
     Widget indicator = SizedBox(
       width: size,
@@ -71,8 +70,8 @@ class AppLoadingIndicator extends StatelessWidget {
             message!,
             style: AppTypography.bodyMedium(
               color: theme.brightness == Brightness.dark
-                  ? AppColors.darkSecondaryText
-                  : AppColors.lightSecondaryText,
+                  ? Theme.of(context).colorScheme.onSurfaceVariant
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             textAlign: TextAlign.center,
           ),

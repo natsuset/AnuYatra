@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+import 'package:testing_flutter/common/widgets/molecules/profile_photo_carousel.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
-import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
+import 'package:testing_flutter/core/routing/route_names.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/models/candidate_profile.dart';
 import 'package:testing_flutter/models/shared_profile.dart';
 
@@ -21,7 +23,8 @@ class CandidateSharedProfilesScreen extends ConsumerStatefulWidget {
 
 class _CandidateSharedProfilesScreenState
     extends ConsumerState<CandidateSharedProfilesScreen> {
-  List<_SharedProfileItem> _items = [];
+  List<_Item> _items = [];
+  bool _loading = true;
 
   @override
   void initState() {
@@ -30,80 +33,109 @@ class _CandidateSharedProfilesScreenState
   }
 
   Future<void> _loadProfiles() async {
-    final authState = ref.read(authProvider);
-    if (authState is! AuthAuthenticated) return;
+    final auth = ref.read(authProvider);
+    if (auth is! AuthAuthenticated) return;
 
-    final sharedProfileRepo = ref.read(sharedProfileRepositoryProvider);
+    final sharedRepo = ref.read(sharedProfileRepositoryProvider);
     final profileRepo = ref.read(profileRepositoryProvider);
-    final uid = authState.user.uid;
+    final uid = auth.user.uid;
 
-    final sharedProfiles = await sharedProfileRepo.getSharedProfilesForUser(uid);
-
-    final items = <_SharedProfileItem>[];
-    for (final sp in sharedProfiles) {
-      final profile = await profileRepo.getCandidateProfile(sp.profileId);
-      if (profile != null) {
-        items.add(_SharedProfileItem(shared: sp, profile: profile));
-      }
+    final shared = await sharedRepo.getSharedProfilesForUser(uid);
+    final items = <_Item>[];
+    for (final s in shared) {
+      final profile = await profileRepo.getCandidateProfile(s.profileId);
+      if (profile != null) items.add(_Item(shared: s, profile: profile));
     }
 
     if (!mounted) return;
     setState(() {
       _items = items;
+      _loading = false;
     });
   }
 
   Future<void> _respond(SharedProfile shared, SharedProfileResponse response) async {
-    final sharedProfileRepo = ref.read(sharedProfileRepositoryProvider);
-    final updated = shared.copyWith(childResponse: response);
-    await sharedProfileRepo.updateSharedProfile(updated);
+    final repo = ref.read(sharedProfileRepositoryProvider);
+    await repo.updateSharedProfile(shared.copyWith(childResponse: response));
     await _loadProfiles();
 
-    if (mounted) {
-      final label = response == SharedProfileResponse.interested
-          ? context.l10n.markedAsInterested
-          : context.l10n.markedAsPass;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(label),
-          backgroundColor: response == SharedProfileResponse.interested
-              ? AppColors.success
-              : AppColors.lightSecondaryText,
-        ),
-      );
-    }
+    if (!mounted) return;
+    final label = response == SharedProfileResponse.interested
+        ? context.l10n.markedAsInterested
+        : context.l10n.markedAsPass;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(label),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: response == SharedProfileResponse.interested
+            ? context.palette.success
+            : null,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final palette = context.palette;
+
+    if (_loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    final pending = _items.where((i) => i.shared.childResponse == null).length;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(context.l10n.sharedProfiles),
+        actions: [
+          if (_items.isNotEmpty)
+            Container(
+              margin: const EdgeInsets.only(right: AppSpacing.sm),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.xs, vertical: 3),
+              decoration: BoxDecoration(
+                color: pending > 0
+                    ? palette.warning.withValues(alpha: 0.15)
+                    : colors.surfaceContainerHighest,
+                borderRadius: AppSpacing.roundedFull,
+              ),
+              child: Text(
+                '$pending pending',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: pending > 0 ? palette.warning : colors.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+        ],
       ),
       body: _items.isEmpty
-          ? _buildEmptyState(isDark, theme)
+          ? _EmptyState(colors: colors, theme: theme)
           : RefreshIndicator(
-              onRefresh: () async => _loadProfiles(),
+              onRefresh: () async {
+                setState(() => _loading = true);
+                await _loadProfiles();
+              },
               child: ListView.separated(
                 padding: AppSpacing.allMd,
                 itemCount: _items.length,
                 separatorBuilder: (_, __) => AppSpacing.gapH12,
-                itemBuilder: (context, index) {
-                  final item = _items[index];
-                  return _ProfileCard(
+                itemBuilder: (context, i) {
+                  final item = _items[i];
+                  return _SharedProfileCard(
                     item: item,
-                    isDark: isDark,
+                    colors: colors,
                     theme: theme,
+                    palette: palette,
                     onInterested: item.shared.childResponse == null
                         ? () => _respond(
                             item.shared, SharedProfileResponse.interested)
                         : null,
                     onPass: item.shared.childResponse == null
-                        ? () =>
-                            _respond(item.shared, SharedProfileResponse.pass)
+                        ? () => _respond(
+                            item.shared, SharedProfileResponse.pass)
                         : null,
                   );
                 },
@@ -111,19 +143,333 @@ class _CandidateSharedProfilesScreenState
             ),
     );
   }
+}
 
-  Widget _buildEmptyState(bool isDark, ThemeData theme) {
+// ── Data holder ───────────────────────────────────────────────────────────────
+
+class _Item {
+  const _Item({required this.shared, required this.profile});
+  final SharedProfile shared;
+  final CandidateProfile profile;
+}
+
+// ── Profile card ──────────────────────────────────────────────────────────────
+
+class _SharedProfileCard extends StatelessWidget {
+  const _SharedProfileCard({
+    required this.item,
+    required this.colors,
+    required this.theme,
+    required this.palette,
+    this.onInterested,
+    this.onPass,
+  });
+
+  final _Item item;
+  final ColorScheme colors;
+  final ThemeData theme;
+  final AppPalette palette;
+  final VoidCallback? onInterested;
+  final VoidCallback? onPass;
+
+  @override
+  Widget build(BuildContext context) {
+    final profile = item.profile;
+    final response = item.shared.childResponse;
+
+    return Card(
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: AppSpacing.roundedLg,
+        side: BorderSide(color: colors.outlineVariant, width: 0.5),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Photo area ──────────────────────────────────────────────────
+          GestureDetector(
+            onTap: () => context.pushNamed(
+              RouteNames.profileView,
+              pathParameters: {'id': profile.id},
+            ),
+            child: Stack(
+              children: [
+                ProfilePhotoCarousel(
+                  photos: profile.photos,
+                  fallbackInitial: profile.name,
+                  height: 200,
+                  borderRadius: BorderRadius.zero,
+                ),
+                if (response != null)
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: _ResponseBadge(
+                        response: response, palette: palette, colors: colors),
+                  ),
+              ],
+            ),
+          ),
+
+          // ── Text body ────────────────────────────────────────────────────
+          InkWell(
+            onTap: () => context.pushNamed(
+              RouteNames.profileView,
+              pathParameters: {'id': profile.id},
+            ),
+            child: Padding(
+              padding: AppSpacing.allMd,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Name + age
+                  Text(
+                    profile.displayName,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  AppSpacing.gapH4,
+                  Text(
+                    profile.fullDetails,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+
+                  // Attribute chips
+                  if (profile.height.isNotEmpty ||
+                      profile.religion.isNotEmpty) ...[
+                    AppSpacing.gapH8,
+                    Wrap(
+                      spacing: AppSpacing.xs,
+                      runSpacing: AppSpacing.xs,
+                      children: [
+                        if (profile.height.isNotEmpty)
+                          _Chip(Icons.straighten_rounded, profile.height, colors),
+                        if (profile.religion.isNotEmpty)
+                          _Chip(Icons.temple_hindu_rounded, profile.religion, colors),
+                        if (profile.maritalStatus.isNotEmpty)
+                          _Chip(Icons.favorite_border_rounded,
+                              profile.maritalStatus, colors),
+                      ],
+                    ),
+                  ],
+
+                  // About me
+                  if (profile.aboutMe.isNotEmpty) ...[
+                    AppSpacing.gapH8,
+                    Text(
+                      profile.aboutMe,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colors.onSurfaceVariant,
+                        height: 1.4,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+
+                  // Action row or responded status
+                  if (response == null) ...[
+                    AppSpacing.gapH16,
+                    Row(
+                      children: [
+                        _CircleActionButton(
+                          icon: Icons.close_rounded,
+                          color: colors.onSurfaceVariant,
+                          bg: colors.surfaceContainerHighest,
+                          onTap: onPass,
+                        ),
+                        AppSpacing.gapW12,
+                        Expanded(
+                          child: FilledButton.icon(
+                            onPressed: onInterested,
+                            icon: const Icon(Icons.favorite_rounded, size: 18),
+                            label: Text(
+                              context.l10n.interested,
+                              style: const TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w600),
+                            ),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: palette.success,
+                              minimumSize: const Size.fromHeight(46),
+                              shape: const StadiumBorder(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ] else ...[
+                    AppSpacing.gapH12,
+                    Row(
+                      children: [
+                        Icon(
+                          response == SharedProfileResponse.interested
+                              ? Icons.favorite_rounded
+                              : Icons.do_not_disturb_on_rounded,
+                          size: 16,
+                          color: response == SharedProfileResponse.interested
+                              ? palette.success
+                              : colors.onSurfaceVariant,
+                        ),
+                        AppSpacing.gapW8,
+                        Text(
+                          'You responded: ${response.displayName}',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: response == SharedProfileResponse.interested
+                                ? palette.success
+                                : colors.onSurfaceVariant,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Small attribute chip ──────────────────────────────────────────────────────
+
+class _Chip extends StatelessWidget {
+  const _Chip(this.icon, this.label, this.colors);
+  final IconData icon;
+  final String label;
+  final ColorScheme colors;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerHighest.withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 11, color: colors.onSurfaceVariant),
+          const SizedBox(width: 3),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: colors.onSurfaceVariant,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Circle action button (Pass) ───────────────────────────────────────────────
+
+class _CircleActionButton extends StatelessWidget {
+  const _CircleActionButton({
+    required this.icon,
+    required this.color,
+    required this.bg,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final Color color;
+  final Color bg;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: bg,
+      shape: const CircleBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: SizedBox(
+          width: 46,
+          height: 46,
+          child: Icon(icon, color: color, size: 22),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Response badge ────────────────────────────────────────────────────────────
+
+class _ResponseBadge extends StatelessWidget {
+  const _ResponseBadge({
+    required this.response,
+    required this.palette,
+    required this.colors,
+  });
+
+  final SharedProfileResponse response;
+  final AppPalette palette;
+  final ColorScheme colors;
+
+  @override
+  Widget build(BuildContext context) {
+    final isInterested = response == SharedProfileResponse.interested;
+    final color = isInterested ? palette.success : colors.onSurfaceVariant;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.black54,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isInterested ? Icons.favorite_rounded : Icons.do_not_disturb_on_rounded,
+            size: 12,
+            color: color,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            response.displayName,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Empty state ───────────────────────────────────────────────────────────────
+
+class _EmptyState extends StatelessWidget {
+  const _EmptyState({required this.colors, required this.theme});
+
+  final ColorScheme colors;
+  final ThemeData theme;
+
+  @override
+  Widget build(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.person_search_outlined,
-            size: 72,
-            color: isDark
-                ? AppColors.darkTertiaryText
-                : AppColors.lightTertiaryText,
-          ),
+          Icon(Icons.person_search_outlined,
+              size: 72, color: colors.outlineVariant),
           AppSpacing.gapH16,
           Text(
             'No shared profiles yet',
@@ -138,207 +484,11 @@ class _CandidateSharedProfilesScreenState
               context.l10n.noSharedProfilesForCandidate,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: isDark
-                    ? AppColors.darkSecondaryText
-                    : AppColors.lightSecondaryText,
+                color: colors.onSurfaceVariant,
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Data holder
-// ---------------------------------------------------------------------------
-class _SharedProfileItem {
-  final SharedProfile shared;
-  final CandidateProfile profile;
-  const _SharedProfileItem({required this.shared, required this.profile});
-}
-
-// ---------------------------------------------------------------------------
-// Profile card
-// ---------------------------------------------------------------------------
-class _ProfileCard extends StatelessWidget {
-  final _SharedProfileItem item;
-  final bool isDark;
-  final ThemeData theme;
-  final VoidCallback? onInterested;
-  final VoidCallback? onPass;
-
-  const _ProfileCard({
-    required this.item,
-    required this.isDark,
-    required this.theme,
-    this.onInterested,
-    this.onPass,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final profile = item.profile;
-    final response = item.shared.childResponse;
-
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-        side: BorderSide(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-          width: 0.5,
-        ),
-      ),
-      color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () {
-          context.pushNamed(
-            RouteNames.profileView,
-            pathParameters: {'id': item.profile.id},
-          );
-        },
-        child: Padding(
-        padding: AppSpacing.allMd,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Profile info
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 26,
-                  backgroundColor:
-                      AppColors.deepMaroon.withValues(alpha: 0.12),
-                  child: Text(
-                    profile.name.isNotEmpty
-                        ? profile.name[0].toUpperCase()
-                        : '?',
-                    style: const TextStyle(
-                      color: AppColors.deepMaroon,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        profile.displayName,
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        profile.fullDetails,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: isDark
-                              ? AppColors.darkSecondaryText
-                              : AppColors.lightSecondaryText,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                if (response != null) _buildResponseBadge(response),
-              ],
-            ),
-
-            // Additional info
-            if (profile.aboutMe.isNotEmpty) ...[
-              AppSpacing.gapH12,
-              Text(
-                profile.aboutMe,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: isDark
-                      ? AppColors.darkSecondaryText
-                      : AppColors.lightSecondaryText,
-                  height: 1.4,
-                ),
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-
-            // Action buttons (only when not yet responded)
-            if (response == null) ...[
-              const SizedBox(height: 14),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: onPass,
-                      icon: const Icon(Icons.close, size: 18),
-                      label: Text(context.l10n.pass),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: isDark
-                            ? AppColors.darkSecondaryText
-                            : AppColors.lightSecondaryText,
-                        side: BorderSide(
-                          color: isDark
-                              ? AppColors.darkBorder
-                              : AppColors.lightBorder,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: AppSpacing.roundedSm,
-                        ),
-                      ),
-                    ),
-                  ),
-                  AppSpacing.gapW12,
-                  Expanded(
-                    child: FilledButton.icon(
-                      onPressed: onInterested,
-                      icon: const Icon(Icons.favorite_outline, size: 18),
-                      label: Text(context.l10n.interested),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: AppColors.success,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: AppSpacing.roundedSm,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ],
-        ),
-      ),
-      ),
-    );
-  }
-
-  Widget _buildResponseBadge(SharedProfileResponse response) {
-    final isInterested = response == SharedProfileResponse.interested;
-    final color = isInterested ? AppColors.success : AppColors.lightSecondaryText;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: AppSpacing.xxs,
-      ),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        response.displayName,
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: color,
-        ),
       ),
     );
   }

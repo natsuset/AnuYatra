@@ -1,18 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/common/widgets/molecules/photo_manager_widget.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:uuid/uuid.dart';
 import 'package:testing_flutter/models/candidate_profile.dart';
+import 'package:testing_flutter/models/link_request.dart';
+import 'package:testing_flutter/models/user_role.dart';
 
-/// Form for brokers to create or edit a candidate profile.
+/// Who is creating the profile. Drives ownership fields, the title bar,
+/// the "child's phone number" prompt, and whether a candidate user gets
+/// auto-created (PRODUCT_PLAN §1.7).
+enum ProfileCreateMode { broker, parent, candidate }
+
+/// Form for creating a new candidate profile. Reused by all three owners:
+///
+/// - `ProfileCreateMode.broker` (default) — broker creates a profile on
+///   behalf of a parent client. Sets `brokerIds: [brokerUid]`.
+/// - `ProfileCreateMode.parent` — parent creates their child's profile.
+///   Captures the child's phone number, auto-creates the candidate user via
+///   `UserRepository.registerOrLookupByPhone`, links parent ↔ child with an
+///   accepted `childToParent` LinkRequest, and sets `parentUserId` +
+///   `candidateUserId` on the profile.
+/// - `ProfileCreateMode.candidate` — candidate creates their own profile.
+///   Sets `candidateUserId` to themself.
 class ProfileCreateEditScreen extends ConsumerStatefulWidget {
-  const ProfileCreateEditScreen({super.key});
+  final ProfileCreateMode mode;
+
+  const ProfileCreateEditScreen({
+    super.key,
+    this.mode = ProfileCreateMode.broker,
+  });
 
   @override
   ConsumerState<ProfileCreateEditScreen> createState() =>
@@ -39,10 +61,16 @@ class _ProfileCreateEditScreenState
   final _motherOccController = TextEditingController();
   final _siblingsController = TextEditingController();
   final _interestsController = TextEditingController();
+  // Only used in `ProfileCreateMode.parent` — captures the child's phone
+  // number so we can auto-create / link the candidate user.
+  final _childPhoneController = TextEditingController();
 
   Gender _gender = Gender.bride;
   bool _isSaving = false;
   List<String> _photos = [];
+
+  /// Indian mobile number regex, mirrors the one in `AuthNotifier`.
+  static final _indianPhoneRegex = RegExp(r'^[6-9]\d{9}$');
 
   @override
   void dispose() {
@@ -62,6 +90,7 @@ class _ProfileCreateEditScreenState
     _motherOccController.dispose();
     _siblingsController.dispose();
     _interestsController.dispose();
+    _childPhoneController.dispose();
     super.dispose();
   }
 
@@ -71,52 +100,112 @@ class _ProfileCreateEditScreenState
     setState(() => _isSaving = true);
 
     final profileRepo = ref.read(profileRepositoryProvider);
+    final userRepo = ref.read(userRepositoryProvider);
+    final linkRepo = ref.read(linkRepositoryProvider);
     final authState = ref.read(authProvider);
-    if (authState is! AuthAuthenticated) return;
+    if (authState is! AuthAuthenticated) {
+      setState(() => _isSaving = false);
+      return;
+    }
 
+    final creator = authState.user;
     final now = DateTime.now();
     final interests = _interestsController.text.trim().isNotEmpty
         ? _interestsController.text.split(',').map((s) => s.trim()).toList()
         : <String>[];
+    final profileId = const Uuid().v4();
+    final name = _nameController.text.trim();
 
-    final profile = CandidateProfile(
-      id: const Uuid().v4(),
-      createdByUserId: authState.user.uid,
-      name: _nameController.text.trim(),
-      age: int.tryParse(_ageController.text.trim()) ?? 25,
-      gender: _gender,
-      profession: _professionController.text.trim(),
-      education: _educationController.text.trim(),
-      city: _cityController.text.trim(),
-      height: _heightController.text.trim(),
-      community: _communityController.text.trim(),
-      religion: _religionController.text.trim(),
-      caste: _casteController.text.trim(),
-      motherTongue: _motherTongueController.text.trim(),
-      aboutMe: _aboutMeController.text.trim(),
-      familyBackground: _familyBgController.text.trim(),
-      fatherOccupation: _fatherOccController.text.trim(),
-      motherOccupation: _motherOccController.text.trim(),
-      siblings: _siblingsController.text.trim(),
-      interests: interests,
-      photos: _photos,
-      brokerIds: [authState.user.uid],
-      createdAt: now,
-      updatedAt: now,
-    );
+    // Resolve ownership fields per mode.
+    String createdByUserId = creator.uid;
+    List<String> brokerIds = const [];
+    String? parentUserId;
+    String? candidateUserId;
 
-    await profileRepo.saveCandidateProfile(profile);
+    try {
+      switch (widget.mode) {
+        case ProfileCreateMode.broker:
+          brokerIds = [creator.uid];
+        case ProfileCreateMode.candidate:
+          candidateUserId = creator.uid;
+        case ProfileCreateMode.parent:
+          parentUserId = creator.uid;
+          // Auto-create (or look up) the candidate user from the child's phone.
+          final phone = _childPhoneController.text.trim();
+          final candidateUser = await userRepo.registerOrLookupByPhone(
+            phoneNumber: phone,
+            displayName: name,
+            role: UserRole.candidate,
+          );
+          candidateUserId = candidateUser.uid;
+          // Pre-accepted childToParent link so the parent's dashboard
+          // surfaces this child immediately (no manual acceptance needed —
+          // the parent IS the one creating the link).
+          await linkRepo.saveLinkRequest(
+            LinkRequest(
+              id: const Uuid().v4(),
+              fromUserId: candidateUser.uid,
+              toUserId: creator.uid,
+              fromUserName: name,
+              toUserName: creator.displayName,
+              type: LinkRequestType.childToParent,
+              status: LinkRequestStatus.accepted,
+              createdAt: now,
+              respondedAt: now,
+            ),
+          );
+      }
 
-    setState(() => _isSaving = false);
+      final profile = CandidateProfile(
+        id: profileId,
+        createdByUserId: createdByUserId,
+        name: name,
+        age: int.tryParse(_ageController.text.trim()) ?? 25,
+        gender: _gender,
+        profession: _professionController.text.trim(),
+        education: _educationController.text.trim(),
+        city: _cityController.text.trim(),
+        height: _heightController.text.trim(),
+        community: _communityController.text.trim(),
+        religion: _religionController.text.trim(),
+        caste: _casteController.text.trim(),
+        motherTongue: _motherTongueController.text.trim(),
+        aboutMe: _aboutMeController.text.trim(),
+        familyBackground: _familyBgController.text.trim(),
+        fatherOccupation: _fatherOccController.text.trim(),
+        motherOccupation: _motherOccController.text.trim(),
+        siblings: _siblingsController.text.trim(),
+        interests: interests,
+        photos: _photos,
+        brokerIds: brokerIds,
+        parentUserId: parentUserId,
+        candidateUserId: candidateUserId,
+        createdAt: now,
+        updatedAt: now,
+      );
 
-    if (mounted) {
+      await profileRepo.saveCandidateProfile(profile);
+
+      if (!mounted) return;
+      setState(() => _isSaving = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(context.l10n.profileCreatedFor(profile.name)),
-          backgroundColor: AppColors.success,
+          backgroundColor: context.palette.success,
+          behavior: SnackBarBehavior.floating,
         ),
       );
       Navigator.of(context).pop();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isSaving = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to save profile: $e'),
+          backgroundColor: context.palette.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
   }
 
@@ -126,7 +215,7 @@ class _ProfileCreateEditScreenState
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(context.l10n.createProfileAction),
+        title: Text(_titleForMode()),
         actions: [
           TextButton(
             onPressed: _isSaving ? null : _saveProfile,
@@ -139,7 +228,7 @@ class _ProfileCreateEditScreenState
                 : Text(
                     context.l10n.save,
                     style: TextStyle(
-                      color: AppColors.sacredSaffron,
+                      color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -174,8 +263,8 @@ class _ProfileCreateEditScreenState
               onSelectionChanged: (s) => setState(() => _gender = s.first),
               style: SegmentedButton.styleFrom(
                 selectedBackgroundColor:
-                    AppColors.sacredSaffron.withValues(alpha: 0.15),
-                selectedForegroundColor: AppColors.sacredSaffron,
+                    Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                selectedForegroundColor: Theme.of(context).colorScheme.primary,
               ),
             ),
             const SizedBox(height: 20),
@@ -197,6 +286,35 @@ class _ProfileCreateEditScreenState
             _field(_educationController, 'Education',
                 icon: Icons.school_outlined),
             _field(_cityController, 'City', icon: Icons.location_on_outlined),
+            if (widget.mode == ProfileCreateMode.parent) ...[
+              const SizedBox(height: 20),
+              _sectionLabel("Child's Contact"),
+              AppSpacing.gapH8,
+              Text(
+                'We\'ll send an invite to this number so your child can claim '
+                'their profile when they install the app.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+              AppSpacing.gapH8,
+              _field(
+                _childPhoneController,
+                "Child's phone number",
+                icon: Icons.phone_outlined,
+                keyboardType: TextInputType.phone,
+                hint: 'e.g. 9876543210',
+                validator: (v) {
+                  if (widget.mode != ProfileCreateMode.parent) return null;
+                  final t = (v ?? '').trim();
+                  if (t.isEmpty) return 'Required';
+                  if (!_indianPhoneRegex.hasMatch(t)) {
+                    return 'Enter a valid 10-digit Indian mobile number';
+                  }
+                  return null;
+                },
+              ),
+            ],
             const SizedBox(height: 20),
 
             // Community
@@ -252,14 +370,14 @@ class _ProfileCreateEditScreenState
               child: FilledButton(
                 onPressed: _isSaving ? null : _saveProfile,
                 style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.sacredSaffron,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: AppSpacing.roundedMd,
                   ),
                 ),
                 child: Text(
-                  'Create Profile',
-                  style: TextStyle(
+                  _titleForMode(),
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: Colors.white,
@@ -272,6 +390,17 @@ class _ProfileCreateEditScreenState
         ),
       ),
     );
+  }
+
+  String _titleForMode() {
+    switch (widget.mode) {
+      case ProfileCreateMode.broker:
+        return 'Create Profile';
+      case ProfileCreateMode.parent:
+        return "Add My Child's Profile";
+      case ProfileCreateMode.candidate:
+        return 'My Profile';
+    }
   }
 
   Widget _sectionLabel(String text) {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
@@ -92,7 +92,7 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(context.l10n.agencySettingsSaved),
-          backgroundColor: AppColors.success,
+          backgroundColor: context.palette.success,
         ),
       );
     }
@@ -136,7 +136,7 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
                   : Text(
                       context.l10n.save,
                       style: TextStyle(
-                        color: AppColors.sacredSaffron,
+                        color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -155,10 +155,10 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
           Container(
             padding: AppSpacing.allMd,
             decoration: BoxDecoration(
-              color: isDark ? AppColors.darkSurface : Colors.white,
+              color: isDark ? Theme.of(context).colorScheme.surface : Colors.white,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
+                color: isDark ? Theme.of(context).colorScheme.outlineVariant : Theme.of(context).colorScheme.outlineVariant,
               ),
             ),
             child: Column(
@@ -166,7 +166,7 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.business, color: AppColors.sacredSaffron),
+                    Icon(Icons.business, color: Theme.of(context).colorScheme.primary),
                     const SizedBox(width: 10),
                     Text(
                       context.l10n.agencyInformation,
@@ -197,7 +197,7 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
                   AppSpacing.gapH12,
                   Row(
                     children: [
-                      Icon(Icons.star, size: 16, color: AppColors.warning),
+                      Icon(Icons.star, size: 16, color: context.palette.warning),
                       AppSpacing.gapW4,
                       Text(
                         'Rating: ${agency.rating}',
@@ -218,11 +218,11 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
             Container(
               padding: AppSpacing.allMd,
               decoration: BoxDecoration(
-                color: isDark ? AppColors.darkSurface : Colors.white,
+                color: isDark ? Theme.of(context).colorScheme.surface : Colors.white,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
                   color:
-                      isDark ? AppColors.darkDivider : AppColors.lightDivider,
+                      isDark ? Theme.of(context).colorScheme.outlineVariant : Theme.of(context).colorScheme.outlineVariant,
                 ),
               ),
               child: Column(
@@ -242,9 +242,9 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
                       return Chip(
                         label: Text(s),
                         backgroundColor:
-                            AppColors.sacredSaffron.withValues(alpha: 0.1),
+                            Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                         labelStyle: theme.textTheme.bodySmall?.copyWith(
-                          color: AppColors.sacredSaffron,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                         side: BorderSide.none,
                       );
@@ -260,17 +260,17 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
           Container(
             padding: AppSpacing.allMd,
             decoration: BoxDecoration(
-              color: isDark ? AppColors.darkSurface : Colors.white,
+              color: isDark ? Theme.of(context).colorScheme.surface : Colors.white,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
+                color: isDark ? Theme.of(context).colorScheme.outlineVariant : Theme.of(context).colorScheme.outlineVariant,
               ),
             ),
             child: Row(
               children: [
                 Icon(
                   isDark ? Icons.dark_mode : Icons.light_mode,
-                  color: AppColors.sacredSaffron,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
                 AppSpacing.gapW12,
                 Expanded(
@@ -285,7 +285,7 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
                     ref.read(themeModeProvider.notifier).setThemeMode(
                         v ? ThemeMode.dark : ThemeMode.light);
                   },
-                  activeThumbColor: AppColors.sacredSaffron,
+                  activeThumbColor: Theme.of(context).colorScheme.primary,
                 ),
               ],
             ),
@@ -314,7 +314,7 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
                           ref.read(authProvider.notifier).logout();
                         },
                         style: FilledButton.styleFrom(
-                          backgroundColor: AppColors.error,
+                          backgroundColor: context.palette.error,
                         ),
                         child: Text(context.l10n.logout,
                             style: TextStyle(color: Colors.white)),
@@ -323,13 +323,13 @@ class _AgencySettingsScreenState extends ConsumerState<AgencySettingsScreen> {
                   ),
                 );
               },
-              icon: const Icon(Icons.logout, color: AppColors.error),
+              icon: Icon(Icons.logout, color: context.palette.error),
               label: Text(
                 context.l10n.logout,
-                style: TextStyle(color: AppColors.error),
+                style: TextStyle(color: context.palette.error),
               ),
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.error),
+                side: BorderSide(color: context.palette.error),
                 shape: RoundedRectangleBorder(
                   borderRadius: AppSpacing.roundedMd,
                 ),

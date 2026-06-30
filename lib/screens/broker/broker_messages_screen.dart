@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
@@ -98,7 +98,7 @@ class _BrokerMessagesScreenState extends ConsumerState<BrokerMessagesScreen> {
               separatorBuilder: (_, __) => Divider(
                 height: 1,
                 indent: 76,
-                color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
+                color: isDark ? Theme.of(context).colorScheme.outlineVariant : Theme.of(context).colorScheme.outlineVariant,
               ),
               itemBuilder: (context, index) {
                 final conv = conversations[index];
@@ -130,11 +130,11 @@ class _BrokerMessagesScreenState extends ConsumerState<BrokerMessagesScreen> {
                   leading: CircleAvatar(
                     radius: 26,
                     backgroundColor:
-                        AppColors.sacredSaffron.withValues(alpha: 0.15),
+                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
                     child: Text(
                       initial,
                       style: TextStyle(
-                        color: AppColors.sacredSaffron,
+                        color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.w600,
                         fontSize: 18,
                       ),
@@ -157,7 +157,7 @@ class _BrokerMessagesScreenState extends ConsumerState<BrokerMessagesScreen> {
                         timeStr,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: conv.unreadCount > 0
-                              ? AppColors.sacredSaffron
+                              ? Theme.of(context).colorScheme.primary
                               : theme.colorScheme.onSurfaceVariant,
                           fontSize: 12,
                         ),
@@ -189,7 +189,7 @@ class _BrokerMessagesScreenState extends ConsumerState<BrokerMessagesScreen> {
                             vertical: 3,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.chatDarkGreen,
+                            color: context.palette.success,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(

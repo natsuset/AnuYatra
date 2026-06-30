@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
@@ -30,7 +30,7 @@ class RoleSelectionScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 6),
                 decoration: BoxDecoration(
-                  gradient: AppColors.primaryGradient,
+                  gradient: LinearGradient(colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary], begin: Alignment.topLeft, end: Alignment.bottomRight),
                   borderRadius: AppSpacing.roundedXl,
                 ),
                 child: Text(
@@ -123,27 +123,28 @@ class _RoleCard extends StatelessWidget {
     }
   }
 
-  Color get _color {
+  Color _resolveColor(BuildContext context) {
     switch (role) {
       case UserRole.agencyAdmin:
-        return AppColors.info;
+        return context.palette.info;
       case UserRole.broker:
-        return AppColors.success;
+        return context.palette.success;
       case UserRole.parent:
-        return AppColors.sacredSaffron;
+        return Theme.of(context).colorScheme.primary;
       case UserRole.candidate:
-        return AppColors.deepMaroon;
+        return Theme.of(context).colorScheme.secondary;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final color = _resolveColor(context);
 
     return Padding(
       padding: EdgeInsets.only(bottom: AppSpacing.sm),
       child: Material(
-        color: isDark ? AppColors.darkSurface : Colors.white,
+        color: isDark ? Theme.of(context).colorScheme.surface : Colors.white,
         borderRadius: AppSpacing.roundedLg,
         elevation: isDark ? 0 : 1,
         child: InkWell(
@@ -157,10 +158,10 @@ class _RoleCard extends StatelessWidget {
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
-                    color: _color.withValues(alpha: 0.12),
+                    color: color.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: Icon(_icon, color: _color, size: 28),
+                  child: Icon(_icon, color: color, size: 28),
                 ),
                 AppSpacing.gapW16,
                 Expanded(

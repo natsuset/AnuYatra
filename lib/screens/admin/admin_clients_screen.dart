@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
@@ -103,13 +103,13 @@ class _AdminClientsScreenState extends ConsumerState<AdminClientsScreen> {
                   vertical: AppSpacing.xxs,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.sacredSaffron.withValues(alpha: 0.15),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
                   borderRadius: AppSpacing.roundedMd,
                 ),
                 child: Text(
                   '${_clients.length}',
                   style: TextStyle(
-                    color: AppColors.sacredSaffron,
+                    color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -173,12 +173,12 @@ class _AdminClientsScreenState extends ConsumerState<AdminClientsScreen> {
                   child: Container(
                   padding: AppSpacing.allMd,
                   decoration: BoxDecoration(
-                    color: isDark ? AppColors.darkSurface : Colors.white,
+                    color: isDark ? Theme.of(context).colorScheme.surface : Colors.white,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
                       color: isDark
-                          ? AppColors.darkDivider
-                          : AppColors.lightDivider,
+                          ? Theme.of(context).colorScheme.outlineVariant
+                          : Theme.of(context).colorScheme.outlineVariant,
                     ),
                   ),
                   child: Row(
@@ -186,13 +186,13 @@ class _AdminClientsScreenState extends ConsumerState<AdminClientsScreen> {
                       CircleAvatar(
                         radius: 24,
                         backgroundColor:
-                            AppColors.sacredSaffron.withValues(alpha: 0.12),
+                            Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
                         child: Text(
                           client.name.isNotEmpty
                               ? client.name[0].toUpperCase()
                               : '?',
                           style: TextStyle(
-                            color: AppColors.sacredSaffron,
+                            color: Theme.of(context).colorScheme.primary,
                             fontWeight: FontWeight.w600,
                             fontSize: 18,
                           ),
@@ -229,13 +229,13 @@ class _AdminClientsScreenState extends ConsumerState<AdminClientsScreen> {
                                   ),
                                   decoration: BoxDecoration(
                                     color:
-                                        AppColors.info.withValues(alpha: 0.1),
+                                        context.palette.info.withValues(alpha: 0.1),
                                     borderRadius: AppSpacing.roundedSm,
                                   ),
                                   child: Text(
                                     name,
                                     style: theme.textTheme.labelSmall?.copyWith(
-                                      color: AppColors.info,
+                                      color: context.palette.info,
                                     ),
                                   ),
                                 );

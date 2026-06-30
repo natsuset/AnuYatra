@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/models/virtual_meeting.dart';
 import 'package:testing_flutter/data/revolutionary_features_data.dart';
 import 'package:testing_flutter/core/theme/app_theme.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:intl/intl.dart';
 
 class VirtualMeetingScreen extends StatefulWidget {
@@ -73,7 +73,7 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
             expandedHeight: 200,
             floating: false,
             pinned: true,
-            backgroundColor: AppColors.meetingPurple, // Purple
+            backgroundColor: context.palette.meetingPurple, // Purple
             elevation: 0,
             systemOverlayStyle: SystemUiOverlayStyle.light,
             flexibleSpace: FlexibleSpaceBar(
@@ -87,14 +87,14 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
                 ),
               ),
               background: Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      AppColors.meetingPurple, // Deep purple
-                      AppColors.meetingPurpleLight, // Bright purple
-                      AppColors.meetingPurpleLighter, // Light purple
+                      context.palette.meetingPurple, // Deep purple
+                      context.palette.meetingPurple, // Bright purple
+                      context.palette.meetingPurple, // Light purple
                     ],
                     stops: [0.0, 0.6, 1.0],
                   ),
@@ -209,9 +209,9 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
             delegate: _SliverTabBarDelegate(
               TabBar(
                 controller: _tabController,
-                labelColor: AppColors.meetingPurple,
+                labelColor: context.palette.meetingPurple,
                 unselectedLabelColor: AppTheme.secondaryText(context),
-                indicatorColor: AppColors.meetingPurple,
+                indicatorColor: context.palette.meetingPurple,
                 indicatorWeight: 3,
                 labelStyle: const TextStyle(
                   fontWeight: FontWeight.w600,
@@ -336,10 +336,10 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppColors.meetingPurple.withValues(alpha: 0.1),
+                color: context.palette.meetingPurple.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, color: AppColors.meetingPurple, size: 20),
+              child: Icon(icon, color: context.palette.meetingPurple, size: 20),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -348,10 +348,10 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.meetingPurple,
+                      color: context.palette.meetingPurple,
                       letterSpacing: -0.5,
                     ),
                   ),
@@ -387,7 +387,7 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
             offset: const Offset(0, 8),
           ),
           BoxShadow(
-            color: AppColors.meetingPurple.withValues(alpha: isDark ? 0.2 : 0.1),
+            color: context.palette.meetingPurple.withValues(alpha: isDark ? 0.2 : 0.1),
             blurRadius: 40,
             offset: const Offset(0, 16),
             spreadRadius: -8,
@@ -401,8 +401,8 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppColors.meetingPurple, AppColors.meetingPurpleLight],
+                  gradient: LinearGradient(
+                    colors: [context.palette.meetingPurple, context.palette.meetingPurple],
                   ),
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -413,13 +413,13 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
                 ),
               ),
               const SizedBox(width: 16),
-              const Expanded(
+              Expanded(
                 child: Text(
                   'Your Meeting Performance',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.meetingPurple,
+                    color: context.palette.meetingPurple,
                     letterSpacing: -0.5,
                   ),
                 ),
@@ -464,18 +464,18 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppColors.meetingPurple.withValues(alpha: 0.1),
+            color: context.palette.meetingPurple.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, color: AppColors.meetingPurple, size: 20),
+          child: Icon(icon, color: context.palette.meetingPurple, size: 20),
         ),
         const SizedBox(height: 8),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: AppColors.meetingPurple,
+            color: context.palette.meetingPurple,
           ),
         ),
         Text(
@@ -519,7 +519,7 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.meetingPurple.withValues(alpha: 0.1),
+                  color: context.palette.meetingPurple.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -557,7 +557,7 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
                 decoration: BoxDecoration(
                   color: meeting.isToday
                       ? Colors.green.withValues(alpha: 0.1)
-                      : AppColors.meetingPurple.withValues(alpha: 0.1),
+                      : context.palette.meetingPurple.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -567,7 +567,7 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
                     fontWeight: FontWeight.w600,
                     color: meeting.isToday
                         ? Colors.green
-                        : AppColors.meetingPurple,
+                        : context.palette.meetingPurple,
                   ),
                 ),
               ),
@@ -598,7 +598,7 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
                   ),
                   decoration: BoxDecoration(
                     color: AppTheme.isDark(context)
-                        ? AppColors.darkSurfaceVariant
+                        ? Theme.of(context).colorScheme.surfaceContainerHighest
                         : Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -623,15 +623,15 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
                 child: OutlinedButton(
                   onPressed: () => _rescheduleMeeting(meeting),
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: AppColors.meetingPurple),
+                    side: BorderSide(color: context.palette.meetingPurple),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Reschedule',
                     style: TextStyle(
-                      color: AppColors.meetingPurple,
+                      color: context.palette.meetingPurple,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -643,7 +643,7 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
                 child: ElevatedButton(
                   onPressed: () => _joinMeeting(meeting),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.meetingPurple,
+                    backgroundColor: context.palette.meetingPurple,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -768,7 +768,7 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
                 color: AppTheme.cardSurface(context),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppColors.meetingPurple.withValues(alpha: 0.2),
+                  color: context.palette.meetingPurple.withValues(alpha: 0.2),
                 ),
               ),
               child: Row(
@@ -776,7 +776,7 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AppColors.meetingPurple.withValues(alpha: 0.1),
+                      color: context.palette.meetingPurple.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -812,15 +812,15 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
                     children: [
                       Text(
                         '${template['duration']} min',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.meetingPurple,
+                          color: context.palette.meetingPurple,
                         ),
                       ),
-                      const Icon(
+                      Icon(
                         Icons.arrow_forward_ios,
-                        color: AppColors.meetingPurple,
+                        color: context.palette.meetingPurple,
                         size: 14,
                       ),
                     ],
@@ -842,7 +842,7 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
           '30 minutes',
           '👋',
           'Family introductions and basic compatibility',
-          AppColors.success,
+          context.palette.success,
         ),
         const SizedBox(height: 12),
         _buildTemplateCard(
@@ -850,7 +850,7 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
           '45 minutes',
           '💭',
           'Religious practices and family values',
-          AppColors.info,
+          context.palette.info,
         ),
         const SizedBox(height: 12),
         _buildTemplateCard(
@@ -858,7 +858,7 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
           '60 minutes',
           '🌍',
           'Regional customs and tradition sharing',
-          AppColors.warning,
+          context.palette.warning,
         ),
         const SizedBox(height: 12),
         _buildTemplateCard(
@@ -866,7 +866,7 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
           '45 minutes',
           '🔮',
           'Career goals and life planning discussion',
-          AppColors.pink,
+          context.palette.error,
         ),
         const SizedBox(height: 12),
         _buildTemplateCard(
@@ -874,7 +874,7 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
           '90 minutes',
           '🍽️',
           'Extended family participation and bonding',
-          AppColors.meetingPurple,
+          context.palette.meetingPurple,
         ),
       ],
     );
@@ -980,7 +980,7 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
           ElevatedButton(
             onPressed: () => _scheduleFirstMeeting(),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.meetingPurple,
+              backgroundColor: context.palette.meetingPurple,
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
             ),
             child: const Text(
@@ -1024,9 +1024,9 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
 
   void _joinMeeting(VirtualMeeting meeting) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Joining meeting...'),
-        backgroundColor: AppColors.meetingPurple,
+      SnackBar(
+        content: const Text('Joining meeting...'),
+        backgroundColor: context.palette.meetingPurple,
       ),
     );
   }
@@ -1045,7 +1045,7 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
           ElevatedButton(
             onPressed: () => Navigator.pop(context),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.meetingPurple,
+              backgroundColor: context.palette.meetingPurple,
             ),
             child: const Text('Reschedule'),
           ),
@@ -1070,7 +1070,7 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
           ElevatedButton(
             onPressed: () => Navigator.pop(context),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.meetingPurple,
+              backgroundColor: context.palette.meetingPurple,
             ),
             child: const Text('Schedule'),
           ),
@@ -1081,9 +1081,9 @@ class _VirtualMeetingScreenState extends State<VirtualMeetingScreen>
 
   void _scheduleFirstMeeting() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Opening meeting scheduler...'),
-        backgroundColor: AppColors.meetingPurple,
+      SnackBar(
+        content: const Text('Opening meeting scheduler...'),
+        backgroundColor: context.palette.meetingPurple,
       ),
     );
   }

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
@@ -96,11 +96,11 @@ class _BrokerOwnProfileScreenState extends ConsumerState<BrokerOwnProfileScreen>
             shape: RoundedRectangleBorder(
               borderRadius: AppSpacing.roundedLg,
               side: BorderSide(
-                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                color: isDark ? Theme.of(context).colorScheme.outline : Theme.of(context).colorScheme.outline,
                 width: 0.5,
               ),
             ),
-            color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+            color: isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface,
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -108,15 +108,15 @@ class _BrokerOwnProfileScreenState extends ConsumerState<BrokerOwnProfileScreen>
                   CircleAvatar(
                     radius: 40,
                     backgroundColor:
-                        AppColors.deepMaroon.withValues(alpha: 0.15),
+                        Theme.of(context).colorScheme.secondary.withValues(alpha: 0.15),
                     child: Text(
                       user.displayName.isNotEmpty
                           ? user.displayName[0].toUpperCase()
                           : '?',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.deepMaroon,
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),
                   ),
@@ -134,8 +134,8 @@ class _BrokerOwnProfileScreenState extends ConsumerState<BrokerOwnProfileScreen>
                     user.phoneNumber,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: isDark
-                          ? AppColors.darkSecondaryText
-                          : AppColors.lightSecondaryText,
+                          ? Theme.of(context).colorScheme.onSurfaceVariant
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                   AppSpacing.gapH8,
@@ -147,15 +147,15 @@ class _BrokerOwnProfileScreenState extends ConsumerState<BrokerOwnProfileScreen>
                             horizontal: 10, vertical: AppSpacing.xxs),
                         decoration: BoxDecoration(
                           color:
-                              AppColors.deepMaroon.withValues(alpha: 0.12),
+                              Theme.of(context).colorScheme.secondary.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
                           user.role.displayName,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.deepMaroon,
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                       ),
@@ -167,24 +167,24 @@ class _BrokerOwnProfileScreenState extends ConsumerState<BrokerOwnProfileScreen>
                               horizontal: AppSpacing.xs, vertical: AppSpacing.xxs),
                           decoration: BoxDecoration(
                             color:
-                                AppColors.warning.withValues(alpha: 0.12),
+                                context.palette.warning.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.star,
                                 size: 14,
-                                color: AppColors.warning,
+                                color: context.palette.warning,
                               ),
                               AppSpacing.gapW4,
                               Text(
                                 brokerProfile.rating.toStringAsFixed(1),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
-                                  color: AppColors.warning,
+                                  color: context.palette.warning,
                                 ),
                               ),
                             ],
@@ -208,7 +208,7 @@ class _BrokerOwnProfileScreenState extends ConsumerState<BrokerOwnProfileScreen>
                   icon: Icons.family_restroom,
                   label: context.l10n.activeClients,
                   value: '$clientCount',
-                  color: AppColors.info,
+                  color: context.palette.info,
                   isDark: isDark,
                 ),
               ),
@@ -218,7 +218,7 @@ class _BrokerOwnProfileScreenState extends ConsumerState<BrokerOwnProfileScreen>
                   icon: Icons.person_outline,
                   label: context.l10n.profilesManaged,
                   value: '$profileCount',
-                  color: AppColors.success,
+                  color: context.palette.success,
                   isDark: isDark,
                 ),
               ),
@@ -233,11 +233,11 @@ class _BrokerOwnProfileScreenState extends ConsumerState<BrokerOwnProfileScreen>
             shape: RoundedRectangleBorder(
               borderRadius: AppSpacing.roundedLg,
               side: BorderSide(
-                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                color: isDark ? Theme.of(context).colorScheme.outline : Theme.of(context).colorScheme.outline,
                 width: 0.5,
               ),
             ),
-            color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+            color: isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface,
             child: Column(
               children: [
                 if (agency != null) ...[
@@ -278,11 +278,11 @@ class _BrokerOwnProfileScreenState extends ConsumerState<BrokerOwnProfileScreen>
                 borderRadius: AppSpacing.roundedLg,
                 side: BorderSide(
                   color:
-                      isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                      isDark ? Theme.of(context).colorScheme.outline : Theme.of(context).colorScheme.outline,
                   width: 0.5,
                 ),
               ),
-              color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+              color: isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface,
               child: Padding(
                 padding: AppSpacing.allMd,
                 child: Column(
@@ -301,11 +301,11 @@ class _BrokerOwnProfileScreenState extends ConsumerState<BrokerOwnProfileScreen>
                       children: brokerProfile.areasServed
                           .map((area) => Chip(
                                 label: Text(area),
-                                backgroundColor: AppColors.info
+                                backgroundColor: context.palette.info
                                     .withValues(alpha: 0.08),
-                                labelStyle: const TextStyle(
+                                labelStyle: TextStyle(
                                   fontSize: 13,
-                                  color: AppColors.info,
+                                  color: context.palette.info,
                                 ),
                                 side: BorderSide.none,
                                 padding: EdgeInsets.zero,
@@ -330,11 +330,11 @@ class _BrokerOwnProfileScreenState extends ConsumerState<BrokerOwnProfileScreen>
                 borderRadius: AppSpacing.roundedLg,
                 side: BorderSide(
                   color:
-                      isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                      isDark ? Theme.of(context).colorScheme.outline : Theme.of(context).colorScheme.outline,
                   width: 0.5,
                 ),
               ),
-              color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+              color: isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface,
               child: Padding(
                 padding: AppSpacing.allMd,
                 child: Column(
@@ -353,11 +353,11 @@ class _BrokerOwnProfileScreenState extends ConsumerState<BrokerOwnProfileScreen>
                       children: brokerProfile.specializations
                           .map((spec) => Chip(
                                 label: Text(spec),
-                                backgroundColor: AppColors.sacredSaffron
+                                backgroundColor: Theme.of(context).colorScheme.primary
                                     .withValues(alpha: 0.08),
-                                labelStyle: const TextStyle(
+                                labelStyle: TextStyle(
                                   fontSize: 13,
-                                  color: AppColors.sacredSaffron,
+                                  color: Theme.of(context).colorScheme.primary,
                                 ),
                                 side: BorderSide.none,
                                 padding: EdgeInsets.zero,
@@ -380,11 +380,11 @@ class _BrokerOwnProfileScreenState extends ConsumerState<BrokerOwnProfileScreen>
             shape: RoundedRectangleBorder(
               borderRadius: AppSpacing.roundedLg,
               side: BorderSide(
-                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                color: isDark ? Theme.of(context).colorScheme.outline : Theme.of(context).colorScheme.outline,
                 width: 0.5,
               ),
             ),
-            color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+            color: isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface,
             child: Column(
               children: [
                 ListTile(
@@ -392,12 +392,12 @@ class _BrokerOwnProfileScreenState extends ConsumerState<BrokerOwnProfileScreen>
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: AppColors.sacredSaffron.withValues(alpha: 0.12),
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
                       borderRadius: AppSpacing.roundedSm,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.settings_outlined,
-                      color: AppColors.sacredSaffron,
+                      color: Theme.of(context).colorScheme.primary,
                       size: 18,
                     ),
                   ),
@@ -413,18 +413,18 @@ class _BrokerOwnProfileScreenState extends ConsumerState<BrokerOwnProfileScreen>
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: AppColors.error.withValues(alpha: 0.12),
+                      color: context.palette.error.withValues(alpha: 0.12),
                       borderRadius: AppSpacing.roundedSm,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.logout,
-                      color: AppColors.error,
+                      color: context.palette.error,
                       size: 18,
                     ),
                   ),
                   title: Text(
                     context.l10n.logout,
-                    style: TextStyle(color: AppColors.error),
+                    style: TextStyle(color: context.palette.error),
                   ),
                   onTap: () async {
                     final confirmed = await showDialog<bool>(
@@ -442,7 +442,7 @@ class _BrokerOwnProfileScreenState extends ConsumerState<BrokerOwnProfileScreen>
                           FilledButton(
                             onPressed: () => Navigator.pop(ctx, true),
                             style: FilledButton.styleFrom(
-                              backgroundColor: AppColors.error,
+                              backgroundColor: context.palette.error,
                             ),
                             child: Text(context.l10n.logout),
                           ),
@@ -488,11 +488,11 @@ class _StatTile extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
         side: BorderSide(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          color: isDark ? Theme.of(context).colorScheme.outline : Theme.of(context).colorScheme.outline,
           width: 0.5,
         ),
       ),
-      color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+      color: isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface,
       child: Padding(
         padding: AppSpacing.allMd,
         child: Column(
@@ -505,8 +505,8 @@ class _StatTile extends StatelessWidget {
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: isDark
-                    ? AppColors.darkPrimaryText
-                    : AppColors.lightPrimaryText,
+                    ? Theme.of(context).colorScheme.onSurface
+                    : Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 2),
@@ -515,8 +515,8 @@ class _StatTile extends StatelessWidget {
               style: TextStyle(
                 fontSize: 13,
                 color: isDark
-                    ? AppColors.darkTertiaryText
-                    : AppColors.lightTertiaryText,
+                    ? Theme.of(context).colorScheme.onSurfaceVariant
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],

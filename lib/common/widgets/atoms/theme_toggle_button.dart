@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/providers/theme_provider.dart';
 import 'package:testing_flutter/core/theme/theme_extensions.dart';
@@ -51,7 +50,7 @@ class ThemeToggleButton extends ConsumerWidget {
           children: [
             Icon(
               _getThemeModeIcon(themeMode),
-              color: isDark ? Colors.white : AppColors.lightPrimaryText,
+              color: isDark ? Colors.white : Theme.of(context).colorScheme.onSurface,
             ),
             AppSpacing.md.horizontalSpace,
             Expanded(
@@ -67,8 +66,8 @@ class ThemeToggleButton extends ConsumerWidget {
             Icon(
               Icons.chevron_right,
               color: isDark
-                  ? AppColors.darkSecondaryText
-                  : AppColors.lightSecondaryText,
+                  ? Theme.of(context).colorScheme.onSurfaceVariant
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ],
         ),
@@ -155,10 +154,10 @@ class ThemeToggleButton extends ConsumerWidget {
     bool isSelected,
   ) {
     return ListTile(
-      leading: Icon(icon, color: isSelected ? AppColors.sacredSaffron : null),
+      leading: Icon(icon, color: isSelected ? Theme.of(context).colorScheme.primary : null),
       title: Text(label),
       trailing: isSelected
-          ? const Icon(Icons.check, color: AppColors.sacredSaffron)
+          ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
           : null,
       selected: isSelected,
       onTap: () {

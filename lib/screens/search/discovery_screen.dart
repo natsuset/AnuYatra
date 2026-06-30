@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
@@ -10,7 +10,9 @@ import 'package:testing_flutter/models/agency.dart';
 import 'package:testing_flutter/models/broker_profile.dart';
 import 'package:testing_flutter/models/link_request.dart';
 import 'package:testing_flutter/models/search_filter.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/core/theme/app_theme.dart';
+import 'package:testing_flutter/common/widgets/molecules/app_voice_search_bar.dart';
 
 class DiscoveryScreen extends ConsumerStatefulWidget {
   const DiscoveryScreen({super.key});
@@ -20,26 +22,58 @@ class DiscoveryScreen extends ConsumerStatefulWidget {
 }
 
 class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
+  static const _recentSearchesKey = 'recent_searches_discovery';
+  static const _maxRecentSearches = 5;
+
   final TextEditingController _searchController = TextEditingController();
   SearchType _selectedFilter = SearchType.all;
   List<Agency> _agencies = [];
   List<BrokerProfile> _brokers = [];
   Map<String, int> _agencyBrokerCounts = {};
   Map<String, String?> _brokerAgencyNames = {};
+  List<String> _recentSearches = [];
   bool _isLoading = false;
   bool _hasSearched = false;
 
   @override
   void initState() {
     super.initState();
-    // Load all results on init
-    WidgetsBinding.instance.addPostFrameCallback((_) => _performSearch());
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _loadRecentSearches();
+      await _performSearch();
+    });
   }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadRecentSearches() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getStringList(_recentSearchesKey) ?? const [];
+    if (!mounted) return;
+    setState(() => _recentSearches = saved);
+  }
+
+  Future<void> _saveRecentSearch(String query) async {
+    final cleaned = query.trim();
+    if (cleaned.isEmpty) return;
+    final updated = [cleaned, ..._recentSearches.where((q) => q.toLowerCase() != cleaned.toLowerCase())]
+        .take(_maxRecentSearches)
+        .toList();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_recentSearchesKey, updated);
+    if (!mounted) return;
+    setState(() => _recentSearches = updated);
+  }
+
+  Future<void> _clearRecentSearches() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_recentSearchesKey);
+    if (!mounted) return;
+    setState(() => _recentSearches = []);
   }
 
   Future<void> _performSearch() async {
@@ -78,6 +112,9 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
       _isLoading = false;
       _hasSearched = true;
     });
+    if (query.isNotEmpty) {
+      await _saveRecentSearch(query);
+    }
   }
 
   void _onFilterChanged(SearchType filter) {
@@ -107,6 +144,8 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
       body: CustomScrollView(
         slivers: [
           _buildAppBar(context, isDark),
+          if (_recentSearches.isNotEmpty)
+            SliverToBoxAdapter(child: _buildRecentSearches(context, isDark)),
           SliverToBoxAdapter(child: _buildFilterChips(context, isDark)),
           if (_isLoading)
             const SliverFillRemaining(
@@ -128,17 +167,17 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
       backgroundColor: AppTheme.appBarBackground(context),
       foregroundColor: Colors.white,
       elevation: 0,
-      expandedHeight: 130,
+      expandedHeight: 160,
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
           decoration: BoxDecoration(
             gradient: isDark
                 ? LinearGradient(
-                    colors: [AppColors.darkSurface, AppColors.darkSurfaceVariant],
+                    colors: [Theme.of(context).colorScheme.surface, Theme.of(context).colorScheme.surfaceContainerHighest],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                   )
-                : AppColors.primaryGradient,
+                : LinearGradient(colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary], begin: Alignment.topLeft, end: Alignment.bottomRight),
           ),
           child: SafeArea(
             child: Padding(
@@ -171,59 +210,11 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
   }
 
   Widget _buildSearchBar(BuildContext context, bool isDark) {
-    return Container(
-      height: 48,
-      decoration: BoxDecoration(
-        color: isDark
-            ? AppColors.darkSurfaceVariant.withValues(alpha: 0.8)
-            : Colors.white.withValues(alpha: 0.95),
-        borderRadius: AppSpacing.roundedXxl,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: TextField(
-        controller: _searchController,
-        style: TextStyle(
-          color: isDark ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-          fontSize: 15,
-        ),
-        decoration: InputDecoration(
-          hintText: context.l10n.searchBrokersAgenciesHint,
-          hintStyle: TextStyle(
-            color: isDark ? AppColors.darkTertiaryText : AppColors.lightTertiaryText,
-            fontSize: 15,
-          ),
-          prefixIcon: Icon(
-            Icons.search_rounded,
-            color: isDark ? AppColors.darkTertiaryText : AppColors.lightSecondaryText,
-            size: 22,
-          ),
-          suffixIcon: _searchController.text.isNotEmpty
-              ? IconButton(
-                  icon: Icon(
-                    Icons.close_rounded,
-                    color: isDark ? AppColors.darkTertiaryText : AppColors.lightSecondaryText,
-                    size: 20,
-                  ),
-                  onPressed: () {
-                    _searchController.clear();
-                    _performSearch();
-                  },
-                )
-              : null,
-          border: InputBorder.none,
-          contentPadding:
-              EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 14),
-        ),
-        textInputAction: TextInputAction.search,
-        onSubmitted: (_) => _performSearch(),
-        onChanged: (_) => setState(() {}),
-      ),
+    return AppVoiceSearchBar(
+      controller: _searchController,
+      hintText: context.l10n.searchBrokersAgenciesHint,
+      onSubmitted: (_) => _performSearch(),
+      onChanged: (_) => setState(() {}),
     );
   }
 
@@ -260,20 +251,20 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                 selected: isSelected,
                 onSelected: (_) => _onFilterChanged(filter),
                 backgroundColor: isDark
-                    ? AppColors.darkSurfaceVariant
-                    : AppColors.lightSurfaceVariant,
-                selectedColor: AppColors.sacredSaffron.withValues(alpha: 0.15),
-                checkmarkColor: AppColors.sacredSaffron,
+                    ? Theme.of(context).colorScheme.surfaceContainerHighest
+                    : Theme.of(context).colorScheme.surfaceContainerHighest,
+                selectedColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                checkmarkColor: Theme.of(context).colorScheme.primary,
                 labelStyle: TextStyle(
                   fontSize: 13,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                   color: isSelected
-                      ? AppColors.sacredSaffron
+                      ? Theme.of(context).colorScheme.primary
                       : AppTheme.secondaryText(context),
                 ),
                 side: BorderSide(
                   color: isSelected
-                      ? AppColors.sacredSaffron.withValues(alpha: 0.5)
+                      ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.5)
                       : AppTheme.border(context),
                   width: 1,
                 ),
@@ -292,6 +283,78 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
     );
   }
 
+  Widget _buildRecentSearches(BuildContext context, bool isDark) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: AppSpacing.md,
+        right: AppSpacing.md,
+        top: AppSpacing.sm,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.history_rounded,
+                  size: 16, color: AppTheme.tertiaryText(context)),
+              AppSpacing.gapW4,
+              Text(
+                'Recent searches',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.secondaryText(context),
+                ),
+              ),
+              const Spacer(),
+              GestureDetector(
+                onTap: _clearRecentSearches,
+                child: Text(
+                  'Clear',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          AppSpacing.gapH8,
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: _recentSearches
+                .map((q) => ActionChip(
+                      label: Text(q),
+                      labelStyle: TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.primaryText(context),
+                      ),
+                      avatar: Icon(
+                        Icons.north_west_rounded,
+                        size: 14,
+                        color: AppTheme.tertiaryText(context),
+                      ),
+                      backgroundColor: isDark
+                          ? Theme.of(context).colorScheme.surfaceContainerHighest
+                          : Theme.of(context).colorScheme.surfaceContainerHighest,
+                      side: BorderSide(
+                        color: AppTheme.border(context),
+                        width: 0.5,
+                      ),
+                      onPressed: () {
+                        _searchController.text = q;
+                        _performSearch();
+                      },
+                    ))
+                .toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildEmptyState(BuildContext context, bool isDark) {
     return Center(
       child: Padding(
@@ -303,13 +366,13 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: AppColors.sacredSaffron.withValues(alpha: 0.1),
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.search_off_rounded,
                 size: 40,
-                color: AppColors.sacredSaffron,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
             AppSpacing.gapH24,
@@ -341,7 +404,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
               icon: const Icon(Icons.refresh_rounded, size: 18),
               label: Text(context.l10n.clearSearch),
               style: TextButton.styleFrom(
-                foregroundColor: AppColors.sacredSaffron,
+                foregroundColor: Theme.of(context).colorScheme.primary,
               ),
             ),
           ],
@@ -408,7 +471,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
       ),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: AppColors.sacredSaffron),
+          Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
           AppSpacing.gapW8,
           Text(
             title,
@@ -423,15 +486,15 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
             padding:
                 EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: 2),
             decoration: BoxDecoration(
-              color: AppColors.sacredSaffron.withValues(alpha: 0.1),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
               '$count',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: AppColors.sacredSaffron,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
           ),
@@ -458,8 +521,8 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
               borderRadius: AppSpacing.roundedLg,
               border: Border.all(
                 color: isDark
-                    ? AppColors.darkBorder.withValues(alpha: 0.5)
-                    : AppColors.lightDivider,
+                    ? Theme.of(context).colorScheme.outline.withValues(alpha: 0.5)
+                    : Theme.of(context).colorScheme.outlineVariant,
               ),
             ),
             child: Row(
@@ -470,7 +533,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
-                    gradient: AppColors.primaryGradient,
+                    gradient: LinearGradient(colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary], begin: Alignment.topLeft, end: Alignment.bottomRight),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Center(
@@ -508,15 +571,15 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: AppColors.success.withValues(alpha: 0.1),
+                                color: context.palette.success.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(6),
                               ),
-                              child: const Text(
+                              child: Text(
                                 'Active',
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
-                                  color: AppColors.success,
+                                  color: context.palette.success,
                                 ),
                               ),
                             ),
@@ -587,8 +650,8 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                               ),
                               decoration: BoxDecoration(
                                 color: isDark
-                                    ? AppColors.darkSurfaceVariant
-                                    : AppColors.sacredSaffron.withValues(alpha: 0.08),
+                                    ? Theme.of(context).colorScheme.surfaceContainerHighest
+                                    : Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
                                 borderRadius: AppSpacing.roundedSm,
                               ),
                               child: Text(
@@ -597,8 +660,8 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                                   fontSize: 11,
                                   fontWeight: FontWeight.w500,
                                   color: isDark
-                                      ? AppColors.sacredSaffronLight
-                                      : AppColors.deepMaroon,
+                                      ? Theme.of(context).colorScheme.primaryContainer
+                                      : Theme.of(context).colorScheme.secondary,
                                 ),
                               ),
                             );
@@ -634,8 +697,8 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
               borderRadius: AppSpacing.roundedLg,
               border: Border.all(
                 color: isDark
-                    ? AppColors.darkBorder.withValues(alpha: 0.5)
-                    : AppColors.lightDivider,
+                    ? Theme.of(context).colorScheme.outline.withValues(alpha: 0.5)
+                    : Theme.of(context).colorScheme.outlineVariant,
               ),
             ),
             child: Row(
@@ -649,8 +712,8 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                       height: 56,
                       decoration: BoxDecoration(
                         color: isDark
-                            ? AppColors.darkSurfaceVariant
-                            : AppColors.deepMaroon.withValues(alpha: 0.1),
+                            ? Theme.of(context).colorScheme.surfaceContainerHighest
+                            : Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Center(
@@ -660,8 +723,8 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
                             color: isDark
-                                ? AppColors.sacredSaffronLight
-                                : AppColors.deepMaroon,
+                                ? Theme.of(context).colorScheme.primaryContainer
+                                : Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                       ),
@@ -675,7 +738,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                           width: 14,
                           height: 14,
                           decoration: BoxDecoration(
-                            color: AppColors.success,
+                            color: context.palette.success,
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: AppTheme.cardSurface(context),
@@ -710,15 +773,15 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: AppColors.info.withValues(alpha: 0.1),
+                                color: context.palette.info.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
                                 '${broker.experienceYears} yr${broker.experienceYears != 1 ? 's' : ''}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
-                                  color: AppColors.info,
+                                  color: context.palette.info,
                                 ),
                               ),
                             ),
@@ -821,8 +884,8 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                               ),
                               decoration: BoxDecoration(
                                 color: isDark
-                                    ? AppColors.darkSurfaceVariant
-                                    : AppColors.deepMaroon.withValues(alpha: 0.08),
+                                    ? Theme.of(context).colorScheme.surfaceContainerHighest
+                                    : Theme.of(context).colorScheme.secondary.withValues(alpha: 0.08),
                                 borderRadius: AppSpacing.roundedSm,
                               ),
                               child: Text(
@@ -831,8 +894,8 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                                   fontSize: 11,
                                   fontWeight: FontWeight.w500,
                                   color: isDark
-                                      ? AppColors.sacredSaffronLight
-                                      : AppColors.deepMaroon,
+                                      ? Theme.of(context).colorScheme.primaryContainer
+                                      : Theme.of(context).colorScheme.secondary,
                                 ),
                               ),
                             );
@@ -888,7 +951,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                     Container(
                       width: 56, height: 56,
                       decoration: BoxDecoration(
-                        gradient: AppColors.primaryGradient,
+                        gradient: LinearGradient(colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary], begin: Alignment.topLeft, end: Alignment.bottomRight),
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Center(
@@ -932,8 +995,8 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                     spacing: 8, runSpacing: 6,
                     children: agency.specializations.map((s) => Chip(
                       label: Text(s),
-                      backgroundColor: AppColors.sacredSaffron.withValues(alpha: 0.1),
-                      labelStyle: const TextStyle(fontSize: 12, color: AppColors.sacredSaffron),
+                      backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                      labelStyle: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.primary),
                       side: BorderSide.none,
                       padding: EdgeInsets.zero,
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -950,7 +1013,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                   icon: const Icon(Icons.link),
                   label: Text(context.l10n.connectWithAgency),
                   style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.sacredSaffron,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     minimumSize: const Size(double.infinity, 48),
                     shape: RoundedRectangleBorder(borderRadius: AppSpacing.roundedMd),
                   ),
@@ -964,9 +1027,9 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                   ...brokers.map((b) => ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: CircleAvatar(
-                      backgroundColor: AppColors.deepMaroon.withValues(alpha: 0.1),
+                      backgroundColor: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
                       child: Text(b.name.isNotEmpty ? b.name[0] : '?',
-                        style: const TextStyle(color: AppColors.deepMaroon, fontWeight: FontWeight.w600)),
+                        style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontWeight: FontWeight.w600)),
                     ),
                     title: Text(b.name),
                     subtitle: Text('${b.experienceYears} yrs exp • ${b.clientCount} clients'),
@@ -1023,10 +1086,10 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                   children: [
                     CircleAvatar(
                       radius: 28,
-                      backgroundColor: AppColors.deepMaroon.withValues(alpha: 0.1),
+                      backgroundColor: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
                       child: Text(
                         broker.name.isNotEmpty ? broker.name[0] : '?',
-                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.deepMaroon),
+                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.secondary),
                       ),
                     ),
                     const SizedBox(width: 14),
@@ -1053,8 +1116,8 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                     spacing: 6, runSpacing: 4,
                     children: broker.areasServed.map((a) => Chip(
                       label: Text(a),
-                      backgroundColor: AppColors.info.withValues(alpha: 0.08),
-                      labelStyle: const TextStyle(fontSize: 12, color: AppColors.info),
+                      backgroundColor: context.palette.info.withValues(alpha: 0.08),
+                      labelStyle: TextStyle(fontSize: 12, color: context.palette.info),
                       side: BorderSide.none,
                       padding: EdgeInsets.zero,
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -1070,7 +1133,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                   icon: const Icon(Icons.link),
                   label: Text(context.l10n.connectWithBroker),
                   style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.sacredSaffron,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     minimumSize: const Size(double.infinity, 48),
                     shape: RoundedRectangleBorder(borderRadius: AppSpacing.roundedMd),
                   ),
@@ -1130,11 +1193,11 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
 
     for (int i = 0; i < 5; i++) {
       if (i < fullStars) {
-        stars.add(const Icon(Icons.star_rounded, size: 16, color: AppColors.warning));
+        stars.add(Icon(Icons.star_rounded, size: 16, color: context.palette.warning));
       } else if (i == fullStars && hasHalfStar) {
-        stars.add(const Icon(Icons.star_half_rounded, size: 16, color: AppColors.warning));
+        stars.add(Icon(Icons.star_half_rounded, size: 16, color: context.palette.warning));
       } else {
-        stars.add(Icon(Icons.star_outline_rounded, size: 16, color: AppColors.warning.withValues(alpha: 0.4)));
+        stars.add(Icon(Icons.star_outline_rounded, size: 16, color: context.palette.warning.withValues(alpha: 0.4)));
       }
     }
     return stars;

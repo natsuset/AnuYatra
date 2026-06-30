@@ -1,7 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 
 /// Reusable photo management widget for candidate profiles.
 /// Allows adding photos from camera or gallery.
@@ -36,87 +37,113 @@ class _PhotoManagerWidgetState extends State<PhotoManagerWidget> {
     _photos = List.from(widget.initialPhotos);
   }
 
+  /// Max bytes per stored photo (PRODUCT_PLAN §1.7 — 3 MB cap after the
+  /// `image_picker` long-edge resize). Files larger than this are rejected
+  /// with a snackbar; users can retake / pick a different photo.
+  static const int _maxBytesPerPhoto = 3 * 1024 * 1024;
+
+  /// Copy a picked [XFile] (a temp path the OS may clean up) into the app's
+  /// documents directory so the photo survives restarts. Returns the new
+  /// permanent path, or `null` if the file exceeds [_maxBytesPerPhoto].
+  Future<String?> _persistPickedImage(XFile picked) async {
+    final docs = await getApplicationDocumentsDirectory();
+    final dir = Directory('${docs.path}/candidate_photos');
+    if (!await dir.exists()) await dir.create(recursive: true);
+
+    final ext = picked.path.contains('.')
+        ? picked.path.split('.').last.toLowerCase()
+        : 'jpg';
+    final ts = DateTime.now().microsecondsSinceEpoch;
+    final dest = File('${dir.path}/$ts.$ext');
+
+    // image_picker already resized via maxWidth/maxHeight; here we just
+    // copy and enforce the size cap.
+    final source = File(picked.path);
+    final bytes = await source.length();
+    if (bytes > _maxBytesPerPhoto) return null;
+    await source.copy(dest.path);
+    return dest.path;
+  }
+
   Future<void> _pickImage(ImageSource source) async {
     if (_photos.length >= widget.maxPhotos) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Maximum ${widget.maxPhotos} photos allowed'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
+      _showSnack('Maximum ${widget.maxPhotos} photos allowed');
       return;
     }
 
     try {
       final picked = await _picker.pickImage(
         source: source,
-        maxWidth: 1200,
-        maxHeight: 1200,
+        maxWidth: 1080,
+        maxHeight: 1080,
         imageQuality: 85,
       );
+      if (picked == null) return;
 
-      if (picked != null) {
-        setState(() {
-          _photos.add(picked.path);
-        });
-        widget.onPhotosChanged(_photos);
+      final persisted = await _persistPickedImage(picked);
+      if (persisted == null) {
+        _showSnack('That image is over 3 MB. Try a smaller / shorter photo.');
+        return;
       }
+
+      if (!mounted) return;
+      setState(() => _photos.add(persisted));
+      widget.onPhotosChanged(_photos);
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to pick image: $e'),
-            backgroundColor: AppColors.error,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
+      _showSnack('Failed to pick image: $e', error: true);
     }
   }
 
   Future<void> _pickMultiple() async {
     final remaining = widget.maxPhotos - _photos.length;
     if (remaining <= 0) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Maximum ${widget.maxPhotos} photos allowed'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
+      _showSnack('Maximum ${widget.maxPhotos} photos allowed');
       return;
     }
 
     try {
       final picked = await _picker.pickMultiImage(
-        maxWidth: 1200,
-        maxHeight: 1200,
+        maxWidth: 1080,
+        maxHeight: 1080,
         imageQuality: 85,
         limit: remaining,
       );
+      if (picked.isEmpty) return;
 
-      if (picked.isNotEmpty) {
-        setState(() {
-          for (final img in picked.take(remaining)) {
-            _photos.add(img.path);
-          }
-        });
-        widget.onPhotosChanged(_photos);
+      var rejected = 0;
+      final newPaths = <String>[];
+      for (final img in picked.take(remaining)) {
+        final p = await _persistPickedImage(img);
+        if (p == null) {
+          rejected++;
+        } else {
+          newPaths.add(p);
+        }
       }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to pick images: $e'),
-            backgroundColor: AppColors.error,
-            behavior: SnackBarBehavior.floating,
-          ),
+
+      if (!mounted) return;
+      setState(() => _photos.addAll(newPaths));
+      widget.onPhotosChanged(_photos);
+
+      if (rejected > 0) {
+        _showSnack(
+          '$rejected photo${rejected == 1 ? '' : 's'} skipped (over 3 MB).',
         );
       }
+    } catch (e) {
+      _showSnack('Failed to pick images: $e', error: true);
     }
+  }
+
+  void _showSnack(String message, {bool error = false}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: error ? context.palette.error : null,
+      ),
+    );
   }
 
   void _removePhoto(int index) {
@@ -162,11 +189,11 @@ class _PhotoManagerWidgetState extends State<PhotoManagerWidget> {
                   leading: Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: AppColors.sacredSaffron.withValues(alpha: 0.1),
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.camera_alt,
-                        color: AppColors.sacredSaffron),
+                    child: Icon(Icons.camera_alt,
+                        color: Theme.of(context).colorScheme.primary),
                   ),
                   title: const Text('Take a Photo'),
                   subtitle: const Text('Use camera'),
@@ -183,10 +210,10 @@ class _PhotoManagerWidgetState extends State<PhotoManagerWidget> {
                   leading: Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: AppColors.info.withValues(alpha: isDark ? 0.15 : 0.1),
+                      color: context.palette.info.withValues(alpha: isDark ? 0.15 : 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.photo_library, color: AppColors.info),
+                    child: Icon(Icons.photo_library, color: context.palette.info),
                   ),
                   title: const Text('Choose from Gallery'),
                   subtitle: const Text('Pick one photo'),
@@ -203,11 +230,11 @@ class _PhotoManagerWidgetState extends State<PhotoManagerWidget> {
                   leading: Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: AppColors.success.withValues(alpha: isDark ? 0.15 : 0.1),
+                      color: context.palette.success.withValues(alpha: isDark ? 0.15 : 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.photo_library_outlined,
-                        color: AppColors.success),
+                    child: Icon(Icons.photo_library_outlined,
+                        color: context.palette.success),
                   ),
                   title: const Text('Choose Multiple'),
                   subtitle: Text(
@@ -284,7 +311,7 @@ class _PhotoManagerWidgetState extends State<PhotoManagerWidget> {
                           child: Container(
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
-                              color: AppColors.error.withValues(alpha: 0.9),
+                              color: context.palette.error.withValues(alpha: 0.9),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -305,7 +332,7 @@ class _PhotoManagerWidgetState extends State<PhotoManagerWidget> {
                                 horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
                               color:
-                                  AppColors.sacredSaffron.withValues(alpha: 0.9),
+                                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.9),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: const Text(
@@ -332,11 +359,11 @@ class _PhotoManagerWidgetState extends State<PhotoManagerWidget> {
                     height: 110,
                     decoration: BoxDecoration(
                       color: isDark
-                          ? AppColors.darkSurfaceVariant
-                          : AppColors.lightSurfaceVariant,
+                          ? Theme.of(context).colorScheme.surfaceContainerHighest
+                          : Theme.of(context).colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: AppColors.sacredSaffron.withValues(alpha: 0.4),
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.4),
                         width: 1.5,
                         strokeAlign: BorderSide.strokeAlignInside,
                       ),
@@ -346,7 +373,7 @@ class _PhotoManagerWidgetState extends State<PhotoManagerWidget> {
                       children: [
                         Icon(
                           Icons.add_a_photo_outlined,
-                          color: AppColors.sacredSaffron.withValues(alpha: 0.7),
+                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.7),
                           size: 28,
                         ),
                         const SizedBox(height: 6),
@@ -355,7 +382,7 @@ class _PhotoManagerWidgetState extends State<PhotoManagerWidget> {
                           style: TextStyle(
                             fontSize: 11,
                             color:
-                                AppColors.sacredSaffron.withValues(alpha: 0.8),
+                                Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -399,21 +426,21 @@ class _PhotoManagerWidgetState extends State<PhotoManagerWidget> {
     return Container(
       width: 100,
       height: 110,
-      color: isDark ? AppColors.darkSurfaceVariant : AppColors.lightSurfaceVariant,
+      color: isDark ? Theme.of(context).colorScheme.surfaceContainerHighest : Theme.of(context).colorScheme.surfaceContainerHighest,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             Icons.image_outlined,
             size: 32,
-            color: isDark ? AppColors.darkTertiaryText : AppColors.lightTertiaryText,
+            color: isDark ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.onSurfaceVariant,
           ),
           const SizedBox(height: 4),
           Text(
             'Photo',
             style: TextStyle(
               fontSize: 10,
-              color: isDark ? AppColors.darkTertiaryText : AppColors.lightTertiaryText,
+              color: isDark ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
         ],

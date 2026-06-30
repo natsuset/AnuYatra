@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/locale_provider.dart';
 
@@ -34,7 +33,7 @@ class LanguagePickerTile extends ConsumerWidget {
     final l10n = context.l10n;
 
     return ListTile(
-      leading: const Icon(Icons.language, color: AppColors.sacredSaffron),
+      leading: Icon(Icons.language, color: Theme.of(context).colorScheme.primary),
       title: Text(l10n.language),
       subtitle: Text(_currentLabel(locale)),
       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
@@ -57,7 +56,7 @@ class LanguagePickerTile extends ConsumerWidget {
             return ListTile(
               leading: Icon(
                 isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
-                color: isSelected ? AppColors.sacredSaffron : null,
+                color: isSelected ? Theme.of(context).colorScheme.primary : null,
               ),
               title: Text('${opt.flag}  ${opt.native}'),
               onTap: () {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 
 /// Reusable avatar component with fallback support
@@ -50,7 +50,7 @@ class AppAvatar extends StatelessWidget {
             ? Border.all(
                 color:
                     borderColor ??
-                    (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                    (isDark ? Theme.of(context).colorScheme.outline : Theme.of(context).colorScheme.outline),
                 width: 2,
               )
             : null,
@@ -85,7 +85,7 @@ class AppAvatar extends StatelessWidget {
               width: size.size * 0.25,
               height: size.size * 0.25,
               decoration: BoxDecoration(
-                color: badgeColor ?? AppColors.success,
+                color: badgeColor ?? context.palette.success,
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: theme.scaffoldBackgroundColor,
@@ -112,15 +112,15 @@ class AppAvatar extends StatelessWidget {
     if (showLoading) {
       return Container(
         color: isDark
-            ? AppColors.darkSurfaceVariant
-            : AppColors.lightSurfaceVariant,
+            ? Theme.of(context).colorScheme.surfaceContainerHighest
+            : Theme.of(context).colorScheme.surfaceContainerHighest,
         child: Center(
           child: SizedBox(
             width: size.size * 0.3,
             height: size.size * 0.3,
             child: CircularProgressIndicator(
               strokeWidth: 2,
-              color: AppColors.sacredSaffron,
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
         ),
@@ -129,15 +129,15 @@ class AppAvatar extends StatelessWidget {
 
     return Container(
       color: isDark
-          ? AppColors.darkSurfaceVariant
-          : AppColors.lightSurfaceVariant,
+          ? Theme.of(context).colorScheme.surfaceContainerHighest
+          : Theme.of(context).colorScheme.surfaceContainerHighest,
       child: Center(
         child: Icon(
           Icons.person,
           size: size.size * 0.5,
           color: isDark
-              ? AppColors.darkSecondaryText
-              : AppColors.lightSecondaryText,
+              ? Theme.of(context).colorScheme.onSurfaceVariant
+              : Theme.of(context).colorScheme.onSurfaceVariant,
         ),
       ),
     );

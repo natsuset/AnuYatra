@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
@@ -87,11 +87,11 @@ class _ParentProfileScreenState extends ConsumerState<ParentProfileScreen> {
             shape: RoundedRectangleBorder(
               borderRadius: AppSpacing.roundedLg,
               side: BorderSide(
-                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                color: isDark ? Theme.of(context).colorScheme.outline : Theme.of(context).colorScheme.outline,
                 width: 0.5,
               ),
             ),
-            color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+            color: isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface,
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -99,15 +99,15 @@ class _ParentProfileScreenState extends ConsumerState<ParentProfileScreen> {
                   CircleAvatar(
                     radius: 40,
                     backgroundColor:
-                        AppColors.sacredSaffron.withValues(alpha: 0.15),
+                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
                     child: Text(
                       user.displayName.isNotEmpty
                           ? user.displayName[0].toUpperCase()
                           : '?',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.sacredSaffron,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ),
@@ -125,8 +125,8 @@ class _ParentProfileScreenState extends ConsumerState<ParentProfileScreen> {
                     user.phoneNumber,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: isDark
-                          ? AppColors.darkSecondaryText
-                          : AppColors.lightSecondaryText,
+                          ? Theme.of(context).colorScheme.onSurfaceVariant
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                   AppSpacing.gapH8,
@@ -136,15 +136,15 @@ class _ParentProfileScreenState extends ConsumerState<ParentProfileScreen> {
                       vertical: AppSpacing.xxs,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.sacredSaffron.withValues(alpha: 0.12),
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
                       user.role.displayName,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.sacredSaffron,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ),
@@ -161,11 +161,11 @@ class _ParentProfileScreenState extends ConsumerState<ParentProfileScreen> {
             shape: RoundedRectangleBorder(
               borderRadius: AppSpacing.roundedLg,
               side: BorderSide(
-                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                color: isDark ? Theme.of(context).colorScheme.outline : Theme.of(context).colorScheme.outline,
                 width: 0.5,
               ),
             ),
-            color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+            color: isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface,
             child: Column(
               children: [
                 if (_parentProfile != null) ...[
@@ -176,7 +176,7 @@ class _ParentProfileScreenState extends ConsumerState<ParentProfileScreen> {
                       _parentProfile!.lookingForDisplay,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w500,
-                        color: AppColors.deepMaroon,
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),
                   ),
@@ -211,7 +211,7 @@ class _ParentProfileScreenState extends ConsumerState<ParentProfileScreen> {
                     '${_connectedBrokerIds.length}',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: AppColors.info,
+                      color: context.palette.info,
                     ),
                   ),
                 ),
@@ -220,8 +220,8 @@ class _ParentProfileScreenState extends ConsumerState<ParentProfileScreen> {
                   leading: Icon(
                     Icons.family_restroom,
                     color: _linkedChild != null
-                        ? AppColors.success
-                        : AppColors.lightTertiaryText,
+                        ? context.palette.success
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   title: Text(context.l10n.linkedChild),
                   trailing: Text(
@@ -230,10 +230,10 @@ class _ParentProfileScreenState extends ConsumerState<ParentProfileScreen> {
                         : context.l10n.notLinked,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: _linkedChild != null
-                          ? AppColors.success
+                          ? context.palette.success
                           : (isDark
-                              ? AppColors.darkTertiaryText
-                              : AppColors.lightTertiaryText),
+                              ? Theme.of(context).colorScheme.onSurfaceVariant
+                              : Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                   ),
                 ),
@@ -249,11 +249,11 @@ class _ParentProfileScreenState extends ConsumerState<ParentProfileScreen> {
             shape: RoundedRectangleBorder(
               borderRadius: AppSpacing.roundedLg,
               side: BorderSide(
-                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                color: isDark ? Theme.of(context).colorScheme.outline : Theme.of(context).colorScheme.outline,
                 width: 0.5,
               ),
             ),
-            color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+            color: isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface,
             child: Column(
               children: [
                 ListTile(
@@ -261,12 +261,35 @@ class _ParentProfileScreenState extends ConsumerState<ParentProfileScreen> {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: AppColors.info.withValues(alpha: 0.12),
+                      color:
+                          context.palette.success.withValues(alpha: 0.12),
                       borderRadius: AppSpacing.roundedSm,
                     ),
-                    child: const Icon(
+                    child: Icon(
+                      Icons.family_restroom_rounded,
+                      color: context.palette.success,
+                      size: 18,
+                    ),
+                  ),
+                  title: const Text("My children's profiles"),
+                  subtitle: const Text(
+                    "Manage profiles you've created for your son or daughter",
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.pushNamed(RouteNames.myProfiles),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: context.palette.info.withValues(alpha: 0.12),
+                      borderRadius: AppSpacing.roundedSm,
+                    ),
+                    child: Icon(
                       Icons.link,
-                      color: AppColors.info,
+                      color: context.palette.info,
                       size: 18,
                     ),
                   ),
@@ -282,12 +305,12 @@ class _ParentProfileScreenState extends ConsumerState<ParentProfileScreen> {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: AppColors.sacredSaffron.withValues(alpha: 0.12),
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
                       borderRadius: AppSpacing.roundedSm,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.settings_outlined,
-                      color: AppColors.sacredSaffron,
+                      color: Theme.of(context).colorScheme.primary,
                       size: 18,
                     ),
                   ),
@@ -303,18 +326,18 @@ class _ParentProfileScreenState extends ConsumerState<ParentProfileScreen> {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: AppColors.error.withValues(alpha: 0.12),
+                      color: context.palette.error.withValues(alpha: 0.12),
                       borderRadius: AppSpacing.roundedSm,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.logout,
-                      color: AppColors.error,
+                      color: context.palette.error,
                       size: 18,
                     ),
                   ),
                   title: Text(
                     context.l10n.logout,
-                    style: TextStyle(color: AppColors.error),
+                    style: TextStyle(color: context.palette.error),
                   ),
                   onTap: () async {
                     final confirmed = await showDialog<bool>(
@@ -332,7 +355,7 @@ class _ParentProfileScreenState extends ConsumerState<ParentProfileScreen> {
                           FilledButton(
                             onPressed: () => Navigator.pop(ctx, true),
                             style: FilledButton.styleFrom(
-                              backgroundColor: AppColors.error,
+                              backgroundColor: context.palette.error,
                             ),
                             child: Text(context.l10n.logout),
                           ),

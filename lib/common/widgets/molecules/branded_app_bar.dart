@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/common/widgets/atoms/theme_toggle_button.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
+import 'package:testing_flutter/screens/debug/theme_tinkerer_screen.dart';
 import 'package:testing_flutter/screens/design_system_demo_screen.dart';
 
 /// Reusable branded AppBar with Anuyātrā branding, theme toggle,
@@ -17,18 +19,29 @@ class BrandedAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return AppBar(
       title: Row(
         children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(8),
+          // Long-press on the logo opens the debug-only ThemeTinkererScreen
+          // in debug builds. Release builds: tap-only, no-op.
+          GestureDetector(
+            onLongPress: kDebugMode
+                ? () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const ThemeTinkererScreen(),
+                      ),
+                    )
+                : null,
+            child: Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: colors.primary.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(Icons.favorite, color: colors.primary, size: 20),
             ),
-            child:
-                const Icon(Icons.favorite, color: Colors.white, size: 20),
           ),
           const SizedBox(width: 12),
           Text(

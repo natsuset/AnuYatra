@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/core/constants/app_colors.dart';
 
 /// Parent/Family bottom navigation shell.
-/// Tabs: Home, Search, My Brokers, Anuyatra, Profile
+/// Tabs: Home, Search, My Brokers, Profiles (vault), Anuyatra, Me
 class ParentShell extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
@@ -34,12 +34,17 @@ class ParentShell extends StatelessWidget {
           NavigationDestination(
             icon: Icon(Icons.search_outlined),
             selectedIcon: Icon(Icons.search),
-            label: 'Search',
+            label: 'Discover',
           ),
           NavigationDestination(
             icon: Icon(Icons.people_outlined),
             selectedIcon: Icon(Icons.people),
-            label: 'My Brokers',
+            label: 'Brokers',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.folder_outlined),
+            selectedIcon: Icon(Icons.folder),
+            label: 'Profiles',
           ),
           NavigationDestination(
             icon: Icon(Icons.auto_awesome_outlined),
@@ -49,7 +54,7 @@ class ParentShell extends StatelessWidget {
           NavigationDestination(
             icon: Icon(Icons.person_outlined),
             selectedIcon: Icon(Icons.person),
-            label: 'Profile',
+            label: 'Me',
           ),
         ],
       ),

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
@@ -173,11 +173,11 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
           decoration: BoxDecoration(
             gradient: isDark
                 ? LinearGradient(
-                    colors: [AppColors.darkSurface, AppColors.darkSurfaceVariant],
+                    colors: [Theme.of(context).colorScheme.surface, Theme.of(context).colorScheme.surfaceContainerHighest],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                   )
-                : AppColors.primaryGradient,
+                : LinearGradient(colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary], begin: Alignment.topLeft, end: Alignment.bottomRight),
           ),
           child: SafeArea(
             child: Padding(
@@ -252,13 +252,13 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: AppColors.warning.withValues(alpha: 0.1),
+                  color: context.palette.warning.withValues(alpha: 0.1),
                   borderRadius: AppSpacing.roundedSm,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.pending_actions_rounded,
                   size: 18,
-                  color: AppColors.warning,
+                  color: context.palette.warning,
                 ),
               ),
               const SizedBox(width: 10),
@@ -275,15 +275,15 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                 padding:
                     EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppColors.warning.withValues(alpha: 0.15),
+                  color: context.palette.warning.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   '${requests.length}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.warningDark,
+                    color: context.palette.warning,
                   ),
                 ),
               ),
@@ -318,13 +318,13 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: isDark
-              ? AppColors.darkSurface
-              : AppColors.warning.withValues(alpha: 0.04),
+              ? Theme.of(context).colorScheme.surface
+              : context.palette.warning.withValues(alpha: 0.04),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isDark
-                ? AppColors.warning.withValues(alpha: 0.2)
-                : AppColors.warning.withValues(alpha: 0.15),
+                ? context.palette.warning.withValues(alpha: 0.2)
+                : context.palette.warning.withValues(alpha: 0.15),
           ),
         ),
         child: Row(
@@ -334,8 +334,8 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
               height: 44,
               decoration: BoxDecoration(
                 color: isDark
-                    ? AppColors.darkSurfaceVariant
-                    : AppColors.warning.withValues(alpha: 0.1),
+                    ? Theme.of(context).colorScheme.surfaceContainerHighest
+                    : context.palette.warning.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -345,7 +345,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color:
-                        isDark ? AppColors.warningLight : AppColors.warningDark,
+                        isDark ? context.palette.warning : context.palette.warning,
                   ),
                 ),
               ),
@@ -423,7 +423,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                             context.l10n.connectedWithName(displayName),
                           ),
                           behavior: SnackBarBehavior.floating,
-                          backgroundColor: AppColors.success,
+                          backgroundColor: context.palette.success,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -431,7 +431,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.success,
+                      backgroundColor: context.palette.success,
                       foregroundColor: Colors.white,
                       elevation: 0,
                       padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -470,9 +470,9 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                       );
                     },
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.error,
+                      foregroundColor: context.palette.error,
                       side: BorderSide(
-                        color: AppColors.error.withValues(alpha: 0.4),
+                        color: context.palette.error.withValues(alpha: 0.4),
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                       shape: RoundedRectangleBorder(
@@ -517,13 +517,13 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: AppColors.info.withValues(alpha: 0.1),
+                  color: context.palette.info.withValues(alpha: 0.1),
                   borderRadius: AppSpacing.roundedSm,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.send_rounded,
                   size: 18,
-                  color: AppColors.info,
+                  color: context.palette.info,
                 ),
               ),
               const SizedBox(width: 10),
@@ -540,15 +540,15 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                 padding:
                     EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppColors.info.withValues(alpha: 0.15),
+                  color: context.palette.info.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   '${requests.length}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.info,
+                    color: context.palette.info,
                   ),
                 ),
               ),
@@ -585,13 +585,13 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: isDark
-              ? AppColors.darkSurface
-              : AppColors.info.withValues(alpha: 0.03),
+              ? Theme.of(context).colorScheme.surface
+              : context.palette.info.withValues(alpha: 0.03),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isDark
-                ? AppColors.info.withValues(alpha: 0.15)
-                : AppColors.info.withValues(alpha: 0.12),
+                ? context.palette.info.withValues(alpha: 0.15)
+                : context.palette.info.withValues(alpha: 0.12),
           ),
         ),
         child: Column(
@@ -603,15 +603,15 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                   height: 44,
                   decoration: BoxDecoration(
                     color: isDark
-                        ? AppColors.darkSurfaceVariant
-                        : AppColors.info.withValues(alpha: 0.08),
+                        ? Theme.of(context).colorScheme.surfaceContainerHighest
+                        : context.palette.info.withValues(alpha: 0.08),
                     shape: BoxShape.circle,
                   ),
                   child: Center(
                     child: Icon(
                       isBrokerRequest ? Icons.person : Icons.business,
                       size: 22,
-                      color: isDark ? AppColors.infoLight : AppColors.info,
+                      color: isDark ? context.palette.info : context.palette.info,
                     ),
                   ),
                 ),
@@ -637,15 +637,15 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 6, vertical: 1),
                             decoration: BoxDecoration(
-                              color: AppColors.warning.withValues(alpha: 0.12),
+                              color: context.palette.warning.withValues(alpha: 0.12),
                               borderRadius: AppSpacing.roundedXs,
                             ),
-                            child: const Text(
+                            child: Text(
                               'Awaiting response',
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w500,
-                                color: AppColors.warningDark,
+                                color: context.palette.warning,
                               ),
                             ),
                           ),
@@ -716,7 +716,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                     icon: const Icon(Icons.chat_bubble_outline_rounded, size: 16),
                     label: Text(context.l10n.chat),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.sacredSaffron,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                       foregroundColor: Colors.white,
                       elevation: 0,
                       padding: AppSpacing.verticalXs,
@@ -752,16 +752,16 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
               height: 96,
               decoration: BoxDecoration(
                 color: isDark
-                    ? AppColors.darkSurfaceVariant
-                    : AppColors.sacredSaffron.withValues(alpha: 0.08),
+                    ? Theme.of(context).colorScheme.surfaceContainerHighest
+                    : Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.handshake_outlined,
                 size: 44,
                 color: isDark
-                    ? AppColors.sacredSaffronLight
-                    : AppColors.sacredSaffron,
+                    ? Theme.of(context).colorScheme.primaryContainer
+                    : Theme.of(context).colorScheme.primary,
               ),
             ),
             AppSpacing.gapH24,
@@ -791,7 +791,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
               icon: const Icon(Icons.search_rounded, size: 20),
               label: Text(context.l10n.findBrokers),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.sacredSaffron,
+                backgroundColor: Theme.of(context).colorScheme.primary,
                 foregroundColor: Colors.white,
                 elevation: 2,
                 padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
@@ -834,13 +834,13 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                   Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: AppColors.success.withValues(alpha: 0.1),
+                      color: context.palette.success.withValues(alpha: 0.1),
                       borderRadius: AppSpacing.roundedSm,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.verified_user_rounded,
                       size: 18,
-                      color: AppColors.success,
+                      color: context.palette.success,
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -891,8 +891,8 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
               borderRadius: AppSpacing.roundedLg,
               border: Border.all(
                 color: isDark
-                    ? AppColors.darkBorder.withValues(alpha: 0.5)
-                    : AppColors.lightDivider,
+                    ? Theme.of(context).colorScheme.outline.withValues(alpha: 0.5)
+                    : Theme.of(context).colorScheme.outlineVariant,
               ),
             ),
             child: Column(
@@ -907,8 +907,8 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                           height: 52,
                           decoration: BoxDecoration(
                             color: isDark
-                                ? AppColors.darkSurfaceVariant
-                                : AppColors.deepMaroon.withValues(alpha: 0.1),
+                                ? Theme.of(context).colorScheme.surfaceContainerHighest
+                                : Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                           ),
                           child: Center(
@@ -920,8 +920,8 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                                 color: isDark
-                                    ? AppColors.sacredSaffronLight
-                                    : AppColors.deepMaroon,
+                                    ? Theme.of(context).colorScheme.primaryContainer
+                                    : Theme.of(context).colorScheme.secondary,
                               ),
                             ),
                           ),
@@ -934,7 +934,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                             height: 14,
                             decoration: BoxDecoration(
                               color: broker.isOnline
-                                  ? AppColors.success
+                                  ? context.palette.success
                                   : AppTheme.tertiaryText(context),
                               shape: BoxShape.circle,
                               border: Border.all(
@@ -972,10 +972,10 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                                 ),
                                 decoration: BoxDecoration(
                                   color: broker.isOnline
-                                      ? AppColors.success.withValues(alpha: 0.1)
+                                      ? context.palette.success.withValues(alpha: 0.1)
                                       : (isDark
-                                          ? AppColors.darkSurfaceVariant
-                                          : AppColors.lightSurfaceVariant),
+                                          ? Theme.of(context).colorScheme.surfaceContainerHighest
+                                          : Theme.of(context).colorScheme.surfaceContainerHighest),
                                   borderRadius: AppSpacing.roundedSm,
                                 ),
                                 child: Text(
@@ -984,7 +984,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                                     fontSize: 11,
                                     fontWeight: FontWeight.w600,
                                     color: broker.isOnline
-                                        ? AppColors.success
+                                        ? context.palette.success
                                         : AppTheme.tertiaryText(context),
                                   ),
                                 ),
@@ -1105,7 +1105,7 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                             size: 18),
                         label: Text(context.l10n.chat),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.sacredSaffron,
+                          backgroundColor: Theme.of(context).colorScheme.primary,
                           foregroundColor: Colors.white,
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(vertical: 10),
@@ -1139,13 +1139,13 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
     for (int i = 0; i < 5; i++) {
       if (i < fullStars) {
         stars.add(
-            const Icon(Icons.star_rounded, size: 16, color: AppColors.warning));
+            Icon(Icons.star_rounded, size: 16, color: context.palette.warning));
       } else if (i == fullStars && hasHalfStar) {
-        stars.add(const Icon(Icons.star_half_rounded,
-            size: 16, color: AppColors.warning));
+        stars.add(Icon(Icons.star_half_rounded,
+            size: 16, color: context.palette.warning));
       } else {
         stars.add(Icon(Icons.star_outline_rounded,
-            size: 16, color: AppColors.warning.withValues(alpha: 0.4)));
+            size: 16, color: context.palette.warning.withValues(alpha: 0.4)));
       }
     }
     return stars;
@@ -1185,13 +1185,13 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                     CircleAvatar(
                       radius: 28,
                       backgroundColor:
-                          AppColors.deepMaroon.withValues(alpha: 0.1),
+                          Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
                       child: Text(
                         broker.name.isNotEmpty ? broker.name[0] : '?',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.deepMaroon,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                     ),
@@ -1245,9 +1245,9 @@ class _MyBrokersScreenState extends ConsumerState<MyBrokersScreen> {
                         .map((a) => Chip(
                               label: Text(a),
                               backgroundColor:
-                                  AppColors.info.withValues(alpha: 0.08),
-                              labelStyle: const TextStyle(
-                                  fontSize: 12, color: AppColors.info),
+                                  context.palette.info.withValues(alpha: 0.08),
+                              labelStyle: TextStyle(
+                                  fontSize: 12, color: context.palette.info),
                               side: BorderSide.none,
                               padding: EdgeInsets.zero,
                               materialTapTargetSize:

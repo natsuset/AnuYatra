@@ -5,39 +5,50 @@ import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:testing_flutter/core/providers/theme_provider.dart';
 import 'package:testing_flutter/core/providers/locale_provider.dart';
+import 'package:testing_flutter/core/providers/palette_provider.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/theme/app_theme.dart';
 import 'package:testing_flutter/core/routing/app_router.dart';
 import 'package:testing_flutter/core/data/app_data_module.dart';
+import 'package:testing_flutter/core/data/remote/app_config.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/data/seed_data.dart';
 import 'package:testing_flutter/l10n/app_localizations.dart';
 
+// ┌─────────────────────────────────────────────────────────────────┐
+// │  CONFIGURATION                                                  │
+// │  Flip between local seed-data mode and live Go backend here.    │
+// │  Everything else (screens, providers, routing) is unaware.      │
+// └─────────────────────────────────────────────────────────────────┘
+const _config = AppConfig(
+  dataSource: DataSource.local, // ← change to DataSource.remote to use backend
+  apiBaseUrl: 'http://localhost:8080',
+);
+
 void main() async {
-  // Wrap everything in error handling to prevent silent crashes
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
 
     try {
-      // Initialize Hive local storage
-      await Hive.initFlutter();
+      final AppDataModule dataModule;
 
-      // Initialize the repository layer (opens all Hive boxes internally)
-      final dataModule = await AppDataModule.initLocal();
+      if (_config.isLocal) {
+        await Hive.initFlutter();
+        dataModule = await AppDataModule.initLocal();
 
-      // Seed demo data ONLY on first launch (when the user store is empty).
-      // The seeder itself re-checks `userRepository.isEmpty` so re-runs are safe.
-      if (await dataModule.userRepository.isEmpty) {
-        debugPrint('First launch detected - seeding demo data...');
-        await seedDemoData(dataModule);
-        debugPrint('Demo data seeded successfully');
+        if (await dataModule.userRepository.isEmpty) {
+          debugPrint('First launch detected - seeding demo data...');
+          await seedDemoData(dataModule);
+          debugPrint('Demo data seeded successfully');
+        }
+      } else {
+        dataModule = await AppDataModule.initRemote(
+          apiBaseUrl: _config.apiBaseUrl,
+        );
       }
 
-      // Pre-resolve auth state BEFORE runApp so the router's first redirect
-      // already sees the correct authenticated/unauthenticated state.
-      // Eliminates the role-selection screen flash on cold start for logged-in users.
       final currentUser = await dataModule.userRepository.getCurrentUser();
       final AuthState initialAuthState = currentUser != null
           ? AuthAuthenticated(user: currentUser)
@@ -69,6 +80,22 @@ void main() async {
                 .overrideWithValue(dataModule.sharedProfileRepository),
             messagingRepositoryProvider
                 .overrideWithValue(dataModule.messagingRepository),
+            savedProfileRepositoryProvider
+                .overrideWithValue(dataModule.savedProfileRepository),
+            viewedProfileRepositoryProvider
+                .overrideWithValue(dataModule.viewedProfileRepository),
+            activityRepositoryProvider
+                .overrideWithValue(dataModule.activityRepository),
+            parentNoteRepositoryProvider
+                .overrideWithValue(dataModule.parentNoteRepository),
+            brokerNoteRepositoryProvider
+                .overrideWithValue(dataModule.brokerNoteRepository),
+            meetingRepositoryProvider
+                .overrideWithValue(dataModule.meetingRepository),
+            clientEngagementRepositoryProvider
+                .overrideWithValue(dataModule.clientEngagementRepository),
+            brokerFollowUpRepositoryProvider
+                .overrideWithValue(dataModule.brokerFollowUpRepository),
           ],
           child: const AnuyatraApp(),
         ),
@@ -98,6 +125,7 @@ class AnuyatraApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
     final locale = ref.watch(localeProvider);
+    final palette = ref.watch(paletteProvider);
     final router = ref.watch(appRouterProvider);
 
     return MaterialApp.router(
@@ -110,9 +138,10 @@ class AnuyatraApp extends ConsumerWidget {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
 
-      // Material Design 3 themes
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
+      // Material Design 3 themes — projected from the active palette so
+      // live tinkerer edits trigger a single MaterialApp rebuild.
+      theme: AppTheme.lightTheme(palette),
+      darkTheme: AppTheme.darkTheme(palette),
       themeMode: themeMode,
 
       // GoRouter for declarative role-based navigation

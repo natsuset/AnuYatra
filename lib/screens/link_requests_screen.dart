@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
@@ -29,8 +29,8 @@ class LinkRequestsScreen extends ConsumerWidget {
         appBar: AppBar(
           title: Text(context.l10n.linkRequests),
           bottom: TabBar(
-            indicatorColor: AppColors.sacredSaffron,
-            labelColor: AppColors.sacredSaffron,
+            indicatorColor: Theme.of(context).colorScheme.primary,
+            labelColor: Theme.of(context).colorScheme.primary,
             unselectedLabelColor:
                 Theme.of(context).colorScheme.onSurfaceVariant,
             tabs: [
@@ -87,7 +87,7 @@ class _ReceivedTabState extends ConsumerState<_ReceivedTab> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(context.l10n.requestAccepted),
-          backgroundColor: AppColors.success,
+          backgroundColor: context.palette.success,
         ),
       );
     }
@@ -101,7 +101,7 @@ class _ReceivedTabState extends ConsumerState<_ReceivedTab> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(context.l10n.requestDeclined),
-          backgroundColor: AppColors.error,
+          backgroundColor: context.palette.error,
         ),
       );
     }
@@ -221,11 +221,11 @@ class _RequestCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: AppSpacing.roundedMd,
         side: BorderSide(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          color: isDark ? Theme.of(context).colorScheme.outline : Theme.of(context).colorScheme.outline,
           width: 0.5,
         ),
       ),
-      color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+      color: isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface,
       child: Padding(
         padding: AppSpacing.allMd,
         child: Column(
@@ -237,10 +237,10 @@ class _RequestCard extends StatelessWidget {
                 CircleAvatar(
                   radius: 20,
                   backgroundColor:
-                      AppColors.sacredSaffron.withValues(alpha: 0.15),
+                      Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
                   child: Icon(
                     _iconForType(request.type),
-                    color: AppColors.sacredSaffron,
+                    color: Theme.of(context).colorScheme.primary,
                     size: 20,
                   ),
                 ),
@@ -263,8 +263,8 @@ class _RequestCard extends StatelessWidget {
                             .format(request.createdAt),
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: isDark
-                              ? AppColors.darkTertiaryText
-                              : AppColors.lightTertiaryText,
+                              ? Theme.of(context).colorScheme.onSurfaceVariant
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -288,8 +288,8 @@ class _RequestCard extends StatelessWidget {
                       style: theme.textTheme.bodySmall?.copyWith(
                         fontStyle: FontStyle.italic,
                         color: isDark
-                            ? AppColors.darkSecondaryText
-                            : AppColors.lightSecondaryText,
+                            ? Theme.of(context).colorScheme.onSurfaceVariant
+                            : Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -310,8 +310,8 @@ class _RequestCard extends StatelessWidget {
                       icon: const Icon(Icons.close, size: 18),
                       label: Text(context.l10n.decline),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.error,
-                        side: const BorderSide(color: AppColors.error),
+                        foregroundColor: context.palette.error,
+                        side: BorderSide(color: context.palette.error),
                         shape: RoundedRectangleBorder(
                           borderRadius: AppSpacing.roundedSm,
                         ),
@@ -325,7 +325,7 @@ class _RequestCard extends StatelessWidget {
                       icon: const Icon(Icons.check, size: 18),
                       label: Text(context.l10n.accept),
                       style: FilledButton.styleFrom(
-                        backgroundColor: AppColors.success,
+                        backgroundColor: context.palette.success,
                         shape: RoundedRectangleBorder(
                           borderRadius: AppSpacing.roundedSm,
                         ),
@@ -370,15 +370,15 @@ class _TypeBadge extends StatelessWidget {
         vertical: AppSpacing.xxs,
       ),
       decoration: BoxDecoration(
-        color: AppColors.info.withValues(alpha: 0.12),
+        color: context.palette.info.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
         type.displayName,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w600,
-          color: AppColors.info,
+          color: context.palette.info,
         ),
       ),
     );
@@ -392,26 +392,27 @@ class _StatusBadge extends StatelessWidget {
   final LinkRequestStatus status;
   const _StatusBadge({required this.status});
 
-  Color get _color {
+  Color _resolveColor(BuildContext context) {
     switch (status) {
       case LinkRequestStatus.pending:
-        return AppColors.warning;
+        return context.palette.warning;
       case LinkRequestStatus.accepted:
-        return AppColors.success;
+        return context.palette.success;
       case LinkRequestStatus.declined:
-        return AppColors.error;
+        return context.palette.error;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final color = _resolveColor(context);
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 10,
         vertical: AppSpacing.xxs,
       ),
       decoration: BoxDecoration(
-        color: _color.withValues(alpha: 0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Row(
@@ -421,7 +422,7 @@ class _StatusBadge extends StatelessWidget {
             width: 6,
             height: 6,
             decoration: BoxDecoration(
-              color: _color,
+              color: color,
               shape: BoxShape.circle,
             ),
           ),
@@ -431,7 +432,7 @@ class _StatusBadge extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: _color,
+              color: color,
             ),
           ),
         ],
@@ -458,8 +459,8 @@ Widget _buildEmptyState({
           icon,
           size: 64,
           color: isDark
-              ? AppColors.darkTertiaryText
-              : AppColors.lightTertiaryText,
+              ? Theme.of(context).colorScheme.onSurfaceVariant
+              : Theme.of(context).colorScheme.onSurfaceVariant,
         ),
         AppSpacing.gapH16,
         Text(
@@ -473,8 +474,8 @@ Widget _buildEmptyState({
           subtitle,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: isDark
-                    ? AppColors.darkSecondaryText
-                    : AppColors.lightSecondaryText,
+                    ? Theme.of(context).colorScheme.onSurfaceVariant
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
         ),
       ],

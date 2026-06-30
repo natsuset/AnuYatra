@@ -80,6 +80,27 @@ class HiveUserRepository implements UserRepository {
   }
 
   @override
+  Future<AppUser> registerOrLookupByPhone({
+    required String phoneNumber,
+    required String displayName,
+    required UserRole role,
+  }) async {
+    final existing = await getUserByPhone(phoneNumber);
+    if (existing != null) return existing;
+    // No duplicate guard here — getUserByPhone already returned null.
+    final uid = _uuid.v4();
+    final user = AppUser(
+      uid: uid,
+      phoneNumber: phoneNumber,
+      displayName: displayName,
+      role: role,
+      createdAt: DateTime.now(),
+    );
+    await _users.put(uid, jsonEncode(user.toJson()));
+    return user;
+  }
+
+  @override
   Future<void> saveUser(AppUser user) async {
     await _users.put(user.uid, jsonEncode(user.toJson()));
   }

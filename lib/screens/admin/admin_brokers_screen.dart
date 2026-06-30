@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
@@ -85,7 +85,7 @@ class _AdminBrokersScreenState extends ConsumerState<AdminBrokersScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showInviteDialog(context, ref, user.uid, user.displayName),
-        backgroundColor: AppColors.sacredSaffron,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.person_add),
         label: Text(context.l10n.inviteBroker),
@@ -132,8 +132,8 @@ class _AdminBrokersScreenState extends ConsumerState<AdminBrokersScreen> {
             Icons.groups_outlined,
             size: 72,
             color: isDark
-                ? AppColors.darkTertiaryText
-                : AppColors.lightTertiaryText,
+                ? Theme.of(context).colorScheme.onSurfaceVariant
+                : Theme.of(context).colorScheme.onSurfaceVariant,
           ),
           AppSpacing.gapH16,
           Text(
@@ -150,8 +150,8 @@ class _AdminBrokersScreenState extends ConsumerState<AdminBrokersScreen> {
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: isDark
-                    ? AppColors.darkSecondaryText
-                    : AppColors.lightSecondaryText,
+                    ? Theme.of(context).colorScheme.onSurfaceVariant
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -161,7 +161,7 @@ class _AdminBrokersScreenState extends ConsumerState<AdminBrokersScreen> {
             icon: const Icon(Icons.person_add),
             label: Text(context.l10n.inviteBroker),
             style: FilledButton.styleFrom(
-              backgroundColor: AppColors.sacredSaffron,
+              backgroundColor: Theme.of(context).colorScheme.primary,
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.lg,
                 vertical: AppSpacing.sm,
@@ -218,7 +218,7 @@ class _AdminBrokersScreenState extends ConsumerState<AdminBrokersScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(context.l10n.userNotFoundByPhone),
-                      backgroundColor: AppColors.error,
+                      backgroundColor: context.palette.error,
                     ),
                   );
                 }
@@ -230,7 +230,7 @@ class _AdminBrokersScreenState extends ConsumerState<AdminBrokersScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('${brokerUser.displayName} is not registered as a broker'),
-                      backgroundColor: AppColors.warning,
+                      backgroundColor: context.palette.warning,
                     ),
                   );
                 }
@@ -252,13 +252,13 @@ class _AdminBrokersScreenState extends ConsumerState<AdminBrokersScreen> {
                     content: Text(
                       context.l10n.inviteSentTo(brokerUser.displayName),
                     ),
-                    backgroundColor: AppColors.success,
+                    backgroundColor: context.palette.success,
                   ),
                 );
               }
             },
             style: FilledButton.styleFrom(
-              backgroundColor: AppColors.sacredSaffron,
+              backgroundColor: Theme.of(context).colorScheme.primary,
             ),
             child: Text(context.l10n.sendInvite),
           ),
@@ -293,11 +293,11 @@ class _BrokerCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
         side: BorderSide(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          color: isDark ? Theme.of(context).colorScheme.outline : Theme.of(context).colorScheme.outline,
           width: 0.5,
         ),
       ),
-      color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+      color: isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface,
       child: Padding(
         padding: AppSpacing.allMd,
         child: Column(
@@ -309,13 +309,13 @@ class _BrokerCard extends StatelessWidget {
                 CircleAvatar(
                   radius: 24,
                   backgroundColor:
-                      AppColors.deepMaroon.withValues(alpha: 0.12),
+                      Theme.of(context).colorScheme.secondary.withValues(alpha: 0.12),
                   child: Text(
                     broker.name.isNotEmpty
                         ? broker.name[0].toUpperCase()
                         : '?',
-                    style: const TextStyle(
-                      color: AppColors.deepMaroon,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.secondary,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
@@ -339,8 +339,8 @@ class _BrokerCard extends StatelessWidget {
                         broker.phoneNumber,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: isDark
-                              ? AppColors.darkTertiaryText
-                              : AppColors.lightTertiaryText,
+                              ? Theme.of(context).colorScheme.onSurfaceVariant
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -356,24 +356,24 @@ class _BrokerCard extends StatelessWidget {
                       vertical: AppSpacing.xxs,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.warning.withValues(alpha: 0.12),
+                      color: context.palette.warning.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.star,
                           size: 14,
-                          color: AppColors.warning,
+                          color: context.palette.warning,
                         ),
                         AppSpacing.gapW4,
                         Text(
                           broker.rating.toStringAsFixed(1),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.warning,
+                            color: context.palette.warning,
                           ),
                         ),
                       ],
@@ -423,14 +423,14 @@ class _BrokerCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: AppSpacing.xs, vertical: 3),
                         decoration: BoxDecoration(
-                          color: AppColors.info.withValues(alpha: 0.08),
+                          color: context.palette.info.withValues(alpha: 0.08),
                           borderRadius: AppSpacing.roundedXs,
                         ),
                         child: Text(
                           s,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11,
-                            color: AppColors.info,
+                            color: context.palette.info,
                           ),
                         ),
                       ),
@@ -470,7 +470,7 @@ class _MiniStat extends StatelessWidget {
           icon,
           size: 16,
           color:
-              isDark ? AppColors.darkTertiaryText : AppColors.lightTertiaryText,
+              isDark ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.onSurfaceVariant,
         ),
         AppSpacing.gapW4,
         Text(
@@ -478,8 +478,8 @@ class _MiniStat extends StatelessWidget {
           style: TextStyle(
             fontSize: 12,
             color: isDark
-                ? AppColors.darkSecondaryText
-                : AppColors.lightSecondaryText,
+                ? Theme.of(context).colorScheme.onSurfaceVariant
+                : Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ],

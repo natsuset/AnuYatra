@@ -1,5 +1,22 @@
 import 'package:testing_flutter/models/parent_profile.dart';
 
+/// Where this profile originated.
+///
+/// - [broker]      — shared by a broker via the platform (default)
+/// - [manual]      — typed in directly by the parent (WhatsApp / paper source)
+/// - [selfCreated] — the candidate created their own profile
+enum ProfileSource {
+  broker,
+  manual,
+  selfCreated;
+
+  String get displayName => switch (this) {
+        ProfileSource.broker => 'Via Broker',
+        ProfileSource.manual => 'Added by you',
+        ProfileSource.selfCreated => 'Self',
+      };
+}
+
 enum Gender {
   bride,
   groom;
@@ -60,6 +77,7 @@ class CandidateProfile {
   final String? deduplicationKey;
   final int listedWithBrokersCount;
   final List<String> searchTags;
+  final ProfileSource source;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -129,6 +147,7 @@ class CandidateProfile {
     this.deduplicationKey,
     this.listedWithBrokersCount = 1,
     this.searchTags = const [],
+    this.source = ProfileSource.broker,
     required this.createdAt,
     required this.updatedAt,
     // New fields
@@ -227,6 +246,7 @@ class CandidateProfile {
     'deduplicationKey': deduplicationKey,
     'listedWithBrokersCount': listedWithBrokersCount,
     'searchTags': searchTags,
+    'source': source.name,
     'createdAt': createdAt.toIso8601String(),
     'updatedAt': updatedAt.toIso8601String(),
     // New fields
@@ -299,6 +319,10 @@ class CandidateProfile {
     deduplicationKey: json['deduplicationKey'] as String?,
     listedWithBrokersCount: json['listedWithBrokersCount'] as int? ?? 1,
     searchTags: (json['searchTags'] as List<dynamic>?)?.cast<String>() ?? [],
+    source: ProfileSource.values.firstWhere(
+      (e) => e.name == (json['source'] as String?),
+      orElse: () => ProfileSource.broker,
+    ),
     createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0),
     updatedAt: DateTime.tryParse(json['updatedAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0),
     // New fields
@@ -364,6 +388,7 @@ class CandidateProfile {
     String? deduplicationKey,
     int? listedWithBrokersCount,
     List<String>? searchTags,
+    ProfileSource? source,
     DateTime? updatedAt,
     // New fields
     DateTime? dateOfBirth,
@@ -428,6 +453,7 @@ class CandidateProfile {
     deduplicationKey: deduplicationKey ?? this.deduplicationKey,
     listedWithBrokersCount: listedWithBrokersCount ?? this.listedWithBrokersCount,
     searchTags: searchTags ?? this.searchTags,
+    source: source ?? this.source,
     createdAt: createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     dateOfBirth: dateOfBirth ?? this.dateOfBirth,

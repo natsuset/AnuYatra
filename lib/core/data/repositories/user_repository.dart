@@ -28,6 +28,21 @@ abstract class UserRepository {
     String? photoUrl,
   });
 
+  /// Idempotent lookup-or-register.
+  ///
+  /// If a user with [phoneNumber] already exists, return it. Otherwise
+  /// register a new user with the given role + display name. Used by the
+  /// parent self-upload flow to materialise a candidate user from a phone
+  /// number (PRODUCT_PLAN §1.7 / Part 5 #3).
+  ///
+  /// The frontend abstraction hides whether the user is created locally
+  /// (Hive MVP) or resolved via a real auth backend later.
+  Future<AppUser> registerOrLookupByPhone({
+    required String phoneNumber,
+    required String displayName,
+    required UserRole role,
+  });
+
   /// Persist a user (create or update).
   Future<void> saveUser(AppUser user);
 

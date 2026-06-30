@@ -22,8 +22,15 @@ import 'package:testing_flutter/screens/auth/profile_setup_screen.dart';
 import 'package:testing_flutter/screens/home_screen.dart';
 import 'package:testing_flutter/screens/search/discovery_screen.dart';
 import 'package:testing_flutter/screens/parent/my_brokers_screen.dart';
+import 'package:testing_flutter/screens/parent/incoming_interest_screen.dart';
+import 'package:testing_flutter/screens/parent/my_profiles_screen.dart';
+import 'package:testing_flutter/screens/parent/saved_profiles_screen.dart';
 import 'package:testing_flutter/screens/anuyatra_hub_screen.dart';
 import 'package:testing_flutter/screens/parent/parent_profile_screen.dart';
+import 'package:testing_flutter/screens/parent/profile_vault_screen.dart';
+import 'package:testing_flutter/screens/parent/notes_hub_screen.dart';
+import 'package:testing_flutter/screens/parent/manual_profile_entry_screen.dart';
+import 'package:testing_flutter/screens/parent/astrology_calculator_screen.dart';
 
 // Broker screens
 import 'package:testing_flutter/screens/broker/broker_dashboard_screen.dart';
@@ -32,6 +39,8 @@ import 'package:testing_flutter/screens/broker/broker_profiles_screen.dart';
 import 'package:testing_flutter/screens/broker/broker_messages_screen.dart';
 import 'package:testing_flutter/screens/broker/broker_own_profile_screen.dart';
 import 'package:testing_flutter/screens/broker/profile_create_edit_screen.dart';
+import 'package:testing_flutter/screens/broker/broker_client_hub_screen.dart';
+import 'package:testing_flutter/screens/broker/broker_astrology_match_screen.dart';
 
 // Candidate screens
 import 'package:testing_flutter/screens/candidate/candidate_home_screen.dart';
@@ -187,6 +196,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ]),
           StatefulShellBranch(routes: [
             GoRoute(
+              path: RouteNames.profileVaultPath,
+              name: RouteNames.profileVault,
+              builder: (context, state) => ProfileVaultScreen(
+                initialFilter: state.extra as VaultFilter?,
+              ),
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
               path: RouteNames.parentAnuyatraPath,
               name: RouteNames.parentAnuyatra,
               builder: (context, state) => const AnuyatraHubScreen(),
@@ -262,6 +280,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               path: RouteNames.candidateHomePath,
               name: RouteNames.candidateHome,
               builder: (context, state) => const CandidateHomeScreen(),
+              routes: [
+                GoRoute(
+                  path: RouteNames.candidateSharedListPath,
+                  name: RouteNames.candidateSharedList,
+                  builder: (context, state) =>
+                      const CandidateSharedProfilesScreen(),
+                ),
+              ],
             ),
           ]),
           StatefulShellBranch(routes: [
@@ -345,6 +371,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const AppSettingsScreen(),
       ),
       GoRoute(
+        path: RouteNames.brokerClientHubPath,
+        name: RouteNames.brokerClientHub,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => BrokerClientHubScreen(
+          clientUserId: state.pathParameters['id']!,
+        ),
+      ),
+      GoRoute(
+        path: RouteNames.brokerAstrologyMatchPath,
+        name: RouteNames.brokerAstrologyMatch,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const BrokerAstrologyMatchScreen(),
+      ),
+      GoRoute(
         path: RouteNames.linkRequestsPath,
         name: RouteNames.linkRequests,
         parentNavigatorKey: _rootNavigatorKey,
@@ -355,6 +395,51 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: RouteNames.linkToParent,
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const LinkToParentScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.savedProfilesPath,
+        name: RouteNames.savedProfiles,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const SavedProfilesScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.incomingInterestPath,
+        name: RouteNames.incomingInterest,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const IncomingInterestScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.myProfilesPath,
+        name: RouteNames.myProfiles,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const MyProfilesScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.parentCreateChildProfilePath,
+        name: RouteNames.parentCreateChildProfile,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) =>
+            const ProfileCreateEditScreen(mode: ProfileCreateMode.parent),
+      ),
+
+      // ─── PARENT VAULT OVERLAY ROUTES ──────────────────────────
+      GoRoute(
+        path: RouteNames.notesHubPath,
+        name: RouteNames.notesHub,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const NotesHubScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.manualProfileEntryPath,
+        name: RouteNames.manualProfileEntry,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const ManualProfileEntryScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.astrologyCalculatorPath,
+        name: RouteNames.astrologyCalculator,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const AstrologyCalculatorScreen(),
       ),
     ],
   );

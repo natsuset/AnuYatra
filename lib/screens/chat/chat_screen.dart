@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
@@ -124,17 +124,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     return Scaffold(
       backgroundColor:
-          isDark ? AppColors.chatDarkBackground : AppColors.chatLightBackground,
+          isDark ? Theme.of(context).scaffoldBackgroundColor : Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor:
-            isDark ? AppColors.chatDarkBubble : AppColors.chatDarkGreen,
+            isDark ? Theme.of(context).colorScheme.surface : context.palette.success,
         foregroundColor: Colors.white,
         titleSpacing: 0,
         title: Row(
           children: [
             CircleAvatar(
               radius: 18,
-              backgroundColor: AppColors.chatGreen.withValues(alpha: 0.3),
+              backgroundColor: context.palette.success.withValues(alpha: 0.3),
               child: Text(
                 _contactName.isNotEmpty
                     ? _contactName[0].toUpperCase()
@@ -196,8 +196,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           Icons.chat_bubble_outline,
                           size: 64,
                           color: isDark
-                              ? AppColors.chatDarkGray
-                              : AppColors.chatDarkGray
+                              ? Theme.of(context).colorScheme.onSurfaceVariant
+                              : Theme.of(context).colorScheme.onSurfaceVariant
                                   .withValues(alpha: 0.5),
                         ),
                         AppSpacing.gapH16,
@@ -205,8 +205,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           context.l10n.noMessagesYet,
                           style: TextStyle(
                             color: isDark
-                                ? AppColors.chatDarkGray
-                                : AppColors.lightSecondaryText,
+                                ? Theme.of(context).colorScheme.onSurfaceVariant
+                                : Theme.of(context).colorScheme.onSurfaceVariant,
                             fontSize: 16,
                           ),
                         ),
@@ -215,9 +215,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           context.l10n.noMessagesHint,
                           style: TextStyle(
                             color: isDark
-                                ? AppColors.chatDarkGray
+                                ? Theme.of(context).colorScheme.onSurfaceVariant
                                     .withValues(alpha: 0.7)
-                                : AppColors.lightTertiaryText,
+                                : Theme.of(context).colorScheme.onSurfaceVariant,
                             fontSize: 13,
                           ),
                         ),
@@ -264,7 +264,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       decoration: BoxDecoration(
         color: isDark
-            ? AppColors.chatDarkBubble.withValues(alpha: 0.9)
+            ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.9)
             : Colors.white.withValues(alpha: 0.9),
         borderRadius: AppSpacing.roundedSm,
         boxShadow: [
@@ -280,7 +280,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           fontSize: 12,
           fontWeight: FontWeight.w500,
           color:
-              isDark ? AppColors.chatDarkGray : AppColors.lightSecondaryText,
+              isDark ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.onSurfaceVariant,
         ),
       ),
     );
@@ -292,14 +292,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     bool isDark,
   ) {
     final bubbleColor = isSent
-        ? (isDark ? AppColors.chatDarkSentBubble : AppColors.chatLightGreen)
-        : (isDark ? AppColors.chatDarkBubble : Colors.white);
+        ? (isDark ? context.palette.success : context.palette.success.withValues(alpha: 0.4))
+        : (isDark ? Theme.of(context).colorScheme.surface : Colors.white);
 
     final textColor =
-        isDark ? AppColors.darkPrimaryText : AppColors.lightPrimaryText;
+        isDark ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface;
 
     final timeColor =
-        isDark ? AppColors.chatDarkGray : AppColors.lightTertiaryText;
+        isDark ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.onSurfaceVariant;
 
     return Align(
       alignment: isSent ? Alignment.centerRight : Alignment.centerLeft,
@@ -352,7 +352,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   Icon(
                     message.isRead ? Icons.done_all : Icons.done,
                     size: 16,
-                    color: message.isRead ? AppColors.chatGreen : timeColor,
+                    color: message.isRead ? context.palette.success : timeColor,
                   ),
                 ],
               ],
@@ -366,7 +366,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Widget _buildInputArea(bool isDark) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-      color: isDark ? AppColors.chatDarkInput : AppColors.lightSurface,
+      color: isDark ? Theme.of(context).colorScheme.surfaceContainerHighest : Theme.of(context).colorScheme.surface,
       child: SafeArea(
         top: false,
         child: Row(
@@ -375,8 +375,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               icon: Icon(
                 Icons.add,
                 color: isDark
-                    ? AppColors.chatDarkGray
-                    : AppColors.lightSecondaryText,
+                    ? Theme.of(context).colorScheme.onSurfaceVariant
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               onPressed: () {},
             ),
@@ -384,8 +384,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               child: Container(
                 decoration: BoxDecoration(
                   color: isDark
-                      ? AppColors.chatDarkInputField
-                      : AppColors.chatLightInputField,
+                      ? Theme.of(context).colorScheme.surfaceContainerHighest
+                      : Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: AppSpacing.roundedXxl,
                 ),
                 child: Row(
@@ -399,16 +399,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         minLines: 1,
                         style: TextStyle(
                           color: isDark
-                              ? AppColors.darkPrimaryText
-                              : AppColors.lightPrimaryText,
+                              ? Theme.of(context).colorScheme.onSurface
+                              : Theme.of(context).colorScheme.onSurface,
                           fontSize: 16,
                         ),
                         decoration: InputDecoration(
                           hintText: context.l10n.typeAMessage,
                           hintStyle: TextStyle(
                             color: isDark
-                                ? AppColors.chatDarkGray
-                                : AppColors.lightTertiaryText,
+                                ? Theme.of(context).colorScheme.onSurfaceVariant
+                                : Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                           border: InputBorder.none,
                           contentPadding:
@@ -421,8 +421,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       icon: Icon(
                         Icons.camera_alt_outlined,
                         color: isDark
-                            ? AppColors.chatDarkGray
-                            : AppColors.lightSecondaryText,
+                            ? Theme.of(context).colorScheme.onSurfaceVariant
+                            : Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       onPressed: () {},
                     ),
@@ -432,8 +432,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             ),
             AppSpacing.gapW4,
             Container(
-              decoration: const BoxDecoration(
-                color: AppColors.chatDarkGreen,
+              decoration: BoxDecoration(
+                color: context.palette.success,
                 shape: BoxShape.circle,
               ),
               child: IconButton(

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/theme_provider.dart';
@@ -43,23 +43,23 @@ class AppSettingsScreen extends ConsumerWidget {
             shape: RoundedRectangleBorder(
               borderRadius: AppSpacing.roundedMd,
               side: BorderSide(
-                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                color: isDark ? Theme.of(context).colorScheme.outline : Theme.of(context).colorScheme.outline,
                 width: 0.5,
               ),
             ),
-            color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+            color: isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface,
             child: Column(
               children: [
                 ListTile(
                   leading: CircleAvatar(
                     backgroundColor:
-                        AppColors.sacredSaffron.withValues(alpha: 0.15),
+                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
                     child: Text(
                       user.displayName.isNotEmpty
                           ? user.displayName[0].toUpperCase()
                           : '?',
-                      style: const TextStyle(
-                        color: AppColors.sacredSaffron,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -103,17 +103,17 @@ class AppSettingsScreen extends ConsumerWidget {
             shape: RoundedRectangleBorder(
               borderRadius: AppSpacing.roundedMd,
               side: BorderSide(
-                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                color: isDark ? Theme.of(context).colorScheme.outline : Theme.of(context).colorScheme.outline,
                 width: 0.5,
               ),
             ),
-            color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+            color: isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface,
             child: Column(
               children: [
                 SwitchListTile(
                   secondary: Icon(
                     isDark ? Icons.dark_mode : Icons.light_mode,
-                    color: AppColors.sacredSaffron,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                   title: Text(context.l10n.darkMode),
                   subtitle: Text(
@@ -122,7 +122,7 @@ class AppSettingsScreen extends ConsumerWidget {
                         : context.l10n.lightThemeActive,
                   ),
                   value: themeMode == ThemeMode.dark,
-                  activeTrackColor: AppColors.sacredSaffron,
+                  activeTrackColor: Theme.of(context).colorScheme.primary,
                   onChanged: (_) {
                     ref.read(themeModeProvider.notifier).toggleTheme();
                   },
@@ -146,16 +146,16 @@ class AppSettingsScreen extends ConsumerWidget {
             shape: RoundedRectangleBorder(
               borderRadius: AppSpacing.roundedMd,
               side: BorderSide(
-                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                color: isDark ? Theme.of(context).colorScheme.outline : Theme.of(context).colorScheme.outline,
                 width: 0.5,
               ),
             ),
-            color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+            color: isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface,
             child: ListTile(
-              leading: const Icon(Icons.logout, color: AppColors.error),
+              leading: Icon(Icons.logout, color: context.palette.error),
               title: Text(
                 context.l10n.logout,
-                style: TextStyle(color: AppColors.error),
+                style: TextStyle(color: context.palette.error),
               ),
               subtitle: Text(context.l10n.signOutSubtitle),
               onTap: () async {
@@ -174,7 +174,7 @@ class AppSettingsScreen extends ConsumerWidget {
                       FilledButton(
                         onPressed: () => Navigator.pop(ctx, true),
                         style: FilledButton.styleFrom(
-                          backgroundColor: AppColors.error,
+                          backgroundColor: context.palette.error,
                         ),
                         child: Text(context.l10n.logout),
                       ),
@@ -198,8 +198,8 @@ class AppSettingsScreen extends ConsumerWidget {
                   context.l10n.vivahaSamskara,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: isDark
-                        ? AppColors.darkTertiaryText
-                        : AppColors.lightTertiaryText,
+                        ? Theme.of(context).colorScheme.onSurfaceVariant
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -208,8 +208,8 @@ class AppSettingsScreen extends ConsumerWidget {
                   'Version 1.0.0 (beta)',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: isDark
-                        ? AppColors.darkTertiaryText
-                        : AppColors.lightTertiaryText,
+                        ? Theme.of(context).colorScheme.onSurfaceVariant
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -242,7 +242,7 @@ class _SectionHeader extends StatelessWidget {
           fontWeight: FontWeight.w700,
           letterSpacing: 0.8,
           color:
-              isDark ? AppColors.darkTertiaryText : AppColors.lightTertiaryText,
+              isDark ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.onSurfaceVariant,
         ),
       ),
     );
@@ -264,15 +264,15 @@ class _RoleBadge extends StatelessWidget {
         vertical: AppSpacing.xxs,
       ),
       decoration: BoxDecoration(
-        color: AppColors.sacredSaffron.withValues(alpha: 0.12),
+        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
         role,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,
-          color: AppColors.sacredSaffron,
+          color: Theme.of(context).colorScheme.primary,
         ),
       ),
     );

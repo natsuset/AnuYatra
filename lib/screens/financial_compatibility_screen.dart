@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/models/financial_profile.dart';
 import 'package:testing_flutter/data/revolutionary_features_data.dart';
 import 'package:testing_flutter/core/theme/app_theme.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 
 class FinancialCompatibilityScreen extends StatefulWidget {
   const FinancialCompatibilityScreen({super.key});
@@ -70,7 +70,7 @@ class _FinancialCompatibilityScreenState
             expandedHeight: 200,
             floating: false,
             pinned: true,
-            backgroundColor: AppColors.successDark, // Financial green
+            backgroundColor: context.palette.success, // Financial green
             elevation: 0,
             systemOverlayStyle: SystemUiOverlayStyle.light,
             flexibleSpace: FlexibleSpaceBar(
@@ -84,14 +84,14 @@ class _FinancialCompatibilityScreenState
                 ),
               ),
               background: Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      AppColors.successDark, // Deep green
-                      AppColors.success, // Bright green
-                      AppColors.successLight, // Light green
+                      context.palette.success, // Deep green
+                      context.palette.success, // Bright green
+                      context.palette.success, // Light green
                     ],
                     stops: [0.0, 0.6, 1.0],
                   ),
@@ -276,10 +276,10 @@ class _FinancialCompatibilityScreenState
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppColors.successDark.withValues(alpha: 0.1),
+                color: context.palette.success.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, color: AppColors.successDark, size: 20),
+              child: Icon(icon, color: context.palette.success, size: 20),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -288,10 +288,10 @@ class _FinancialCompatibilityScreenState
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.successDark,
+                      color: context.palette.success,
                       letterSpacing: -0.5,
                     ),
                   ),
@@ -327,7 +327,7 @@ class _FinancialCompatibilityScreenState
             offset: const Offset(0, 8),
           ),
           BoxShadow(
-            color: AppColors.successDark.withValues(alpha: isDark ? 0.2 : 0.1),
+            color: context.palette.success.withValues(alpha: isDark ? 0.2 : 0.1),
             blurRadius: 40,
             offset: const Offset(0, 16),
             spreadRadius: -8,
@@ -341,8 +341,8 @@ class _FinancialCompatibilityScreenState
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppColors.successDark, AppColors.success],
+                  gradient: LinearGradient(
+                    colors: [context.palette.success, context.palette.success],
                   ),
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -357,12 +357,12 @@ class _FinancialCompatibilityScreenState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Your Financial Profile',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.successDark,
+                        color: context.palette.success,
                         letterSpacing: -0.5,
                       ),
                     ),
@@ -386,20 +386,20 @@ class _FinancialCompatibilityScreenState
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppColors.successDark.withValues(alpha: 0.1),
-                      AppColors.success.withValues(alpha: 0.1),
+                      context.palette.success.withValues(alpha: 0.1),
+                      context.palette.success.withValues(alpha: 0.1),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: AppColors.successDark.withValues(alpha: 0.3),
+                    color: context.palette.success.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
                 child: Text(
                   '${profile.profileCompleteness}%',
-                  style: const TextStyle(
-                    color: AppColors.successDark,
+                  style: TextStyle(
+                    color: context.palette.success,
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                   ),
@@ -484,11 +484,11 @@ class _FinancialCompatibilityScreenState
             children: [
               CircleAvatar(
                 radius: 24,
-                backgroundColor: AppColors.successDark.withValues(alpha: 0.1),
-                child: const Text(
+                backgroundColor: context.palette.success.withValues(alpha: 0.1),
+                child: Text(
                   'P',
                   style: TextStyle(
-                    color: AppColors.successDark,
+                    color: context.palette.success,
                     fontWeight: FontWeight.w600,
                     fontSize: 18,
                   ),
@@ -576,9 +576,9 @@ class _FinancialCompatibilityScreenState
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.check_circle,
-                          color: AppColors.successDark,
+                          color: context.palette.success,
                           size: 16,
                         ),
                         const SizedBox(width: 8),
@@ -636,7 +636,7 @@ class _FinancialCompatibilityScreenState
             child: ElevatedButton(
               onPressed: () => _startFinancialDiscussion(),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.successDark,
+                backgroundColor: context.palette.success,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -776,10 +776,10 @@ class _FinancialCompatibilityScreenState
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppColors.successDark.withValues(alpha: 0.1),
+            color: context.palette.success.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, color: AppColors.successDark, size: 20),
+          child: Icon(icon, color: context.palette.success, size: 20),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -815,7 +815,7 @@ class _FinancialCompatibilityScreenState
           'Budget Planner',
           'Plan your wedding budget with family',
           Icons.calculate,
-          AppColors.meetingPurpleLight,
+          context.palette.meetingPurple,
           () => _showBudgetPlanner(),
         ),
         const SizedBox(height: 12),
@@ -823,7 +823,7 @@ class _FinancialCompatibilityScreenState
           'Complete Financial Profile',
           'Add future goals and investment preferences',
           Icons.timeline,
-          AppColors.info,
+          context.palette.info,
           () => _showProfileCompletion(),
         ),
         const SizedBox(height: 12),
@@ -831,7 +831,7 @@ class _FinancialCompatibilityScreenState
           'Financial Counseling',
           'Get expert advice on financial planning',
           Icons.support_agent,
-          AppColors.success,
+          context.palette.success,
           () => _showCounselingOptions(),
         ),
       ],
@@ -897,18 +897,18 @@ class _FinancialCompatibilityScreenState
   }
 
   Color _getCompatibilityColor(int score) {
-    if (score >= 90) return AppColors.successDark;
-    if (score >= 80) return AppColors.success;
-    if (score >= 70) return AppColors.successLight;
+    if (score >= 90) return context.palette.success;
+    if (score >= 80) return context.palette.success;
+    if (score >= 70) return context.palette.success;
     if (score >= 60) return Colors.orange;
     return Colors.red;
   }
 
   void _startFinancialDiscussion() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Starting financial discussion...'),
-        backgroundColor: AppColors.successDark,
+      SnackBar(
+        content: const Text('Starting financial discussion...'),
+        backgroundColor: context.palette.success,
       ),
     );
   }
@@ -929,7 +929,7 @@ class _FinancialCompatibilityScreenState
           ElevatedButton(
             onPressed: () => Navigator.pop(context),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.successDark,
+              backgroundColor: context.palette.success,
             ),
             child: const Text('Start Planning'),
           ),
@@ -954,7 +954,7 @@ class _FinancialCompatibilityScreenState
           ElevatedButton(
             onPressed: () => Navigator.pop(context),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.successDark,
+              backgroundColor: context.palette.success,
             ),
             child: const Text('Complete Now'),
           ),
@@ -979,7 +979,7 @@ class _FinancialCompatibilityScreenState
           ElevatedButton(
             onPressed: () => Navigator.pop(context),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.successDark,
+              backgroundColor: context.palette.success,
             ),
             child: const Text('Book Session'),
           ),

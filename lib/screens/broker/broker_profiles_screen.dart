@@ -1,15 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/candidate_profile.dart';
 import 'package:testing_flutter/models/app_user.dart';
+
+enum _ProfileSort {
+  newest('Newest'),
+  ageAsc('Age ↑'),
+  ageDesc('Age ↓'),
+  nameAZ('A–Z');
+
+  const _ProfileSort(this.label);
+  final String label;
+}
 
 class BrokerProfilesScreen extends ConsumerStatefulWidget {
   const BrokerProfilesScreen({super.key});
@@ -21,11 +31,21 @@ class BrokerProfilesScreen extends ConsumerStatefulWidget {
 
 class _BrokerProfilesScreenState extends ConsumerState<BrokerProfilesScreen> {
   List<CandidateProfile> _profiles = [];
+  final _searchCtrl = TextEditingController();
+  String _query = '';
+  Gender? _genderFilter;
+  _ProfileSort _sort = _ProfileSort.newest;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
   }
 
   Future<void> _loadData() async {
@@ -38,6 +58,31 @@ class _BrokerProfilesScreenState extends ConsumerState<BrokerProfilesScreen> {
     setState(() => _profiles = profiles);
   }
 
+  List<CandidateProfile> get _filtered {
+    final q = _query.trim().toLowerCase();
+    final list = _profiles.where((p) {
+      if (_genderFilter != null && p.gender != _genderFilter) return false;
+      if (q.isEmpty) return true;
+      return p.name.toLowerCase().contains(q) ||
+          p.profession.toLowerCase().contains(q) ||
+          p.city.toLowerCase().contains(q) ||
+          p.education.toLowerCase().contains(q) ||
+          p.community.toLowerCase().contains(q);
+    }).toList();
+
+    switch (_sort) {
+      case _ProfileSort.newest:
+        list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      case _ProfileSort.ageAsc:
+        list.sort((a, b) => a.age.compareTo(b.age));
+      case _ProfileSort.ageDesc:
+        list.sort((a, b) => b.age.compareTo(a.age));
+      case _ProfileSort.nameAZ:
+        list.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    }
+    return list;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -48,7 +93,7 @@ class _BrokerProfilesScreenState extends ConsumerState<BrokerProfilesScreen> {
         onPressed: () {
           context.pushNamed(RouteNames.brokerCreateProfile);
         },
-        backgroundColor: AppColors.sacredSaffron,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.person_add_alt_1_rounded),
         label: const Text(
@@ -58,98 +103,149 @@ class _BrokerProfilesScreenState extends ConsumerState<BrokerProfilesScreen> {
       ),
       body: _profiles.isEmpty
           ? _EmptyState(isDark: isDark)
-          : CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.md,
-                      AppSpacing.md,
-                      AppSpacing.md,
-                      AppSpacing.xxs,
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: AppColors.sacredSaffron
-                                .withValues(alpha: isDark ? 0.15 : 0.1),
-                            borderRadius: AppSpacing.roundedSm,
-                          ),
-                          child: const Icon(
-                            Icons.badge_rounded,
-                            color: AppColors.sacredSaffron,
-                            size: 18,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          'Managed Profiles',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: isDark
-                                ? AppColors.darkPrimaryText
-                                : AppColors.lightPrimaryText,
-                          ),
-                        ),
-                        AppSpacing.gapW8,
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.xs,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.sacredSaffron
-                                .withValues(alpha: isDark ? 0.2 : 0.12),
-                            borderRadius: AppSpacing.roundedMd,
-                          ),
-                          child: Text(
-                            '${_profiles.length}',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.sacredSaffron,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+          : _buildList(context, theme, isDark),
+    );
+  }
 
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.md,
-                    AppSpacing.sm,
-                    AppSpacing.md,
-                    88,
-                  ),
-                  sliver: SliverList.builder(
-                    itemCount: _profiles.length,
-                    itemBuilder: (context, index) {
-                      final profile = _profiles[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                        child: _ProfileCard(
-                          profile: profile,
-                          isDark: isDark,
-                          onTap: () {
-                            context.pushNamed(
-                              RouteNames.profileView,
-                              pathParameters: {'id': profile.id},
-                            );
-                          },
-                          onShare: () {
-                            _showShareDialog(context, profile);
-                          },
-                        ),
-                      );
-                    },
-                  ),
+  Widget _buildList(BuildContext context, ThemeData theme, bool isDark) {
+    final colors = theme.colorScheme;
+    final filtered = _filtered;
+    final brides = _profiles.where((p) => p.gender == Gender.bride).length;
+    final grooms = _profiles.where((p) => p.gender == Gender.groom).length;
+
+    return CustomScrollView(
+      slivers: [
+        // ── Search ──────────────────────────────────────────────────
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+                AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.xs),
+            child: TextField(
+              controller: _searchCtrl,
+              onChanged: (v) => setState(() => _query = v),
+              textInputAction: TextInputAction.search,
+              decoration: InputDecoration(
+                hintText: 'Search name, profession, city…',
+                prefixIcon: const Icon(Icons.search_rounded),
+                suffixIcon: _query.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.close_rounded),
+                        onPressed: () {
+                          _searchCtrl.clear();
+                          setState(() => _query = '');
+                        },
+                      )
+                    : null,
+                isDense: true,
+                filled: true,
+                fillColor: colors.surfaceContainerHighest.withValues(alpha: 0.4),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                border: OutlineInputBorder(
+                  borderRadius: AppSpacing.roundedMd,
+                  borderSide: BorderSide.none,
                 ),
+              ),
+            ),
+          ),
+        ),
+
+        // ── Filter + sort chips ─────────────────────────────────────
+        SliverToBoxAdapter(
+          child: SizedBox(
+            height: 40,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+              children: [
+                _FilterChip(
+                  label: 'All (${_profiles.length})',
+                  selected: _genderFilter == null,
+                  onTap: () => setState(() => _genderFilter = null),
+                ),
+                AppSpacing.gapW8,
+                _FilterChip(
+                  label: 'Brides ($brides)',
+                  selected: _genderFilter == Gender.bride,
+                  onTap: () => setState(() => _genderFilter = Gender.bride),
+                ),
+                AppSpacing.gapW8,
+                _FilterChip(
+                  label: 'Grooms ($grooms)',
+                  selected: _genderFilter == Gender.groom,
+                  onTap: () => setState(() => _genderFilter = Gender.groom),
+                ),
+                AppSpacing.gapW12,
+                Container(width: 1, color: colors.outlineVariant),
+                AppSpacing.gapW12,
+                ..._ProfileSort.values.map((s) => Padding(
+                      padding: const EdgeInsets.only(right: AppSpacing.xs),
+                      child: _FilterChip(
+                        label: s.label,
+                        selected: _sort == s,
+                        onTap: () => setState(() => _sort = s),
+                        outlined: true,
+                      ),
+                    )),
               ],
             ),
+          ),
+        ),
+
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+                AppSpacing.md, AppSpacing.sm, AppSpacing.md, 0),
+            child: Text(
+              '${filtered.length} ${filtered.length == 1 ? 'profile' : 'profiles'}',
+              style: theme.textTheme.labelMedium
+                  ?.copyWith(color: colors.onSurfaceVariant),
+            ),
+          ),
+        ),
+
+        if (filtered.isEmpty)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(40),
+              child: Center(
+                child: Column(
+                  children: [
+                    Icon(Icons.search_off_rounded,
+                        size: 48, color: colors.outlineVariant),
+                    AppSpacing.gapH12,
+                    Text('No profiles match your search',
+                        style: theme.textTheme.bodyMedium
+                            ?.copyWith(color: colors.onSurfaceVariant)),
+                  ],
+                ),
+              ),
+            ),
+          )
+        else
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(
+                AppSpacing.md, AppSpacing.sm, AppSpacing.md, 88),
+            sliver: SliverList.builder(
+              itemCount: filtered.length,
+              itemBuilder: (context, index) {
+                final profile = filtered[index];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                  child: _ProfileCard(
+                    profile: profile,
+                    isDark: isDark,
+                    onTap: () => context.pushNamed(
+                      RouteNames.profileView,
+                      pathParameters: {'id': profile.id},
+                    ),
+                    onShare: () => _showShareDialog(context, profile),
+                  ),
+                );
+              },
+            ),
+          ),
+      ],
     );
   }
 
@@ -201,10 +297,10 @@ class _BrokerProfilesScreenState extends ConsumerState<BrokerProfilesScreen> {
                 return ListTile(
                   leading: CircleAvatar(
                     backgroundColor:
-                        AppColors.sacredSaffron.withValues(alpha: 0.12),
+                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
                     child: Text(
                       name.isNotEmpty ? name[0].toUpperCase() : '?',
-                      style: const TextStyle(color: AppColors.sacredSaffron),
+                      style: TextStyle(color: Theme.of(context).colorScheme.primary),
                     ),
                   ),
                   title: Text(name),
@@ -235,6 +331,61 @@ class _BrokerProfilesScreenState extends ConsumerState<BrokerProfilesScreen> {
   }
 }
 
+// ─── Filter / sort chip ───────────────────────────────────────────
+
+class _FilterChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  final bool outlined;
+
+  const _FilterChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    this.outlined = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final bg = selected
+        ? colors.primary
+        : (outlined ? Colors.transparent : colors.surfaceContainerHighest);
+    final fg = selected
+        ? colors.onPrimary
+        : colors.onSurfaceVariant;
+    return Center(
+      child: Material(
+        color: bg,
+        borderRadius: AppSpacing.roundedFull,
+        child: InkWell(
+          borderRadius: AppSpacing.roundedFull,
+          onTap: onTap,
+          child: Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 7),
+            decoration: BoxDecoration(
+              borderRadius: AppSpacing.roundedFull,
+              border: outlined && !selected
+                  ? Border.all(color: colors.outlineVariant)
+                  : null,
+            ),
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: fg,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 // ─── Empty State ──────────────────────────────────────────────────
 
 class _EmptyState extends StatelessWidget {
@@ -254,14 +405,14 @@ class _EmptyState extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(28),
               decoration: BoxDecoration(
-                color: AppColors.sacredSaffron
+                color: Theme.of(context).colorScheme.primary
                     .withValues(alpha: isDark ? 0.1 : 0.08),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.folder_open_rounded,
                 size: 56,
-                color: AppColors.sacredSaffron
+                color: Theme.of(context).colorScheme.primary
                     .withValues(alpha: isDark ? 0.6 : 0.5),
               ),
             ),
@@ -271,8 +422,8 @@ class _EmptyState extends StatelessWidget {
               style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: isDark
-                    ? AppColors.darkPrimaryText
-                    : AppColors.lightPrimaryText,
+                    ? Theme.of(context).colorScheme.onSurface
+                    : Theme.of(context).colorScheme.onSurface,
               ),
             ),
             AppSpacing.gapH8,
@@ -281,8 +432,8 @@ class _EmptyState extends StatelessWidget {
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: isDark
-                    ? AppColors.darkSecondaryText
-                    : AppColors.lightSecondaryText,
+                    ? Theme.of(context).colorScheme.onSurfaceVariant
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
                 height: 1.5,
               ),
             ),
@@ -294,7 +445,7 @@ class _EmptyState extends StatelessWidget {
               icon: const Icon(Icons.person_add_alt_1_rounded, size: 20),
               label: Text(context.l10n.createProfileAction),
               style: FilledButton.styleFrom(
-                backgroundColor: AppColors.sacredSaffron,
+                backgroundColor: Theme.of(context).colorScheme.primary,
                 foregroundColor: Colors.white,
                 padding:
                     const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: 14),
@@ -329,8 +480,8 @@ class _ProfileCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final genderColor = profile.gender == Gender.bride
-        ? AppColors.pink
-        : AppColors.info;
+        ? context.palette.error
+        : context.palette.info;
 
     return Material(
       color: Colors.transparent,
@@ -340,10 +491,10 @@ class _ProfileCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+            color: isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface,
             borderRadius: AppSpacing.roundedLg,
             border: Border.all(
-              color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+              color: isDark ? Theme.of(context).colorScheme.outline : Theme.of(context).colorScheme.outline,
               width: 0.5,
             ),
             boxShadow: isDark
@@ -403,8 +554,8 @@ class _ProfileCard extends StatelessWidget {
                             style: theme.textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.w700,
                               color: isDark
-                                  ? AppColors.darkPrimaryText
-                                  : AppColors.lightPrimaryText,
+                                  ? Theme.of(context).colorScheme.onSurface
+                                  : Theme.of(context).colorScheme.onSurface,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -442,8 +593,8 @@ class _ProfileCard extends StatelessWidget {
                             Icons.school_outlined,
                             size: 13,
                             color: isDark
-                                ? AppColors.darkTertiaryText
-                                : AppColors.lightTertiaryText,
+                                ? Theme.of(context).colorScheme.onSurfaceVariant
+                                : Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                           AppSpacing.gapW4,
                           Flexible(
@@ -453,8 +604,8 @@ class _ProfileCard extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 12,
                                 color: isDark
-                                    ? AppColors.darkSecondaryText
-                                    : AppColors.lightSecondaryText,
+                                    ? Theme.of(context).colorScheme.onSurfaceVariant
+                                    : Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ),
@@ -469,8 +620,8 @@ class _ProfileCard extends StatelessWidget {
                             Icons.location_on_outlined,
                             size: 13,
                             color: isDark
-                                ? AppColors.darkTertiaryText
-                                : AppColors.lightTertiaryText,
+                                ? Theme.of(context).colorScheme.onSurfaceVariant
+                                : Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                           AppSpacing.gapW4,
                           Flexible(
@@ -480,8 +631,8 @@ class _ProfileCard extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 12,
                                 color: isDark
-                                    ? AppColors.darkSecondaryText
-                                    : AppColors.lightSecondaryText,
+                                    ? Theme.of(context).colorScheme.onSurfaceVariant
+                                    : Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ),
@@ -500,7 +651,7 @@ class _ProfileCard extends StatelessWidget {
                             vertical: AppSpacing.xxs,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.info
+                            color: context.palette.info
                                 .withValues(alpha: isDark ? 0.12 : 0.08),
                             borderRadius: AppSpacing.roundedSm,
                           ),
@@ -510,7 +661,7 @@ class _ProfileCard extends StatelessWidget {
                               Icon(
                                 Icons.groups_outlined,
                                 size: 14,
-                                color: AppColors.info,
+                                color: context.palette.info,
                               ),
                               AppSpacing.gapW4,
                               Text(
@@ -518,7 +669,7 @@ class _ProfileCard extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w500,
-                                  color: AppColors.info,
+                                  color: context.palette.info,
                                 ),
                               ),
                             ],
@@ -538,21 +689,21 @@ class _ProfileCard extends StatelessWidget {
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                color: AppColors.sacredSaffron
+                                color: Theme.of(context).colorScheme.primary
                                     .withValues(alpha: isDark ? 0.15 : 0.1),
                                 borderRadius: AppSpacing.roundedSm,
                                 border: Border.all(
-                                  color: AppColors.sacredSaffron
+                                  color: Theme.of(context).colorScheme.primary
                                       .withValues(alpha: 0.25),
                                 ),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.share_rounded,
                                     size: 14,
-                                    color: AppColors.sacredSaffron,
+                                    color: Theme.of(context).colorScheme.primary,
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
@@ -560,7 +711,7 @@ class _ProfileCard extends StatelessWidget {
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
-                                      color: AppColors.sacredSaffron,
+                                      color: Theme.of(context).colorScheme.primary,
                                     ),
                                   ),
                                 ],

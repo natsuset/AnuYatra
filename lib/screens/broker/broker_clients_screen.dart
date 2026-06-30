@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
@@ -96,13 +96,13 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                           Container(
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              color: AppColors.warning
+                              color: context.palette.warning
                                   .withValues(alpha: isDark ? 0.15 : 0.1),
                               borderRadius: AppSpacing.roundedSm,
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.pending_actions_rounded,
-                              color: AppColors.warning,
+                              color: context.palette.warning,
                               size: 18,
                             ),
                           ),
@@ -112,8 +112,8 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.w700,
                               color: isDark
-                                  ? AppColors.darkPrimaryText
-                                  : AppColors.lightPrimaryText,
+                                  ? Theme.of(context).colorScheme.onSurface
+                                  : Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                           AppSpacing.gapW8,
@@ -123,7 +123,7 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.warning,
+                              color: context.palette.warning,
                               borderRadius: AppSpacing.roundedMd,
                             ),
                             child: Text(
@@ -172,13 +172,13 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                         Container(
                           padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: AppColors.success
+                            color: context.palette.success
                                 .withValues(alpha: isDark ? 0.15 : 0.1),
                             borderRadius: AppSpacing.roundedSm,
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.people_alt_rounded,
-                            color: AppColors.success,
+                            color: context.palette.success,
                             size: 18,
                           ),
                         ),
@@ -188,8 +188,8 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w700,
                             color: isDark
-                                ? AppColors.darkPrimaryText
-                                : AppColors.lightPrimaryText,
+                                ? Theme.of(context).colorScheme.onSurface
+                                : Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         AppSpacing.gapW8,
@@ -199,7 +199,7 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.success
+                            color: context.palette.success
                                 .withValues(alpha: isDark ? 0.2 : 0.15),
                             borderRadius: AppSpacing.roundedMd,
                           ),
@@ -208,7 +208,7 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.success,
+                              color: context.palette.success,
                             ),
                           ),
                         ),
@@ -226,8 +226,8 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                           context.l10n.noConnectedClients,
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: isDark
-                                ? AppColors.darkTertiaryText
-                                : AppColors.lightTertiaryText,
+                                ? Theme.of(context).colorScheme.onSurfaceVariant
+                                : Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ),
@@ -250,6 +250,10 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
                             parentName: data?.name ?? 'Unknown',
                             isDark: isDark,
                             onChat: () => _openChat(parentId),
+                            onOpen: () => context.pushNamed(
+                              RouteNames.brokerClientHub,
+                              pathParameters: {'id': parentId},
+                            ),
                           ),
                         );
                       },
@@ -288,7 +292,7 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
             content: Text(
               context.l10n.acceptedRequestFrom(request.fromUserName),
             ),
-            backgroundColor: AppColors.success,
+            backgroundColor: context.palette.success,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -298,7 +302,7 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(context.l10n.failedToAccept(e.toString())),
-            backgroundColor: AppColors.error,
+            backgroundColor: context.palette.error,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -326,7 +330,7 @@ class _BrokerClientsScreenState extends ConsumerState<BrokerClientsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(context.l10n.failedToDecline(e.toString())),
-            backgroundColor: AppColors.error,
+            backgroundColor: context.palette.error,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -354,14 +358,14 @@ class _EmptyState extends StatelessWidget {
             Container(
               padding: AppSpacing.allLg,
               decoration: BoxDecoration(
-                color: AppColors.sacredSaffron
+                color: Theme.of(context).colorScheme.primary
                     .withValues(alpha: isDark ? 0.1 : 0.08),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.people_outline_rounded,
                 size: 56,
-                color: AppColors.sacredSaffron
+                color: Theme.of(context).colorScheme.primary
                     .withValues(alpha: isDark ? 0.6 : 0.5),
               ),
             ),
@@ -371,8 +375,8 @@ class _EmptyState extends StatelessWidget {
               style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: isDark
-                    ? AppColors.darkPrimaryText
-                    : AppColors.lightPrimaryText,
+                    ? Theme.of(context).colorScheme.onSurface
+                    : Theme.of(context).colorScheme.onSurface,
               ),
             ),
             AppSpacing.gapH8,
@@ -381,8 +385,8 @@ class _EmptyState extends StatelessWidget {
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: isDark
-                    ? AppColors.darkSecondaryText
-                    : AppColors.lightSecondaryText,
+                    ? Theme.of(context).colorScheme.onSurfaceVariant
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
                 height: 1.5,
               ),
             ),
@@ -414,17 +418,17 @@ class _PendingRequestCard extends StatelessWidget {
     return Container(
       padding: AppSpacing.allMd,
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+        color: isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface,
         borderRadius: AppSpacing.roundedLg,
         border: Border.all(
-          color: AppColors.warning.withValues(alpha: 0.3),
+          color: context.palette.warning.withValues(alpha: 0.3),
           width: 1,
         ),
         boxShadow: isDark
             ? null
             : [
                 BoxShadow(
-                  color: AppColors.warning.withValues(alpha: 0.08),
+                  color: context.palette.warning.withValues(alpha: 0.08),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -437,7 +441,7 @@ class _PendingRequestCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 22,
-                backgroundColor: AppColors.sacredSaffron
+                backgroundColor: Theme.of(context).colorScheme.primary
                     .withValues(alpha: isDark ? 0.2 : 0.12),
                 child: Text(
                   request.fromUserName.isNotEmpty
@@ -446,7 +450,7 @@ class _PendingRequestCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.sacredSaffron,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               ),
@@ -460,8 +464,8 @@ class _PendingRequestCard extends StatelessWidget {
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: isDark
-                            ? AppColors.darkPrimaryText
-                            : AppColors.lightPrimaryText,
+                            ? Theme.of(context).colorScheme.onSurface
+                            : Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -469,8 +473,8 @@ class _PendingRequestCard extends StatelessWidget {
                       request.type.displayName,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: isDark
-                            ? AppColors.darkSecondaryText
-                            : AppColors.lightSecondaryText,
+                            ? Theme.of(context).colorScheme.onSurfaceVariant
+                            : Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -480,7 +484,7 @@ class _PendingRequestCard extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: AppSpacing.xxs),
                 decoration: BoxDecoration(
-                  color: AppColors.warning.withValues(alpha: 0.12),
+                  color: context.palette.warning.withValues(alpha: 0.12),
                   borderRadius: AppSpacing.roundedSm,
                 ),
                 child: Text(
@@ -488,7 +492,7 @@ class _PendingRequestCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.warningDark,
+                    color: context.palette.warning,
                   ),
                 ),
               ),
@@ -501,16 +505,16 @@ class _PendingRequestCard extends StatelessWidget {
               padding: AppSpacing.allSm,
               decoration: BoxDecoration(
                 color: isDark
-                    ? AppColors.darkSurfaceVariant
-                    : AppColors.lightSurfaceVariant,
+                    ? Theme.of(context).colorScheme.surfaceContainerHighest
+                    : Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
                 request.note!,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: isDark
-                      ? AppColors.darkSecondaryText
-                      : AppColors.lightSecondaryText,
+                      ? Theme.of(context).colorScheme.onSurfaceVariant
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
                   fontStyle: FontStyle.italic,
                 ),
               ),
@@ -525,9 +529,9 @@ class _PendingRequestCard extends StatelessWidget {
                   icon: const Icon(Icons.close_rounded, size: 18),
                   label: Text(context.l10n.decline),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.error,
+                    foregroundColor: context.palette.error,
                     side: BorderSide(
-                      color: AppColors.error.withValues(alpha: 0.4),
+                      color: context.palette.error.withValues(alpha: 0.4),
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -543,7 +547,7 @@ class _PendingRequestCard extends StatelessWidget {
                   icon: const Icon(Icons.check_rounded, size: 18),
                   label: Text(context.l10n.accept),
                   style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.success,
+                    backgroundColor: context.palette.success,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -567,12 +571,14 @@ class _ConnectedClientCard extends StatelessWidget {
   final String parentName;
   final bool isDark;
   final VoidCallback onChat;
+  final VoidCallback onOpen;
 
   const _ConnectedClientCard({
     required this.parentProfile,
     required this.parentName,
     required this.isDark,
     required this.onChat,
+    required this.onOpen,
   });
 
   @override
@@ -583,13 +589,18 @@ class _ConnectedClientCard extends StatelessWidget {
     final state = parentProfile?.state ?? '';
     final location = [city, state].where((s) => s.isNotEmpty).join(', ');
 
-    return Container(
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onOpen,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+        color: isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          color: isDark ? Theme.of(context).colorScheme.outline : Theme.of(context).colorScheme.outline,
           width: 0.5,
         ),
         boxShadow: isDark
@@ -607,13 +618,13 @@ class _ConnectedClientCard extends StatelessWidget {
           CircleAvatar(
             radius: 24,
             backgroundColor:
-                AppColors.info.withValues(alpha: isDark ? 0.15 : 0.1),
+                context.palette.info.withValues(alpha: isDark ? 0.15 : 0.1),
             child: Text(
               parentName.isNotEmpty ? parentName[0].toUpperCase() : '?',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: AppColors.info,
+                color: context.palette.info,
               ),
             ),
           ),
@@ -627,8 +638,8 @@ class _ConnectedClientCard extends StatelessWidget {
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: isDark
-                        ? AppColors.darkPrimaryText
-                        : AppColors.lightPrimaryText,
+                        ? Theme.of(context).colorScheme.onSurface
+                        : Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 AppSpacing.gapH4,
@@ -661,19 +672,21 @@ class _ConnectedClientCard extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColors.sacredSaffron
+                  color: Theme.of(context).colorScheme.primary
                       .withValues(alpha: isDark ? 0.15 : 0.1),
                   borderRadius: AppSpacing.roundedMd,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.chat_bubble_outline_rounded,
-                  color: AppColors.sacredSaffron,
+                  color: Theme.of(context).colorScheme.primary,
                   size: 20,
                 ),
               ),
             ),
           ),
         ],
+      ),
+    ),
       ),
     );
   }
@@ -702,8 +715,8 @@ class _InfoChip extends StatelessWidget {
             icon,
             size: 13,
             color: isDark
-                ? AppColors.darkTertiaryText
-                : AppColors.lightTertiaryText,
+                ? Theme.of(context).colorScheme.onSurfaceVariant
+                : Theme.of(context).colorScheme.onSurfaceVariant,
           ),
           AppSpacing.gapW4,
           Flexible(
@@ -713,8 +726,8 @@ class _InfoChip extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12,
                 color: isDark
-                    ? AppColors.darkSecondaryText
-                    : AppColors.lightSecondaryText,
+                    ? Theme.of(context).colorScheme.onSurfaceVariant
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),

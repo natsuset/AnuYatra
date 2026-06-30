@@ -1,9 +1,13 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/auth/profile_setup_data.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
@@ -20,9 +24,14 @@ class ProfileSetupScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
+  static const _draftKeyPrefix = 'profile_setup_draft_';
+
   final _formKey = GlobalKey<FormState>();
   final _pageController = PageController();
   int _currentStep = 0;
+
+  Timer? _draftDebounce;
+  bool _draftRestoreAttempted = false;
 
   // Common
   final _nameController = TextEditingController();
@@ -82,7 +91,145 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    for (final c in _allControllers().values) {
+      c.addListener(_scheduleDraftSave);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (_draftRestoreAttempted) return;
+      _draftRestoreAttempted = true;
+      final auth = ref.read(authProvider);
+      if (auth is AuthNeedsProfile) {
+        await _restoreDraft(auth);
+      }
+    });
+  }
+
+  Map<String, TextEditingController> _allControllers() => {
+    'name': _nameController,
+    'agencyName': _agencyNameController,
+    'agencyCity': _agencyCityController,
+    'agencyState': _agencyStateController,
+    'agencyDesc': _agencyDescController,
+    'agencyEmail': _agencyEmailController,
+    'agencyPhone': _agencyPhoneController,
+    'agencyWebsite': _agencyWebsiteController,
+    'brokerBio': _brokerBioController,
+    'brokerExp': _brokerExpController,
+    'brokerEmail': _brokerEmailController,
+    'brokerOfficeAddr': _brokerOfficeAddrController,
+    'brokerFee': _brokerFeeController,
+    'brokerWorkingHours': _brokerWorkingHoursController,
+    'parentCity': _parentCityController,
+    'parentState': _parentStateController,
+    'parentEmail': _parentEmailController,
+    'childName': _childNameController,
+    'childEducation': _childEducationController,
+    'childProfession': _childProfessionController,
+    'childHeight': _childHeightController,
+    'fatherOcc': _fatherOccController,
+    'motherOcc': _motherOccController,
+    'aboutFamily': _aboutFamilyController,
+    'candidateAge': _candidateAgeController,
+  };
+
+  String _draftKey(AuthNeedsProfile auth) =>
+      '$_draftKeyPrefix${auth.phoneNumber}_${auth.role.name}';
+
+  void _scheduleDraftSave() {
+    _draftDebounce?.cancel();
+    _draftDebounce = Timer(const Duration(milliseconds: 500), _persistDraft);
+  }
+
+  Future<void> _persistDraft() async {
+    final auth = ref.read(authProvider);
+    if (auth is! AuthNeedsProfile) return;
+    final prefs = await SharedPreferences.getInstance();
+    final data = <String, String>{
+      for (final e in _allControllers().entries) e.key: e.value.text,
+      '_lookingFor': _lookingFor,
+      '_agencySpecializations': _agencySpecializations,
+      '_brokerAreasServed': _brokerAreasServed,
+      '_brokerSpecializations': _brokerSpecializations,
+      '_brokerLanguages': _brokerLanguages,
+      '_candidateGender': _candidateGender,
+    };
+    final hasAny = data.values.any((v) => v.trim().isNotEmpty);
+    if (!hasAny) {
+      await prefs.remove(_draftKey(auth));
+      return;
+    }
+    await prefs.setString(_draftKey(auth), jsonEncode(data));
+  }
+
+  Future<void> _restoreDraft(AuthNeedsProfile auth) async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_draftKey(auth));
+    if (raw == null) return;
+    Map<String, dynamic> data;
+    try {
+      data = jsonDecode(raw) as Map<String, dynamic>;
+    } catch (_) {
+      await prefs.remove(_draftKey(auth));
+      return;
+    }
+    for (final entry in _allControllers().entries) {
+      final v = data[entry.key];
+      if (v is String && v.isNotEmpty) entry.value.text = v;
+    }
+    if (!mounted) return;
+    setState(() {
+      _lookingFor = (data['_lookingFor'] as String?) ?? _lookingFor;
+      _agencySpecializations =
+          (data['_agencySpecializations'] as String?) ?? '';
+      _brokerAreasServed = (data['_brokerAreasServed'] as String?) ?? '';
+      _brokerSpecializations =
+          (data['_brokerSpecializations'] as String?) ?? '';
+      _brokerLanguages = (data['_brokerLanguages'] as String?) ?? '';
+      _candidateGender =
+          (data['_candidateGender'] as String?) ?? _candidateGender;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Draft restored from your last session'),
+        behavior: SnackBarBehavior.floating,
+        action: SnackBarAction(
+          label: 'Discard',
+          onPressed: _clearDraft,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _clearDraft() async {
+    final auth = ref.read(authProvider);
+    final prefs = await SharedPreferences.getInstance();
+    if (auth is AuthNeedsProfile) {
+      await prefs.remove(_draftKey(auth));
+    }
+    for (final c in _allControllers().values) {
+      c.clear();
+    }
+    if (!mounted) return;
+    setState(() {
+      _lookingFor = 'bride';
+      _agencySpecializations = '';
+      _brokerAreasServed = '';
+      _brokerSpecializations = '';
+      _brokerLanguages = '';
+      _candidateGender = 'bride';
+      _childDiet = null;
+      _familyType = null;
+    });
+  }
+
+  @override
   void dispose() {
+    _draftDebounce?.cancel();
+    for (final c in _allControllers().values) {
+      c.removeListener(_scheduleDraftSave);
+    }
     _pageController.dispose();
     _nameController.dispose();
     _agencyNameController.dispose();
@@ -185,8 +332,19 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
     );
 
     // Save enriched fields after a short delay to let auth complete
-    Future.delayed(const Duration(milliseconds: 600), () {
-      _saveEnrichedFields(uid, role);
+    Future.delayed(const Duration(milliseconds: 600), () async {
+      await _saveEnrichedFields(uid, role);
+      final auth = ref.read(authProvider);
+      if (auth is AuthNeedsProfile) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove(_draftKey(auth));
+      } else {
+        final phone = (auth is AuthAuthenticated) ? auth.user.phoneNumber : '';
+        if (phone.isNotEmpty) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.remove('$_draftKeyPrefix${phone}_${role.name}');
+        }
+      }
     });
   }
 
@@ -356,7 +514,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                                 }
                               },
                         style: FilledButton.styleFrom(
-                          backgroundColor: AppColors.sacredSaffron,
+                          backgroundColor: Theme.of(context).colorScheme.primary,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: AppSpacing.roundedMd,
@@ -420,7 +578,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   child: Container(
                     height: 2,
                     color: stepBefore < _currentStep
-                        ? AppColors.sacredSaffron
+                        ? Theme.of(context).colorScheme.primary
                         : theme.colorScheme.outlineVariant,
                   ),
                 );
@@ -432,7 +590,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                 height: 28,
                 decoration: BoxDecoration(
                   color: isActive
-                      ? AppColors.sacredSaffron
+                      ? Theme.of(context).colorScheme.primary
                       : theme.colorScheme.surfaceContainerHighest,
                   shape: BoxShape.circle,
                 ),
@@ -458,7 +616,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
           Text(
             stepLabels[_currentStep],
             style: theme.textTheme.bodySmall?.copyWith(
-              color: AppColors.sacredSaffron,
+              color: Theme.of(context).colorScheme.primary,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -499,13 +657,13 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
         Container(
           padding: EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 6),
           decoration: BoxDecoration(
-            color: AppColors.sacredSaffron.withValues(alpha: 0.1),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
             borderRadius: AppSpacing.roundedSm,
           ),
           child: Text(
             context.l10n.settingUpAs(role.displayName),
             style: theme.textTheme.bodySmall?.copyWith(
-              color: AppColors.sacredSaffron,
+              color: Theme.of(context).colorScheme.primary,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -977,21 +1135,21 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
         Container(
           padding: AppSpacing.allMd,
           decoration: BoxDecoration(
-            color: AppColors.info.withValues(alpha: 0.08),
+            color: context.palette.info.withValues(alpha: 0.08),
             borderRadius: AppSpacing.roundedMd,
             border: Border.all(
-              color: AppColors.info.withValues(alpha: 0.2),
+              color: context.palette.info.withValues(alpha: 0.2),
             ),
           ),
           child: Row(
             children: [
-              const Icon(Icons.info_outline, color: AppColors.info, size: 20),
+              Icon(Icons.info_outline, color: context.palette.info, size: 20),
               AppSpacing.gapW12,
               Expanded(
                 child: Text(
                   context.l10n.candidateInfoBox,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: AppColors.info,
+                    color: context.palette.info,
                     height: 1.4,
                   ),
                 ),
@@ -1010,7 +1168,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
           width: 4,
           height: 20,
           decoration: BoxDecoration(
-            color: AppColors.sacredSaffron,
+            color: Theme.of(context).colorScheme.primary,
             borderRadius: BorderRadius.circular(2),
           ),
         ),
@@ -1074,7 +1232,7 @@ class _RadioCard extends StatelessWidget {
 
     return Material(
       color: isSelected
-          ? AppColors.sacredSaffron.withValues(alpha: 0.1)
+          ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
           : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
       borderRadius: AppSpacing.roundedMd,
       child: InkWell(
@@ -1085,7 +1243,7 @@ class _RadioCard extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: AppSpacing.roundedMd,
             border: Border.all(
-              color: isSelected ? AppColors.sacredSaffron : Colors.transparent,
+              color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
               width: 2,
             ),
           ),
@@ -1095,7 +1253,7 @@ class _RadioCard extends StatelessWidget {
                 icon,
                 size: 28,
                 color: isSelected
-                    ? AppColors.sacredSaffron
+                    ? Theme.of(context).colorScheme.primary
                     : theme.colorScheme.onSurfaceVariant,
               ),
               AppSpacing.gapH8,
@@ -1104,7 +1262,7 @@ class _RadioCard extends StatelessWidget {
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                   color: isSelected
-                      ? AppColors.sacredSaffron
+                      ? Theme.of(context).colorScheme.primary
                       : theme.colorScheme.onSurfaceVariant,
                 ),
               ),

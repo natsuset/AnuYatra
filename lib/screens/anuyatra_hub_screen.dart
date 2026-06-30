@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
+import 'package:go_router/go_router.dart';
+import 'package:testing_flutter/core/routing/route_names.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/screens/vivaha_samskara_home_screen.dart';
@@ -29,12 +31,22 @@ class AnuyatraHubScreen extends StatelessWidget {
       body: ListView(
         padding: AppSpacing.allMd,
         children: [
+          // Astrology Match — Kundali / Guna Milan
+          _SectionCard(
+            icon: Icons.stars_rounded,
+            title: 'Kundali Match',
+            subtitle: 'Guna Milan · Ashtakoota compatibility score',
+            color: const Color(0xFF7B2FBE),
+            onTap: () => context.pushNamed(RouteNames.astrologyCalculator),
+          ),
+          AppSpacing.gapH12,
+
           // Premium Services Section
           _SectionCard(
             icon: Icons.auto_awesome,
             title: context.l10n.vivahaSamskara,
             subtitle: context.l10n.vivahaSamskaraDesc,
-            color: AppColors.sacredSaffron,
+            color: Theme.of(context).colorScheme.primary,
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
@@ -49,7 +61,7 @@ class AnuyatraHubScreen extends StatelessWidget {
             icon: Icons.verified_user,
             title: context.l10n.trustVerification,
             subtitle: 'Verify profiles with trust scores & endorsements',
-            color: AppColors.success,
+            color: context.palette.success,
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
@@ -64,7 +76,7 @@ class AnuyatraHubScreen extends StatelessWidget {
             icon: Icons.account_balance_wallet,
             title: context.l10n.financialCompatibility,
             subtitle: 'Analyze financial alignment between profiles',
-            color: AppColors.info,
+            color: context.palette.info,
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
@@ -80,10 +92,10 @@ class AnuyatraHubScreen extends StatelessWidget {
             decoration: BoxDecoration(
               color: isDark
                   ? Colors.white.withValues(alpha: 0.05)
-                  : AppColors.sacredSaffron.withValues(alpha: 0.05),
+                  : Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
               borderRadius: AppSpacing.roundedLg,
               border: Border.all(
-                color: AppColors.sacredSaffron.withValues(alpha: 0.2),
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
               ),
             ),
             child: Column(
@@ -91,7 +103,7 @@ class AnuyatraHubScreen extends StatelessWidget {
                 Icon(
                   Icons.rocket_launch_outlined,
                   size: 40,
-                  color: AppColors.sacredSaffron.withValues(alpha: 0.6),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.6),
                 ),
                 AppSpacing.gapH12,
                 Text(

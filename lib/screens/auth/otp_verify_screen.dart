@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 
@@ -101,7 +101,7 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(_resolveAuthError(context, next)),
-            backgroundColor: AppColors.error,
+            backgroundColor: context.palette.error,
           ),
         );
         ref.read(authProvider.notifier).clearError();
@@ -172,7 +172,7 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: AppSpacing.roundedMd,
                           borderSide: BorderSide(
-                            color: AppColors.sacredSaffron,
+                            color: Theme.of(context).colorScheme.primary,
                             width: 2,
                           ),
                         ),
@@ -193,7 +193,7 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
                 child: FilledButton(
                   onPressed: isLoading ? null : _verifyOtp,
                   style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.sacredSaffron,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: AppSpacing.roundedMd,
                     ),
@@ -232,7 +232,7 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
                   child: Text(
                     l10n.resendCode,
                     style: TextStyle(
-                      color: AppColors.sacredSaffron,
+                      color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -246,18 +246,18 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
                 margin: EdgeInsets.only(bottom: AppSpacing.lg),
                 padding: AppSpacing.allSm,
                 decoration: BoxDecoration(
-                  color: AppColors.success.withValues(alpha: 0.08),
+                  color: context.palette.success.withValues(alpha: 0.08),
                   borderRadius: AppSpacing.roundedMd,
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.lightbulb_outline, size: 20, color: AppColors.success),
+                    Icon(Icons.lightbulb_outline, size: 20, color: context.palette.success),
                     AppSpacing.gapW12,
                     Expanded(
                       child: Text(
                         l10n.otpHint,
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: AppColors.success,
+                          color: context.palette.success,
                           fontWeight: FontWeight.w500,
                         ),
                       ),

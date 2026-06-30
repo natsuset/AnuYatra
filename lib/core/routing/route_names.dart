@@ -14,6 +14,7 @@ class RouteNames {
   static const parentMyBrokers = 'parent-my-brokers';
   static const parentAnuyatra = 'parent-anuyatra';
   static const parentProfile = 'parent-profile';
+  static const parentCreateChildProfile = 'parent-create-child-profile';
 
   // Broker
   static const brokerDashboard = 'broker-dashboard';
@@ -23,10 +24,13 @@ class RouteNames {
   static const brokerProfile = 'broker-profile';
   static const brokerCreateProfile = 'broker-create-profile';
   static const brokerEditProfile = 'broker-edit-profile';
+  static const brokerClientHub = 'broker-client-hub';
+  static const brokerAstrologyMatch = 'broker-astrology-match';
 
   // Candidate
   static const candidateHome = 'candidate-home';
   static const candidateShared = 'candidate-shared';
+  static const candidateSharedList = 'candidate-shared-list'; // pushed from home with back button
   static const candidateAnuyatra = 'candidate-anuyatra';
   static const candidateProfile = 'candidate-profile';
 
@@ -42,6 +46,15 @@ class RouteNames {
   static const appSettings = 'app-settings';
   static const linkRequests = 'link-requests';
   static const linkToParent = 'link-to-parent';
+  static const savedProfiles = 'saved-profiles';
+  static const incomingInterest = 'incoming-interest';
+  static const myProfiles = 'my-profiles';
+
+  // Parent vault & tooling
+  static const profileVault = 'profile-vault';
+  static const notesHub = 'notes-hub';
+  static const manualProfileEntry = 'manual-profile-entry';
+  static const astrologyCalculator = 'astrology-calculator';
 
   // Paths
   static const roleSelectionPath = '/role-selection';
@@ -54,6 +67,7 @@ class RouteNames {
   static const parentMyBrokersPath = '/parent/my-brokers';
   static const parentAnuyatraPath = '/parent/anuyatra';
   static const parentProfilePath = '/parent/profile';
+  static const parentCreateChildProfilePath = '/parent/create-child-profile';
 
   static const brokerDashboardPath = '/broker';
   static const brokerClientsPath = '/broker/clients';
@@ -62,9 +76,12 @@ class RouteNames {
   static const brokerProfilePath = '/broker/profile';
   static const brokerCreateProfilePath = '/broker/profiles/create';
   static const brokerEditProfilePath = '/broker/profiles/edit/:id';
+  static const brokerClientHubPath = '/broker/client/:id';
+  static const brokerAstrologyMatchPath = '/broker/astrology-match';
 
   static const candidateHomePath = '/candidate';
   static const candidateSharedPath = '/candidate/shared';
+  static const candidateSharedListPath = 'shared-list'; // relative child of candidateHome
   static const candidateAnuyatraPath = '/candidate/anuyatra';
   static const candidateProfilePath = '/candidate/profile';
 
@@ -78,4 +95,12 @@ class RouteNames {
   static const appSettingsPath = '/settings';
   static const linkRequestsPath = '/link-requests';
   static const linkToParentPath = '/link-to-parent';
+  static const savedProfilesPath = '/saved-profiles';
+  static const incomingInterestPath = '/incoming-interest';
+  static const myProfilesPath = '/my-profiles';
+
+  static const profileVaultPath = '/parent/vault';
+  static const notesHubPath = '/parent/notes';
+  static const manualProfileEntryPath = '/parent/vault/add';
+  static const astrologyCalculatorPath = '/parent/astrology';
 }

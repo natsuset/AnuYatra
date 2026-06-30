@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:testing_flutter/common/widgets/molecules/branded_app_bar.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/core/data/repositories/broker_repository.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
@@ -97,8 +97,8 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
-                decoration: const BoxDecoration(
-                  gradient: AppColors.primaryGradient,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary], begin: Alignment.topLeft, end: Alignment.bottomRight),
                 ),
                 child: SafeArea(
                   child: Padding(
@@ -199,7 +199,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
         Expanded(
           child: _StatCard(
             icon: Icons.people_outline,
-            iconColor: AppColors.info,
+            iconColor: context.palette.info,
             label: context.l10n.activeBrokers,
             value: '${stats.totalBrokers}',
             isDark: isDark,
@@ -209,7 +209,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
         Expanded(
           child: _StatCard(
             icon: Icons.family_restroom,
-            iconColor: AppColors.sacredSaffron,
+            iconColor: Theme.of(context).colorScheme.primary,
             label: context.l10n.activeClients,
             value: '${stats.totalClients}',
             isDark: isDark,
@@ -219,7 +219,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
         Expanded(
           child: _StatCard(
             icon: Icons.person_outline,
-            iconColor: AppColors.success,
+            iconColor: context.palette.success,
             label: context.l10n.profilesManaged,
             value: '${stats.totalProfiles}',
             isDark: isDark,
@@ -241,11 +241,11 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
       shape: RoundedRectangleBorder(
         borderRadius: AppSpacing.roundedLg,
         side: BorderSide(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          color: isDark ? Theme.of(context).colorScheme.outline : Theme.of(context).colorScheme.outline,
           width: 0.5,
         ),
       ),
-      color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+      color: isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -280,16 +280,16 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
                       Icons.group_off_outlined,
                       size: 40,
                       color: isDark
-                          ? AppColors.darkTertiaryText
-                          : AppColors.lightTertiaryText,
+                          ? Theme.of(context).colorScheme.onSurfaceVariant
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     AppSpacing.gapH8,
                     Text(
                       'No brokers yet',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: isDark
-                            ? AppColors.darkSecondaryText
-                            : AppColors.lightSecondaryText,
+                            ? Theme.of(context).colorScheme.onSurfaceVariant
+                            : Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -302,13 +302,13 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
               return ListTile(
                 leading: CircleAvatar(
                   backgroundColor:
-                      AppColors.deepMaroon.withValues(alpha: 0.12),
+                      Theme.of(context).colorScheme.secondary.withValues(alpha: 0.12),
                   child: Text(
                     broker.name.isNotEmpty
                         ? broker.name[0].toUpperCase()
                         : '?',
-                    style: const TextStyle(
-                      color: AppColors.deepMaroon,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.secondary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -325,8 +325,8 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
                   '${broker.clientCount} clients \u2022 ${broker.profilesManaged} profiles',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: isDark
-                        ? AppColors.darkTertiaryText
-                        : AppColors.lightTertiaryText,
+                        ? Theme.of(context).colorScheme.onSurfaceVariant
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 trailing: Container(
@@ -334,8 +334,8 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
                       const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: 2),
                   decoration: BoxDecoration(
                     color: (user?.isActive ?? false)
-                        ? AppColors.success.withValues(alpha: 0.12)
-                        : AppColors.lightTertiaryText.withValues(alpha: 0.12),
+                        ? context.palette.success.withValues(alpha: 0.12)
+                        : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.12),
                     borderRadius: AppSpacing.roundedXs,
                   ),
                   child: Text(
@@ -344,8 +344,8 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: (user?.isActive ?? false)
-                          ? AppColors.success
-                          : AppColors.lightTertiaryText,
+                          ? context.palette.success
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ),
@@ -370,11 +370,11 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
       shape: RoundedRectangleBorder(
         borderRadius: AppSpacing.roundedLg,
         side: BorderSide(
-          color: AppColors.sacredSaffron.withValues(alpha: 0.3),
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
-      color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+      color: isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface,
       child: ListTile(
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 20, vertical: AppSpacing.xs),
@@ -382,12 +382,12 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: AppColors.sacredSaffron.withValues(alpha: 0.12),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
             borderRadius: AppSpacing.roundedMd,
           ),
-          child: const Icon(
+          child: Icon(
             Icons.person_add_outlined,
-            color: AppColors.sacredSaffron,
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
         title: Text(
@@ -397,9 +397,9 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
           ),
         ),
         subtitle: Text(context.l10n.addNewBroker),
-        trailing: const Icon(
+        trailing: Icon(
           Icons.chevron_right,
-          color: AppColors.sacredSaffron,
+          color: Theme.of(context).colorScheme.primary,
         ),
         onTap: () {
           _showInviteDialog(context, ref, userId, userName);
@@ -444,7 +444,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(context.l10n.userNotFoundByPhone),
-                      backgroundColor: AppColors.error,
+                      backgroundColor: context.palette.error,
                     ),
                   );
                 }
@@ -456,7 +456,7 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('${brokerUser.displayName} is not registered as a broker'),
-                      backgroundColor: AppColors.warning,
+                      backgroundColor: context.palette.warning,
                     ),
                   );
                 }
@@ -478,13 +478,13 @@ class _AgencyDashboardScreenState extends ConsumerState<AgencyDashboardScreen> {
                     content: Text(
                       context.l10n.inviteSentTo(brokerUser.displayName),
                     ),
-                    backgroundColor: AppColors.success,
+                    backgroundColor: context.palette.success,
                   ),
                 );
               }
             },
             style: FilledButton.styleFrom(
-              backgroundColor: AppColors.sacredSaffron,
+              backgroundColor: Theme.of(context).colorScheme.primary,
             ),
             child: Text(context.l10n.sendInvite),
           ),
@@ -519,11 +519,11 @@ class _StatCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
         side: BorderSide(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          color: isDark ? Theme.of(context).colorScheme.outline : Theme.of(context).colorScheme.outline,
           width: 0.5,
         ),
       ),
-      color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+      color: isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface,
       child: Padding(
         padding: AppSpacing.allMd,
         child: Column(
@@ -544,8 +544,8 @@ class _StatCard extends StatelessWidget {
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: isDark
-                    ? AppColors.darkPrimaryText
-                    : AppColors.lightPrimaryText,
+                    ? Theme.of(context).colorScheme.onSurface
+                    : Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 2),
@@ -554,8 +554,8 @@ class _StatCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12,
                 color: isDark
-                    ? AppColors.darkTertiaryText
-                    : AppColors.lightTertiaryText,
+                    ? Theme.of(context).colorScheme.onSurfaceVariant
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],

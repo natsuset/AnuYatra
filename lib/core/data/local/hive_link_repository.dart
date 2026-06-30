@@ -266,13 +266,21 @@ class HiveLinkRepository implements LinkRepository {
 
   @override
   Future<String?> getLinkedChildId(String parentUserId) async {
-    final connection = (await getAcceptedConnectionsFor(parentUserId))
+    final ids = await getLinkedChildIds(parentUserId);
+    return ids.isEmpty ? null : ids.first;
+  }
+
+  @override
+  Future<List<String>> getLinkedChildIds(String parentUserId) async {
+    final connections = (await getAcceptedConnectionsFor(parentUserId))
         .where((r) => r.type == LinkRequestType.childToParent)
-        .firstOrNull;
-    if (connection == null) return null;
-    return connection.fromUserId == parentUserId
-        ? connection.toUserId
-        : connection.fromUserId;
+        .toList()
+      ..sort((a, b) =>
+          (b.respondedAt ?? b.createdAt).compareTo(a.respondedAt ?? a.createdAt));
+    return connections
+        .map((r) =>
+            r.fromUserId == parentUserId ? r.toUserId : r.fromUserId)
+        .toList();
   }
 
   @override

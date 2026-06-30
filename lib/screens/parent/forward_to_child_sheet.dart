@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/models/app_user.dart';
@@ -62,7 +62,7 @@ class _ForwardToChildSheetState extends ConsumerState<ForwardToChildSheet> {
       return Container(
         padding: const EdgeInsets.all(24.0),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+          color: isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface,
           borderRadius: const BorderRadius.vertical(
             top: Radius.circular(16),
           ),
@@ -81,7 +81,7 @@ class _ForwardToChildSheetState extends ConsumerState<ForwardToChildSheet> {
         24.0 + MediaQuery.of(context).padding.bottom,
       ),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+        color: isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface,
         borderRadius: const BorderRadius.vertical(
           top: Radius.circular(16),
         ),
@@ -95,7 +95,7 @@ class _ForwardToChildSheetState extends ConsumerState<ForwardToChildSheet> {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: (isDark ? AppColors.darkTertiaryText : AppColors.lightTertiaryText)
+              color: (isDark ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.onSurfaceVariant)
                   .withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(2),
             ),
@@ -106,13 +106,13 @@ class _ForwardToChildSheetState extends ConsumerState<ForwardToChildSheet> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.sacredSaffron.withValues(alpha: isDark ? 0.12 : 0.08),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: isDark ? 0.12 : 0.08),
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.forward_to_inbox,
               size: 36,
-              color: AppColors.sacredSaffron.withValues(alpha: isDark ? 0.8 : 0.7),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: isDark ? 0.8 : 0.7),
             ),
           ),
           const SizedBox(height: 16),
@@ -121,7 +121,7 @@ class _ForwardToChildSheetState extends ConsumerState<ForwardToChildSheet> {
             'Forward to Child',
             style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
-              color: isDark ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+              color: isDark ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 8),
@@ -131,7 +131,7 @@ class _ForwardToChildSheetState extends ConsumerState<ForwardToChildSheet> {
             Text(
               'Share this profile with your child for their opinion',
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: isDark ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                color: isDark ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
@@ -141,24 +141,24 @@ class _ForwardToChildSheetState extends ConsumerState<ForwardToChildSheet> {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: AppColors.success.withValues(alpha: isDark ? 0.1 : 0.06),
+                color: context.palette.success.withValues(alpha: isDark ? 0.1 : 0.06),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppColors.success.withValues(alpha: 0.2),
+                  color: context.palette.success.withValues(alpha: 0.2),
                 ),
               ),
               child: Row(
                 children: [
                   CircleAvatar(
                     radius: 20,
-                    backgroundColor: AppColors.success.withValues(alpha: 0.15),
+                    backgroundColor: context.palette.success.withValues(alpha: 0.15),
                     child: Text(
                       childUser.displayName.isNotEmpty
                           ? childUser.displayName[0].toUpperCase()
                           : '?',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: AppColors.success,
+                        color: context.palette.success,
                       ),
                     ),
                   ),
@@ -176,13 +176,13 @@ class _ForwardToChildSheetState extends ConsumerState<ForwardToChildSheet> {
                         Text(
                           'Linked child',
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: AppColors.success,
+                            color: context.palette.success,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const Icon(Icons.check_circle, color: AppColors.success, size: 20),
+                  Icon(Icons.check_circle, color: context.palette.success, size: 20),
                 ],
               ),
             ),
@@ -204,14 +204,14 @@ class _ForwardToChildSheetState extends ConsumerState<ForwardToChildSheet> {
                         context.l10n.profileForwardedTo(childUser.displayName),
                       ),
                       behavior: SnackBarBehavior.floating,
-                      backgroundColor: AppColors.success,
+                      backgroundColor: context.palette.success,
                     ),
                   );
                 },
                 icon: const Icon(Icons.send_rounded, size: 18),
                 label: Text(context.l10n.forwardProfileButton),
                 style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.sacredSaffron,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
@@ -225,7 +225,7 @@ class _ForwardToChildSheetState extends ConsumerState<ForwardToChildSheet> {
             Text(
               'No child account is linked to your profile yet.',
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: isDark ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                color: isDark ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
@@ -233,7 +233,7 @@ class _ForwardToChildSheetState extends ConsumerState<ForwardToChildSheet> {
             Text(
               'Ask your child to create an account and link it to yours.',
               style: theme.textTheme.bodySmall?.copyWith(
-                color: isDark ? AppColors.darkTertiaryText : AppColors.lightTertiaryText,
+                color: isDark ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
@@ -243,21 +243,21 @@ class _ForwardToChildSheetState extends ConsumerState<ForwardToChildSheet> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.warning.withValues(alpha: isDark ? 0.1 : 0.06),
+                color: context.palette.warning.withValues(alpha: isDark ? 0.1 : 0.06),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppColors.warning.withValues(alpha: 0.2),
+                  color: context.palette.warning.withValues(alpha: 0.2),
                 ),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.link_off, color: AppColors.warning, size: 20),
+                  Icon(Icons.link_off, color: context.palette.warning, size: 20),
                   const SizedBox(width: 8),
                   Text(
                     'No child linked',
                     style: TextStyle(
-                      color: AppColors.warning,
+                      color: context.palette.warning,
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
                     ),

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/common/animations/app_animations.dart';
 import 'package:testing_flutter/common/widgets/atoms/app_avatar.dart';
 import 'package:testing_flutter/common/widgets/atoms/app_button.dart';
 import 'package:testing_flutter/common/widgets/atoms/app_loading.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/theme_provider.dart';
@@ -64,11 +64,11 @@ class DesignSystemDemoScreen extends ConsumerWidget {
             title: 'Brand Colors',
             child: Row(
               children: [
-                _buildColorChip('Primary', AppColors.sacredSaffron),
+                _buildColorChip('Primary', Theme.of(context).colorScheme.primary),
                 AppSpacing.sm.horizontalSpace,
-                _buildColorChip('Secondary', AppColors.deepMaroon),
+                _buildColorChip('Secondary', Theme.of(context).colorScheme.secondary),
                 AppSpacing.sm.horizontalSpace,
-                _buildColorChip('Success', AppColors.success),
+                _buildColorChip('Success', context.palette.success),
               ],
             ),
           ),
@@ -148,10 +148,10 @@ class DesignSystemDemoScreen extends ConsumerWidget {
               children: [
                 const AppAvatar(size: AvatarSize.xs, showBorder: true),
                 AppSpacing.md.horizontalSpace,
-                const AppAvatar(
+                AppAvatar(
                   size: AvatarSize.sm,
                   showBadge: true,
-                  badgeColor: AppColors.success,
+                  badgeColor: context.palette.success,
                 ),
                 AppSpacing.md.horizontalSpace,
                 const AppAvatar(

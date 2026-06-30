@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/theme/app_theme.dart';
 
@@ -46,11 +45,11 @@ class DetailTile extends StatelessWidget {
     final labelStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
           color: isDark
               ? Colors.white.withValues(alpha: 0.85)
-              : AppColors.lightTertiaryText,
+              : Theme.of(context).colorScheme.onSurfaceVariant,
         );
 
     final valueStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
-          color: isDark ? Colors.white : AppColors.lightPrimaryText,
+          color: isDark ? Colors.white : Theme.of(context).colorScheme.onSurface,
           fontWeight: FontWeight.w600,
         );
 

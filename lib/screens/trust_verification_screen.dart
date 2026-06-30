@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/models/trust_verification.dart';
 import 'package:testing_flutter/data/revolutionary_features_data.dart';
 import 'package:testing_flutter/core/theme/app_theme.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 
 class TrustVerificationScreen extends StatefulWidget {
   const TrustVerificationScreen({super.key});
@@ -65,7 +65,7 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
             expandedHeight: 200,
             floating: false,
             pinned: true,
-            backgroundColor: AppColors.trustBlue, // Trust blue
+            backgroundColor: context.palette.trustBlue, // Trust blue
             elevation: 0,
             systemOverlayStyle: SystemUiOverlayStyle.light,
             flexibleSpace: FlexibleSpaceBar(
@@ -79,14 +79,14 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
                 ),
               ),
               background: Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      AppColors.trustBlue, // Deep blue
-                      AppColors.infoDark, // Bright blue
-                      AppColors.info, // Light blue
+                      context.palette.trustBlue, // Deep blue
+                      context.palette.info, // Bright blue
+                      context.palette.info, // Light blue
                     ],
                     stops: [0.0, 0.6, 1.0],
                   ),
@@ -266,10 +266,10 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppColors.trustBlue.withValues(alpha: 0.1),
+                color: context.palette.trustBlue.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, color: AppColors.trustBlue, size: 20),
+              child: Icon(icon, color: context.palette.trustBlue, size: 20),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -278,10 +278,10 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.trustBlue,
+                      color: context.palette.trustBlue,
                       letterSpacing: -0.5,
                     ),
                   ),
@@ -317,7 +317,7 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
             offset: const Offset(0, 8),
           ),
           BoxShadow(
-            color: AppColors.trustBlue.withValues(alpha: isDark ? 0.2 : 0.1),
+            color: context.palette.trustBlue.withValues(alpha: isDark ? 0.2 : 0.1),
             blurRadius: 40,
             offset: const Offset(0, 16),
             spreadRadius: -8,
@@ -331,8 +331,8 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppColors.trustBlue, AppColors.infoDark],
+                  gradient: LinearGradient(
+                    colors: [context.palette.trustBlue, context.palette.info],
                   ),
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -348,10 +348,10 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
                   children: [
                     Text(
                       trust.levelDisplayName,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.trustBlue,
+                        color: context.palette.trustBlue,
                         letterSpacing: -0.5,
                       ),
                     ),
@@ -375,20 +375,20 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppColors.trustBlue.withValues(alpha: 0.1),
-                      AppColors.infoDark.withValues(alpha: 0.1),
+                      context.palette.trustBlue.withValues(alpha: 0.1),
+                      context.palette.info.withValues(alpha: 0.1),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: AppColors.trustBlue.withValues(alpha: 0.3),
+                    color: context.palette.trustBlue.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
                 child: Text(
                   '${trust.trustScore}/100',
-                  style: const TextStyle(
-                    color: AppColors.trustBlue,
+                  style: TextStyle(
+                    color: context.palette.trustBlue,
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                   ),
@@ -400,24 +400,24 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.trustBlue.withValues(alpha: 0.05),
+              color: context.palette.trustBlue.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.verified_user,
-                  color: AppColors.trustBlue,
+                  color: context.palette.trustBlue,
                   size: 20,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     '${trust.totalEndorsements} community members have endorsed your profile',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: AppColors.trustBlue,
+                      color: context.palette.trustBlue,
                     ),
                   ),
                 ),
@@ -548,11 +548,11 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundColor: AppColors.trustBlue.withValues(alpha: 0.1),
+                backgroundColor: context.palette.trustBlue.withValues(alpha: 0.1),
                 child: Text(
                   endorsement.endorserName.substring(0, 1),
-                  style: const TextStyle(
-                    color: AppColors.trustBlue,
+                  style: TextStyle(
+                    color: context.palette.trustBlue,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -626,7 +626,7 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
           'Invite More Verifiers',
           'Add family friends and colleagues',
           Icons.person_add,
-          AppColors.success,
+          context.palette.success,
           () => _showInviteDialog(),
         ),
         const SizedBox(height: 12),
@@ -634,7 +634,7 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
           'Complete Profile Verification',
           'Upload documents and complete all checks',
           Icons.upload_file,
-          AppColors.info,
+          context.palette.info,
           () => _showVerificationDialog(),
         ),
         const SizedBox(height: 12),
@@ -642,7 +642,7 @@ class _TrustVerificationScreenState extends State<TrustVerificationScreen>
           'View Verification Report',
           'Download your complete trust report',
           Icons.download,
-          AppColors.meetingPurpleLight,
+          context.palette.meetingPurple,
           () => _showReportDialog(),
         ),
       ],

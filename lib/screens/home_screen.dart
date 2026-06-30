@@ -1,20 +1,27 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+import 'package:testing_flutter/common/widgets/atoms/theme_toggle_button.dart';
+import 'package:testing_flutter/common/widgets/molecules/profile_photo_carousel.dart';
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
-import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
+import 'package:testing_flutter/core/routing/route_names.dart';
+import 'package:testing_flutter/core/theme/app_palette.dart';
+import 'package:testing_flutter/core/theme/app_theme.dart';
 import 'package:testing_flutter/models/candidate_profile.dart';
 import 'package:testing_flutter/models/shared_profile.dart';
+import 'package:testing_flutter/screens/debug/theme_tinkerer_screen.dart';
 import 'package:testing_flutter/screens/parent/forward_to_child_sheet.dart';
-import 'package:testing_flutter/core/theme/app_theme.dart';
-import 'package:testing_flutter/common/widgets/atoms/theme_toggle_button.dart';
+import 'package:testing_flutter/screens/parent/profile_vault_screen.dart' show VaultFilter;
 
-/// Parent home screen: shows shared profiles from brokers with response actions.
+/// Parent home: shows shared profiles from brokers as photo-driven cards
+/// with Save · Interested · Pass actions. Saved counter on the dashboard
+/// tile navigates to [SavedProfilesScreen].
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
@@ -24,9 +31,12 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   List<_SharedProfileItem> _items = [];
+  List<CandidateProfile> _recentlyViewed = const [];
   int _connectedBrokerCount = 0;
   int _pendingRequestCount = 0;
-  String? _linkedChildName;
+  int _savedCount = 0;
+  int _incomingInterestCount = 0;
+  final Set<String> _savedProfileIds = {};
 
   @override
   void initState() {
@@ -42,65 +52,151 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final profileRepo = ref.read(profileRepositoryProvider);
     final brokerRepo = ref.read(brokerRepositoryProvider);
     final linkRepo = ref.read(linkRepositoryProvider);
-    final userRepo = ref.read(userRepositoryProvider);
+    final savedRepo = ref.read(savedProfileRepositoryProvider);
     final uid = authState.user.uid;
 
-    // Get shared profiles for this parent
-    final sharedProfiles = await sharedProfileRepo.getSharedProfilesForUser(uid);
+    // Shared profiles for this parent.
+    final sharedProfiles = await sharedProfileRepo.getSharedProfilesForUser(
+      uid,
+    );
     final items = <_SharedProfileItem>[];
     for (final sp in sharedProfiles) {
       final profile = await profileRepo.getCandidateProfile(sp.profileId);
       if (profile != null) {
         final sharedBy = await brokerRepo.getBrokerProfile(sp.sharedByUserId);
-        items.add(_SharedProfileItem(
-          shared: sp,
-          profile: profile,
-          brokerName: sharedBy?.name,
-        ));
+        items.add(
+          _SharedProfileItem(
+            shared: sp,
+            profile: profile,
+            brokerName: sharedBy?.name,
+          ),
+        );
       }
     }
 
-    // Get stats
+    // Stats.
     final brokerIds = await linkRepo.getConnectedBrokerIds(uid);
     final pendingRequests = await linkRepo.getPendingRequestsFor(uid);
-    final childId = await linkRepo.getLinkedChildId(uid);
-    final childUser = childId != null ? await userRepo.getUser(childId) : null;
+    final saves = await savedRepo.getSavedProfilesForUser(uid);
+
+    final viewedRepo = ref.read(viewedProfileRepositoryProvider);
+    final recentViews = await viewedRepo.getRecentViews(uid, limit: 10);
+    final recentProfiles = <CandidateProfile>[];
+    for (final v in recentViews) {
+      final p = await profileRepo.getCandidateProfile(v.profileId);
+      if (p != null) recentProfiles.add(p);
+    }
+
+    final allCandidates = await profileRepo.getAllCandidateProfiles();
+    final myOwnedIds = allCandidates
+        .where((c) => c.parentUserId == uid)
+        .map((c) => c.id)
+        .toSet();
+    var incomingCount = 0;
+    if (myOwnedIds.isNotEmpty) {
+      final allShares = await sharedProfileRepo.getAllSharedProfiles();
+      incomingCount = allShares
+          .where((s) =>
+              myOwnedIds.contains(s.profileId) &&
+              s.parentResponse == SharedProfileResponse.interested)
+          .length;
+    }
 
     if (!mounted) return;
     setState(() {
       _items = items;
       _connectedBrokerCount = brokerIds.length;
       _pendingRequestCount = pendingRequests.length;
-      _linkedChildName = childUser?.displayName;
+      _savedCount = saves.length;
+      _recentlyViewed = recentProfiles;
+      _incomingInterestCount = incomingCount;
+      _savedProfileIds
+        ..clear()
+        ..addAll(saves.map((s) => s.profileId));
     });
   }
 
-  Future<void> _respondToProfile(
-      SharedProfile shared, SharedProfileResponse response) async {
-    final sharedProfileRepo = ref.read(sharedProfileRepositoryProvider);
-    final updated = shared.copyWith(parentResponse: response);
-    await sharedProfileRepo.updateSharedProfile(updated);
+  Future<void> _toggleSave(CandidateProfile profile) async {
+    final authState = ref.read(authProvider);
+    if (authState is! AuthAuthenticated) return;
+    final savedRepo = ref.read(savedProfileRepositoryProvider);
+    final nowSaved = await savedRepo.toggle(
+      userId: authState.user.uid,
+      profileId: profile.id,
+    );
+    if (!mounted) return;
+    setState(() {
+      if (nowSaved) {
+        _savedProfileIds.add(profile.id);
+        _savedCount += 1;
+      } else {
+        _savedProfileIds.remove(profile.id);
+        _savedCount = (_savedCount - 1).clamp(0, _savedCount);
+      }
+    });
+  }
+
+  /// Record an Interested response (notifies broker via persisted state).
+  Future<void> _markInterested(SharedProfile shared) async {
+    await _setResponse(shared, SharedProfileResponse.interested);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(context.l10n.markedAsInterested),
+        backgroundColor: context.palette.success,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  /// Record a Pass response — with a 6-second snackbar undo before the
+  /// optimistic UI removal is committed. Tapping Undo restores the
+  /// pending state.
+  Future<void> _markPass(SharedProfile shared) async {
+    final original = shared;
+    final repo = ref.read(sharedProfileRepositoryProvider);
+
+    // Persist Pass eagerly so the card disappears immediately; if undone,
+    // revert in the snackbar callback.
+    await repo.updateSharedProfile(
+      shared.copyWith(parentResponse: SharedProfileResponse.pass),
+    );
     await _loadData();
 
-    if (mounted) {
-      final label = switch (response) {
-        SharedProfileResponse.interested => context.l10n.markedAsInterested,
-        SharedProfileResponse.maybe => context.l10n.markedAsMaybe,
-        SharedProfileResponse.pass => context.l10n.markedAsPass,
-        SharedProfileResponse.pending => '',
-      };
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(label),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: response == SharedProfileResponse.interested
-              ? AppColors.success
-              : response == SharedProfileResponse.maybe
-                  ? AppColors.warning
-                  : AppColors.lightSecondaryText,
+    if (!mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final colors = Theme.of(context).colorScheme;
+    var undone = false;
+    final controller = messenger.showSnackBar(
+      SnackBar(
+        content: Text(context.l10n.markedAsPass),
+        duration: const Duration(seconds: 6),
+        behavior: SnackBarBehavior.floating,
+        action: SnackBarAction(
+          label: 'Undo',
+          textColor: colors.primary,
+          onPressed: () async {
+            undone = true;
+            await repo.updateSharedProfile(
+              original.copyWith(parentResponse: SharedProfileResponse.pending),
+            );
+            await _loadData();
+          },
         ),
-      );
-    }
+      ),
+    );
+    await controller.closed;
+    // No-op tail; if undone, _loadData already ran inside the action.
+    if (undone) return;
+  }
+
+  Future<void> _setResponse(
+    SharedProfile shared,
+    SharedProfileResponse response,
+  ) async {
+    final repo = ref.read(sharedProfileRepositoryProvider);
+    await repo.updateSharedProfile(shared.copyWith(parentResponse: response));
+    await _loadData();
   }
 
   void _showForwardSheet(String sharedProfileId) {
@@ -117,21 +213,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final isDark = AppTheme.isDark(context);
     final theme = Theme.of(context);
+    final colors = theme.colorScheme;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Row(
           children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: AppSpacing.roundedSm,
+            // Long-press on the logo opens the debug-only ThemeTinkererScreen
+            // in debug builds. Release builds: tap-only, no-op.
+            GestureDetector(
+              onLongPress: kDebugMode
+                  ? () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const ThemeTinkererScreen(),
+                      ),
+                    )
+                  : null,
+              child: Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: colors.primary.withValues(alpha: 0.12),
+                  borderRadius: AppSpacing.roundedSm,
+                ),
+                child: Icon(Icons.favorite, color: colors.primary, size: 20),
               ),
-              child:
-                  const Icon(Icons.favorite, color: Colors.white, size: 20),
             ),
             AppSpacing.gapW12,
             Text(
@@ -161,52 +268,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         onRefresh: () async => _loadData(),
         child: CustomScrollView(
           slivers: [
-            // Dashboard summary
-            SliverToBoxAdapter(child: _buildDashboardSummary(isDark, theme)),
-
-            // Section header
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.md,
-                  AppSpacing.md,
-                  AppSpacing.md,
-                  AppSpacing.xs,
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.people_alt_outlined,
-                        size: 20, color: AppColors.sacredSaffron),
-                    AppSpacing.gapW8,
-                    Text(
-                      context.l10n.sharedProfiles,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    AppSpacing.gapW8,
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.xs, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppColors.sacredSaffron.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        '${_items.length}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.sacredSaffron,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // Profiles list or empty state
+            SliverToBoxAdapter(child: _buildDashboardSummary(theme)),
+            if (_recentlyViewed.isNotEmpty)
+              SliverToBoxAdapter(child: _buildRecentlyViewed(theme)),
+            SliverToBoxAdapter(child: _buildSectionHeader(theme)),
             if (_items.isEmpty)
               SliverFillRemaining(
                 hasScrollBody: false,
@@ -214,47 +279,37 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               )
             else
               SliverPadding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md,
+                  vertical: AppSpacing.xs,
+                ),
                 sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final item = _items[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                        child: _ParentProfileCard(
-                          item: item,
-                          isDark: isDark,
-                          theme: theme,
-                          onInterested:
-                              item.shared.parentResponse ==
-                                      SharedProfileResponse.pending
-                                  ? () => _respondToProfile(
-                                      item.shared,
-                                      SharedProfileResponse.interested)
-                                  : null,
-                          onMaybe: item.shared.parentResponse ==
-                                  SharedProfileResponse.pending
-                              ? () => _respondToProfile(
-                                  item.shared, SharedProfileResponse.maybe)
-                              : null,
-                          onPass: item.shared.parentResponse ==
-                                  SharedProfileResponse.pending
-                              ? () => _respondToProfile(
-                                  item.shared, SharedProfileResponse.pass)
-                              : null,
-                          onForward: !item.shared.forwardedToChild
-                              ? () => _showForwardSheet(item.shared.id)
-                              : null,
-                        ),
-                      );
-                    },
-                    childCount: _items.length,
-                  ),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final item = _items[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                      child: _ParentProfileCard(
+                        item: item,
+                        isSaved: _savedProfileIds.contains(item.profile.id),
+                        onToggleSave: () => _toggleSave(item.profile),
+                        onInterested:
+                            item.shared.parentResponse ==
+                                SharedProfileResponse.pending
+                            ? () => _markInterested(item.shared)
+                            : null,
+                        onPass:
+                            item.shared.parentResponse ==
+                                SharedProfileResponse.pending
+                            ? () => _markPass(item.shared)
+                            : null,
+                        onForward: !item.shared.forwardedToChild
+                            ? () => _showForwardSheet(item.shared.id)
+                            : null,
+                      ),
+                    );
+                  }, childCount: _items.length),
                 ),
               ),
-
-            // Bottom padding
             const SliverToBoxAdapter(child: AppSpacing.gapH24),
           ],
         ),
@@ -262,22 +317,113 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildDashboardSummary(bool isDark, ThemeData theme) {
+  Widget _buildRecentlyViewed(ThemeData theme) {
+    final colors = theme.colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        AppSpacing.md,
+        AppSpacing.md,
+        0,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.history_rounded, size: 18, color: colors.primary),
+              AppSpacing.gapW8,
+              Text(
+                'Recently viewed',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          AppSpacing.gapH8,
+          SizedBox(
+            height: 132,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.zero,
+              itemCount: _recentlyViewed.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 10),
+              itemBuilder: (context, index) {
+                final p = _recentlyViewed[index];
+                return _RecentlyViewedTile(
+                  profile: p,
+                  onTap: () => context.pushNamed(
+                    RouteNames.profileView,
+                    pathParameters: {'id': p.id},
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(ThemeData theme) {
+    final colors = theme.colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        AppSpacing.md,
+        AppSpacing.md,
+        AppSpacing.xs,
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.people_alt_outlined, size: 20, color: colors.primary),
+          AppSpacing.gapW8,
+          Text(
+            context.l10n.sharedProfiles,
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          AppSpacing.gapW8,
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.xs,
+              vertical: 2,
+            ),
+            decoration: BoxDecoration(
+              color: colors.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              '${_items.length}',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: colors.primary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDashboardSummary(ThemeData theme) {
+    final colors = theme.colorScheme;
+    final interestedCount = _items
+        .where(
+          (i) => i.shared.parentResponse == SharedProfileResponse.interested,
+        )
+        .length;
+
     return Container(
       margin: AppSpacing.allMd,
       padding: AppSpacing.allMd,
       decoration: BoxDecoration(
-        gradient: isDark
-            ? LinearGradient(
-                colors: [
-                  AppColors.darkSurface,
-                  AppColors.darkSurfaceVariant,
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              )
-            : AppColors.primaryGradient,
+        color: colors.surface,
         borderRadius: AppSpacing.roundedLg,
+        border: Border.all(color: colors.outlineVariant, width: 0.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -286,31 +432,51 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             context.l10n.dashboard,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w700,
-              color: Colors.white,
+              color: colors.onSurface,
             ),
           ),
           const SizedBox(height: 14),
           Row(
             children: [
               _DashboardStat(
-                icon: Icons.people,
-                label: context.l10n.activeBrokers,
-                value: '$_connectedBrokerCount',
-                color: Colors.white,
-              ),
-              AppSpacing.gapW16,
-              _DashboardStat(
-                icon: Icons.person_search,
-                label: context.l10n.profilesManaged,
+                icon: Icons.inbox_rounded,
+                label: 'Received',
                 value: '${_items.length}',
-                color: Colors.white,
+                accent: colors.primary,
+                onTap: () => context.pushNamed(
+                  RouteNames.profileVault,
+                  extra: VaultFilter.all,
+                ),
               ),
               AppSpacing.gapW16,
               _DashboardStat(
-                icon: Icons.child_care,
-                label: 'Child',
-                value: _linkedChildName != null ? context.l10n.linked : context.l10n.none,
-                color: Colors.white,
+                icon: Icons.favorite_rounded,
+                label: 'Interested',
+                value: '$interestedCount',
+                accent: context.palette.success,
+                onTap: () => context.pushNamed(
+                  RouteNames.profileVault,
+                  extra: VaultFilter.interested,
+                ),
+              ),
+              AppSpacing.gapW16,
+              _DashboardStat(
+                icon: Icons.bookmark_rounded,
+                label: 'Saved',
+                value: '$_savedCount',
+                accent: context.palette.info,
+                onTap: () => context.pushNamed(
+                  RouteNames.profileVault,
+                  extra: VaultFilter.saved,
+                ),
+              ),
+              AppSpacing.gapW16,
+              _DashboardStat(
+                icon: Icons.mark_email_unread_rounded,
+                label: 'Incoming',
+                value: '$_incomingInterestCount',
+                accent: context.palette.warning,
+                onTap: () => context.pushNamed(RouteNames.incomingInterest),
               ),
             ],
           ),
@@ -320,6 +486,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildEmptyState(bool isDark, ThemeData theme) {
+    final colors = theme.colorScheme;
     return Center(
       child: Padding(
         padding: AppSpacing.allXxl,
@@ -330,13 +497,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: AppColors.sacredSaffron.withValues(alpha: 0.1),
+                color: colors.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.people_outline,
                 size: 40,
-                color: AppColors.sacredSaffron,
+                color: colors.primary,
               ),
             ),
             AppSpacing.gapH24,
@@ -361,14 +528,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               AppSpacing.gapH24,
               FilledButton.icon(
                 onPressed: () {
-                  // Navigate to Search tab (index 1)
                   final shell = StatefulNavigationShell.of(context);
                   shell.goBranch(1);
                 },
                 icon: const Icon(Icons.search, size: 18),
                 label: Text(context.l10n.findBrokers),
                 style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.sacredSaffron,
+                  backgroundColor: colors.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -397,41 +563,347 @@ class _SharedProfileItem {
 }
 
 // ---------------------------------------------------------------------------
-// Dashboard stat widget
+// Dashboard stat tile (tappable when [onTap] is provided)
 // ---------------------------------------------------------------------------
 class _DashboardStat extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
-  final Color color;
+  final Color accent;
+  final VoidCallback? onTap;
 
   const _DashboardStat({
     required this.icon,
     required this.label,
     required this.value,
-    required this.color,
+    required this.accent,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final tile = Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: accent.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, size: 20, color: accent),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: colors.onSurface,
+          ),
+        ),
+        Text(
+          label,
+          style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant),
+        ),
+      ],
+    );
+
     return Expanded(
+      child: onTap == null
+          ? tile
+          : InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(10),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: tile,
+              ),
+            ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Parent profile card — photo carousel + Save/Interested/Pass action row
+// ---------------------------------------------------------------------------
+class _ParentProfileCard extends StatelessWidget {
+  final _SharedProfileItem item;
+  final bool isSaved;
+  final VoidCallback onToggleSave;
+  final VoidCallback? onInterested;
+  final VoidCallback? onPass;
+  final VoidCallback? onForward;
+
+  const _ParentProfileCard({
+    required this.item,
+    required this.isSaved,
+    required this.onToggleSave,
+    this.onInterested,
+    this.onPass,
+    this.onForward,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final palette = context.palette;
+    final profile = item.profile;
+    final response = item.shared.parentResponse;
+    final isPending = response == SharedProfileResponse.pending;
+
+    return Card(
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(color: colors.outlineVariant, width: 0.5),
+      ),
+      color: colors.surface,
+      clipBehavior: Clip.antiAlias,
+      // The carousel (PageView) must NOT be inside the InkWell — InkWell's
+      // gesture recognizer competes with PageView's horizontal drag and wins,
+      // making the carousel un-swipeable. Split: carousel is a sibling above
+      // InkWell; tapping the carousel area also navigates via its own GestureDetector.
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 24, color: color.withValues(alpha: 0.8)),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: color,
+          // ── Photo carousel with overlaid controls ─────────────────────
+          GestureDetector(
+            onTap: () => context.pushNamed(
+              RouteNames.profileView,
+              pathParameters: {'id': profile.id},
+            ),
+            child: Stack(
+              children: [
+                ProfilePhotoCarousel(
+                  photos: profile.photos,
+                  fallbackInitial: profile.name,
+                  height: 220,
+                  borderRadius: BorderRadius.zero,
+                ),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: _SaveToggleButton(
+                    isSaved: isSaved,
+                    onPressed: onToggleSave,
+                  ),
+                ),
+                if (!isPending)
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: _ResponseBadge(response: response),
+                  ),
+              ],
             ),
           ),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              color: color.withValues(alpha: 0.7),
+
+          // ── Text body — InkWell only covers this area ──────────────────
+          InkWell(
+            onTap: () => context.pushNamed(
+              RouteNames.profileView,
+              pathParameters: {'id': profile.id},
+            ),
+            child: Padding(
+              padding: AppSpacing.allMd,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ── Identity ─────────────────────────────────────────
+                  Text(
+                    profile.displayName,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    profile.fullDetails,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+
+                  // ── Key attribute chips ───────────────────────────────
+                  if (profile.height.isNotEmpty || profile.religion.isNotEmpty) ...[
+                    AppSpacing.gapH8,
+                    Wrap(
+                      spacing: AppSpacing.xs,
+                      runSpacing: AppSpacing.xs,
+                      children: [
+                        if (profile.height.isNotEmpty)
+                          _AttrChip(Icons.straighten_rounded, profile.height),
+                        if (profile.religion.isNotEmpty)
+                          _AttrChip(Icons.temple_hindu_rounded, profile.religion),
+                        if (profile.maritalStatus.isNotEmpty)
+                          _AttrChip(Icons.favorite_border_rounded,
+                              profile.maritalStatus),
+                      ],
+                    ),
+                  ],
+
+                  // ── Broker attribution ───────────────────────────────
+                  if (item.brokerName != null) ...[
+                    AppSpacing.gapH8,
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.person_outline,
+                          size: 14,
+                          color: colors.onSurfaceVariant.withValues(alpha: 0.7),
+                        ),
+                        AppSpacing.gapW4,
+                        Flexible(
+                          child: Text(
+                            'Shared by ${item.brokerName}',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              fontSize: 11,
+                              color: colors.onSurfaceVariant.withValues(
+                                alpha: 0.7,
+                              ),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (item.shared.forwardedToChild) ...[
+                          const Spacer(),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: palette.info.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.forward_to_inbox,
+                                  size: 12,
+                                  color: palette.info,
+                                ),
+                                AppSpacing.gapW4,
+                                Text(
+                                  'Forwarded',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                    color: palette.info,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
+
+                  // ── About preview ────────────────────────────────────
+                  if (profile.aboutMe.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    Text(
+                      profile.aboutMe,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colors.onSurfaceVariant,
+                        height: 1.4,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+
+                  // ── Child response (only when forwarded) ─────────────
+                  if (item.shared.forwardedToChild &&
+                      item.shared.childResponse != null) ...[
+                    const SizedBox(height: 10),
+                    _ChildResponsePill(response: item.shared.childResponse!),
+                  ],
+
+                  // ── Action row: Pass · Interested (only when pending) ─
+                  if (isPending) ...[
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: onPass,
+                            icon: const Icon(Icons.close, size: 16),
+                            label: Text(
+                              context.l10n.pass,
+                              style: const TextStyle(fontSize: 13),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: colors.onSurfaceVariant,
+                              side: BorderSide(color: colors.outline),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: AppSpacing.roundedSm,
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: AppSpacing.xs,
+                              ),
+                            ),
+                          ),
+                        ),
+                        AppSpacing.gapW8,
+                        Expanded(
+                          flex: 2,
+                          child: FilledButton.icon(
+                            onPressed: onInterested,
+                            icon: const Icon(Icons.favorite, size: 16),
+                            label: Text(
+                              context.l10n.interested,
+                              style: const TextStyle(fontSize: 13),
+                            ),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: palette.success,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: AppSpacing.roundedSm,
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: AppSpacing.xs,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+
+                  // ── Forward-to-child (after parent has responded) ────
+                  if (!isPending && onForward != null) ...[
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: onForward,
+                        icon: const Icon(Icons.forward_to_inbox, size: 16),
+                        label: Text(context.l10n.forwardToChild),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: colors.primary,
+                          side: BorderSide(
+                            color: colors.primary.withValues(alpha: 0.5),
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: AppSpacing.roundedSm,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: AppSpacing.xs,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
           ),
         ],
@@ -440,338 +912,201 @@ class _DashboardStat extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Parent profile card with response actions
-// ---------------------------------------------------------------------------
-class _ParentProfileCard extends StatelessWidget {
-  final _SharedProfileItem item;
-  final bool isDark;
-  final ThemeData theme;
-  final VoidCallback? onInterested;
-  final VoidCallback? onMaybe;
-  final VoidCallback? onPass;
-  final VoidCallback? onForward;
+/// Bookmark toggle overlaid on the photo. Filled when saved, outlined when not.
+class _SaveToggleButton extends StatelessWidget {
+  final bool isSaved;
+  final VoidCallback onPressed;
 
-  const _ParentProfileCard({
-    required this.item,
-    required this.isDark,
-    required this.theme,
-    this.onInterested,
-    this.onMaybe,
-    this.onPass,
-    this.onForward,
-  });
+  const _SaveToggleButton({required this.isSaved, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
-    final profile = item.profile;
-    final response = item.shared.parentResponse;
-    final isPending = response == SharedProfileResponse.pending;
-
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-        side: BorderSide(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-          width: 0.5,
-        ),
-      ),
-      color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+    final palette = context.palette;
+    return Material(
+      color: Colors.black.withValues(alpha: 0.45),
+      shape: const CircleBorder(),
       clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () {
-          context.pushNamed(
-            RouteNames.profileView,
-            pathParameters: {'id': profile.id},
-          );
-        },
-        child: Padding(
-          padding: AppSpacing.allMd,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Profile info
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: 26,
-                    backgroundColor:
-                        AppColors.deepMaroon.withValues(alpha: 0.12),
-                    child: Text(
-                      profile.name.isNotEmpty
-                          ? profile.name[0].toUpperCase()
-                          : '?',
-                      style: const TextStyle(
-                        color: AppColors.deepMaroon,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          profile.displayName,
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          profile.fullDetails,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: isDark
-                                ? AppColors.darkSecondaryText
-                                : AppColors.lightSecondaryText,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (!isPending) _buildResponseBadge(response),
-                ],
-              ),
-
-              // Broker info
-              if (item.brokerName != null) ...[
-                AppSpacing.gapH8,
-                Row(
-                  children: [
-                    Icon(Icons.person_outline,
-                        size: 14,
-                        color: isDark
-                            ? AppColors.darkTertiaryText
-                            : AppColors.lightTertiaryText),
-                    AppSpacing.gapW4,
-                    Flexible(
-                      child: Text(
-                        'Shared by ${item.brokerName}',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 11,
-                          color: isDark
-                              ? AppColors.darkTertiaryText
-                              : AppColors.lightTertiaryText,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    if (item.shared.forwardedToChild) ...[
-                      const Spacer(),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: AppColors.info.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.forward_to_inbox,
-                                size: 12, color: AppColors.info),
-                            AppSpacing.gapW4,
-                            Text(
-                              'Forwarded',
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.info,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ],
-
-              // About section
-              if (profile.aboutMe.isNotEmpty) ...[
-                const SizedBox(height: 10),
-                Text(
-                  profile.aboutMe,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: isDark
-                        ? AppColors.darkSecondaryText
-                        : AppColors.lightSecondaryText,
-                    height: 1.4,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-
-              // Child response if forwarded and child responded
-              if (item.shared.forwardedToChild &&
-                  item.shared.childResponse != null) ...[
-                const SizedBox(height: 10),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: item.shared.childResponse ==
-                            SharedProfileResponse.interested
-                        ? AppColors.success.withValues(alpha: 0.08)
-                        : AppColors.lightSecondaryText
-                            .withValues(alpha: 0.08),
-                    borderRadius: AppSpacing.roundedSm,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        item.shared.childResponse ==
-                                SharedProfileResponse.interested
-                            ? Icons.favorite
-                            : Icons.close,
-                        size: 14,
-                        color: item.shared.childResponse ==
-                                SharedProfileResponse.interested
-                            ? AppColors.success
-                            : AppColors.lightSecondaryText,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Child: ${item.shared.childResponse!.displayName}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: item.shared.childResponse ==
-                                  SharedProfileResponse.interested
-                              ? AppColors.success
-                              : AppColors.lightSecondaryText,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-
-              // Action buttons
-              if (isPending) ...[
-                const SizedBox(height: 14),
-                Row(
-                  children: [
-                    // Pass
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: onPass,
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: isDark
-                              ? AppColors.darkSecondaryText
-                              : AppColors.lightSecondaryText,
-                          side: BorderSide(
-                            color: isDark
-                                ? AppColors.darkBorder
-                                : AppColors.lightBorder,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: AppSpacing.roundedSm,
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-                        ),
-                        child: Text(context.l10n.pass,
-                            style: TextStyle(fontSize: 13)),
-                      ),
-                    ),
-                    AppSpacing.gapW8,
-                    // Maybe
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: onMaybe,
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.warning,
-                          side: BorderSide(
-                            color: AppColors.warning.withValues(alpha: 0.5),
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: AppSpacing.roundedSm,
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-                        ),
-                        child: Text(context.l10n.maybe,
-                            style: TextStyle(fontSize: 13)),
-                      ),
-                    ),
-                    AppSpacing.gapW8,
-                    // Interested
-                    Expanded(
-                      child: FilledButton(
-                        onPressed: onInterested,
-                        style: FilledButton.styleFrom(
-                          backgroundColor: AppColors.success,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: AppSpacing.roundedSm,
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-                        ),
-                        child: Text(context.l10n.interested,
-                            style: TextStyle(fontSize: 13)),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-
-              // Forward to child button (show when parent has responded but not yet forwarded)
-              if (!isPending && onForward != null) ...[
-                const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: onForward,
-                    icon: const Icon(Icons.forward_to_inbox, size: 16),
-                    label: Text(context.l10n.forwardToChild),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.sacredSaffron,
-                      side: BorderSide(
-                        color: AppColors.sacredSaffron.withValues(alpha: 0.5),
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: AppSpacing.roundedSm,
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-                    ),
-                  ),
-                ),
-              ],
-            ],
-          ),
+      child: IconButton(
+        tooltip: isSaved ? 'Remove from saved' : 'Save',
+        iconSize: 20,
+        onPressed: onPressed,
+        icon: Icon(
+          isSaved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+          color: isSaved ? palette.info : Colors.white,
         ),
       ),
     );
   }
+}
 
-  Widget _buildResponseBadge(SharedProfileResponse response) {
-    final color = switch (response) {
-      SharedProfileResponse.interested => AppColors.success,
-      SharedProfileResponse.maybe => AppColors.warning,
-      SharedProfileResponse.pass => AppColors.lightSecondaryText,
-      SharedProfileResponse.pending => AppColors.lightSecondaryText,
+/// Coloured pill summarising the parent's current response — shown overlaid
+/// on the photo for already-responded profiles.
+class _ResponseBadge extends StatelessWidget {
+  final SharedProfileResponse response;
+  const _ResponseBadge({required this.response});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    final (color, label) = switch (response) {
+      SharedProfileResponse.interested => (palette.success, 'Interested'),
+      SharedProfileResponse.pass => (Colors.white, 'Passed'),
+      // Legacy: any `maybe` records still in storage are treated as pending
+      // (the badge is suppressed for pending by the caller), but the switch
+      // must remain exhaustive.
+      // ignore: deprecated_member_use_from_same_package
+      SharedProfileResponse.maybe ||
+      SharedProfileResponse.pending => (Colors.white, ''),
     };
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: AppSpacing.xxs),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
+        color: Colors.black.withValues(alpha: 0.55),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Small inline pill showing the linked child's response on a forwarded profile.
+class _ChildResponsePill extends StatelessWidget {
+  final SharedProfileResponse response;
+  const _ChildResponsePill({required this.response});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    final colors = Theme.of(context).colorScheme;
+    final interested = response == SharedProfileResponse.interested;
+    final color = interested ? palette.success : colors.onSurfaceVariant;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: AppSpacing.roundedSm,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            interested ? Icons.favorite : Icons.close,
+            size: 14,
+            color: color,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            'Child: ${response.displayName}',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Small pill chip showing an icon + text attribute (height, religion, etc.)
+class _AttrChip extends StatelessWidget {
+  const _AttrChip(this.icon, this.label);
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerHighest.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(6),
       ),
-      child: Text(
-        response.displayName,
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: color,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 11, color: colors.onSurfaceVariant),
+          const SizedBox(width: 3),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: colors.onSurfaceVariant,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RecentlyViewedTile extends StatelessWidget {
+  final CandidateProfile profile;
+  final VoidCallback onTap;
+
+  const _RecentlyViewedTile({required this.profile, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return SizedBox(
+      width: 96,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: AppSpacing.roundedMd,
+        child: InkWell(
+          borderRadius: AppSpacing.roundedMd,
+          onTap: onTap,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: AppSpacing.roundedMd,
+                child: ProfilePhotoCarousel(
+                  photos: profile.photos,
+                  fallbackInitial: profile.name.isNotEmpty
+                      ? profile.name[0]
+                      : '?',
+                  height: 96,
+                  borderRadius: AppSpacing.roundedMd,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                profile.name,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: colors.onSurface,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
       ),
     );

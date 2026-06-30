@@ -1,7 +1,14 @@
 enum SharedProfileResponse {
   pending,
   interested,
+
+  /// The `maybe` response was removed from the UI in Slice 6 — parents now
+  /// have only Interested / Pass on the action row plus a separate Save
+  /// bookmark. The enum value is kept so legacy seed data and any pre-migrated
+  /// records still deserialise; UI surfaces should treat `maybe` as `pending`.
+  @Deprecated('Use Save (SavedProfile) instead. Display as pending.')
   maybe,
+
   pass;
 
   String get displayName {
@@ -10,6 +17,7 @@ enum SharedProfileResponse {
         return 'Pending';
       case SharedProfileResponse.interested:
         return 'Interested';
+      // ignore: deprecated_member_use_from_same_package
       case SharedProfileResponse.maybe:
         return 'Maybe';
       case SharedProfileResponse.pass:

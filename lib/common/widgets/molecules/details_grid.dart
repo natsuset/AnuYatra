@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:testing_flutter/core/constants/app_colors.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/common/widgets/molecules/detail_tile.dart';
 
@@ -60,7 +59,7 @@ class DetailsGrid extends StatelessWidget {
 
     final effectiveTitleStyle = titleStyle ??
         Theme.of(context).textTheme.titleSmall?.copyWith(
-              color: isDark ? Colors.white : AppColors.lightPrimaryText,
+              color: isDark ? Colors.white : Theme.of(context).colorScheme.onSurface,
               fontWeight: FontWeight.w700,
             );
 
