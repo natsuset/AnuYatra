@@ -29,6 +29,25 @@ func handleGetOrCreateConversation(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, conv)
 }
 
+func handleGetConversation(w http.ResponseWriter, r *http.Request) {
+	claims, ok := requireClaims(w, r)
+	if !ok {
+		return
+	}
+	conv, err := svc.Messaging.GetConversation(r.Context(), r.PathValue("id"))
+	if err != nil {
+		writeRepoError(w, err)
+		return
+	}
+	for _, pid := range conv.ParticipantIDs {
+		if pid == claims.UserID {
+			writeJSON(w, http.StatusOK, conv)
+			return
+		}
+	}
+	writeError(w, http.StatusForbidden, model.ErrForbidden)
+}
+
 func handleListConversations(w http.ResponseWriter, r *http.Request) {
 	claims, ok := requireClaims(w, r)
 	if !ok {

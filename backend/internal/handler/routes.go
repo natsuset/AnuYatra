@@ -60,6 +60,7 @@ func RegisterRoutes(mux *http.ServeMux, c *service.Container) {
 	mux.Handle("POST /api/v1/link-requests/{id}/accept", auth(http.HandlerFunc(handleAcceptLinkRequest)))
 	mux.Handle("POST /api/v1/link-requests/{id}/decline", auth(http.HandlerFunc(handleDeclineLinkRequest)))
 	mux.Handle("POST /api/v1/link-requests/{id}/revoke", auth(http.HandlerFunc(handleRevokeLinkRequest)))
+	mux.Handle("GET /api/v1/link-requests/{id}", auth(http.HandlerFunc(handleGetLinkRequest)))
 	mux.Handle("GET /api/v1/link-requests/received", auth(http.HandlerFunc(handleListReceivedLinkRequests)))
 	mux.Handle("GET /api/v1/link-requests/sent", auth(http.HandlerFunc(handleListSentLinkRequests)))
 	mux.Handle("GET /api/v1/link-requests/connections", auth(http.HandlerFunc(handleListConnections)))
@@ -78,6 +79,7 @@ func RegisterRoutes(mux *http.ServeMux, c *service.Container) {
 
 	// Conversations & messaging
 	mux.Handle("POST /api/v1/conversations", auth(http.HandlerFunc(handleGetOrCreateConversation)))
+	mux.Handle("GET /api/v1/conversations/{id}", auth(http.HandlerFunc(handleGetConversation)))
 	mux.Handle("GET /api/v1/conversations", auth(http.HandlerFunc(handleListConversations)))
 	mux.Handle("GET /api/v1/conversations/{id}/messages", auth(http.HandlerFunc(handleListMessages)))
 	mux.Handle("POST /api/v1/conversations/{id}/messages", auth(http.HandlerFunc(handleSendMessage)))

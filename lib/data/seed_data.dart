@@ -11,6 +11,7 @@ import 'package:testing_flutter/models/shared_profile.dart';
 import 'package:testing_flutter/models/chat_message.dart';
 import 'package:testing_flutter/models/client_engagement.dart';
 import 'package:testing_flutter/models/broker_follow_up.dart';
+import 'package:testing_flutter/models/meeting.dart';
 
 /// Toggle to enable/disable seeding on first launch.
 /// Set to `false` to skip seeding entirely (e.g. for production).
@@ -38,6 +39,7 @@ Future<void> seedDemoData(AppDataModule data) async {
   final messagingRepo = data.messagingRepository;
   final engagementRepo = data.clientEngagementRepository;
   final followUpRepo = data.brokerFollowUpRepository;
+  final meetingRepo = data.meetingRepository;
 
   final now = DateTime.now();
 
@@ -915,6 +917,23 @@ Future<void> seedDemoData(AppDataModule data) async {
     isDone: true,
     completedAt: now.subtract(const Duration(days: 1)),
     createdAt: now.subtract(const Duration(days: 4)),
+  ));
+
+  // ─── MEETINGS ───────────────────────────────────────────────────────────
+  // Broker-scheduled intro call off the Rahul Patel mutual match.
+  await meetingRepo.save(Meeting.create(
+    id: 'mtg-001',
+    candidateProfileId: 'cp-003',
+    parentUserId: 'parent-001',
+    brokerUserId: 'broker-001',
+    scheduledByUserId: 'broker-001',
+    scheduledByRole: MeetingScheduledBy.broker,
+    when: DateTime(now.year, now.month, now.day)
+        .add(const Duration(days: 2, hours: 18)),
+    durationMinutes: 30,
+    type: MeetingType.virtual,
+    virtualLink: 'https://meet.example.com/rahul-kumar-intro',
+    notes: 'Introduction call between the Patel and Kumar families.',
   ));
 
   // ─── CONVERSATIONS ──────────────────────────────

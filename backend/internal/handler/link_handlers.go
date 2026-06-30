@@ -158,6 +158,23 @@ func handleRevokeLinkRequest(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, req)
 }
 
+func handleGetLinkRequest(w http.ResponseWriter, r *http.Request) {
+	claims, ok := requireClaims(w, r)
+	if !ok {
+		return
+	}
+	req, err := svc.LinkRequests.GetByID(r.Context(), r.PathValue("id"))
+	if err != nil {
+		writeRepoError(w, err)
+		return
+	}
+	if req.FromUserID != claims.UserID && req.ToUserID != claims.UserID {
+		writeError(w, http.StatusForbidden, model.ErrForbidden)
+		return
+	}
+	writeJSON(w, http.StatusOK, req)
+}
+
 func handleListReceivedLinkRequests(w http.ResponseWriter, r *http.Request) {
 	claims, ok := requireClaims(w, r)
 	if !ok {

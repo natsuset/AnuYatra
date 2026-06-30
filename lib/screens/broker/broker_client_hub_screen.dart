@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import 'package:testing_flutter/core/auth/auth_provider.dart';
 import 'package:testing_flutter/core/auth/auth_state.dart';
@@ -13,6 +14,7 @@ import 'package:testing_flutter/models/broker_follow_up.dart';
 import 'package:testing_flutter/models/candidate_profile.dart';
 import 'package:testing_flutter/models/chat_message.dart';
 import 'package:testing_flutter/models/client_engagement.dart';
+import 'package:testing_flutter/models/meeting.dart';
 import 'package:testing_flutter/models/parent_profile.dart';
 import 'package:testing_flutter/models/shared_profile.dart';
 
@@ -35,6 +37,7 @@ class _BrokerClientHubScreenState extends ConsumerState<BrokerClientHubScreen> {
   ClientEngagement? _engagement;
   List<BrokerFollowUp> _followUps = [];
   List<_SharedItem> _shared = [];
+  List<Meeting> _meetings = [];
   bool _loading = true;
 
   String get _brokerUid {
@@ -79,6 +82,18 @@ class _BrokerClientHubScreenState extends ConsumerState<BrokerClientHubScreen> {
       if (p != null) items.add(_SharedItem(shared: s, profile: p));
     }
 
+    // Meetings for this client, aggregated across the shared profiles.
+    final meetingRepo = ref.read(meetingRepositoryProvider);
+    final meetings = <Meeting>[];
+    for (final item in items) {
+      meetings.addAll(await meetingRepo.getMeetingsFor(
+        parentUserId: widget.clientUserId,
+        candidateProfileId: item.profile.id,
+        viewerUserId: uid,
+      ));
+    }
+    meetings.sort((a, b) => a.when.compareTo(b.when));
+
     if (!mounted) return;
     setState(() {
       _client = client;
@@ -86,6 +101,7 @@ class _BrokerClientHubScreenState extends ConsumerState<BrokerClientHubScreen> {
       _engagement = engagement;
       _followUps = followUps;
       _shared = items;
+      _meetings = meetings;
       _loading = false;
     });
   }
@@ -172,6 +188,49 @@ class _BrokerClientHubScreenState extends ConsumerState<BrokerClientHubScreen> {
             completedAt: f.isDone ? null : DateTime.now(),
           ),
         );
+    await _load();
+  }
+
+  Future<void> _scheduleMeeting() async {
+    if (_shared.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Share a profile first, then schedule a meeting.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+    final draft = await showModalBottomSheet<_MeetingDraft>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (ctx) => _ScheduleMeetingSheet(
+        profiles: _shared.map((s) => s.profile).toList(),
+      ),
+    );
+    if (draft == null) return;
+
+    final meeting = Meeting.create(
+      id: 'mtg-${DateTime.now().millisecondsSinceEpoch}',
+      candidateProfileId: draft.profileId,
+      parentUserId: widget.clientUserId,
+      brokerUserId: _brokerUid,
+      scheduledByUserId: _brokerUid,
+      scheduledByRole: MeetingScheduledBy.broker,
+      when: draft.when,
+      durationMinutes: draft.durationMinutes,
+      type: draft.type,
+      location: draft.location,
+      virtualLink: draft.virtualLink,
+      notes: draft.notes,
+    );
+    await ref.read(meetingRepositoryProvider).save(meeting);
+    await _load();
+  }
+
+  Future<void> _cancelMeeting(Meeting m) async {
+    await ref.read(meetingRepositoryProvider).cancel(m.id);
     await _load();
   }
 
@@ -299,6 +358,39 @@ class _BrokerClientHubScreenState extends ConsumerState<BrokerClientHubScreen> {
                     theme: theme,
                     palette: palette,
                   )),
+            AppSpacing.gapH16,
+
+            // Meetings
+            _SectionHeader(
+              title: 'Meetings',
+              theme: theme,
+              action: TextButton.icon(
+                onPressed: _scheduleMeeting,
+                icon: const Icon(Icons.event_available_rounded, size: 18),
+                label: const Text('Schedule'),
+              ),
+            ),
+            if (_meetings.isEmpty)
+              _EmptyHint(
+                  text: 'No meetings scheduled with this client.',
+                  colors: colors,
+                  theme: theme)
+            else
+              ..._meetings.map((m) {
+                final pName = _shared
+                        .where((s) => s.profile.id == m.candidateProfileId)
+                        .map((s) => s.profile.name)
+                        .firstOrNull ??
+                    'Profile';
+                return _MeetingTile(
+                  meeting: m,
+                  profileName: pName,
+                  onCancel: () => _cancelMeeting(m),
+                  colors: colors,
+                  theme: theme,
+                  palette: palette,
+                );
+              }),
             AppSpacing.gapH16,
 
             // Shared profiles + statuses
@@ -1057,6 +1149,335 @@ class _ShareSheet extends StatelessWidget {
                 ),
               ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Meeting tile ────────────────────────────────────────────────────────────
+
+class _MeetingTile extends StatelessWidget {
+  const _MeetingTile({
+    required this.meeting,
+    required this.profileName,
+    required this.onCancel,
+    required this.colors,
+    required this.theme,
+    required this.palette,
+  });
+
+  final Meeting meeting;
+  final String profileName;
+  final VoidCallback onCancel;
+  final ColorScheme colors;
+  final ThemeData theme;
+  final AppPalette palette;
+
+  (IconData, String) get _typeInfo => switch (meeting.type) {
+        MeetingType.inPerson => (Icons.place_rounded, 'In person'),
+        MeetingType.virtual => (Icons.videocam_rounded, 'Virtual'),
+        MeetingType.phone => (Icons.call_rounded, 'Phone'),
+      };
+
+  @override
+  Widget build(BuildContext context) {
+    final cancelled = meeting.status == MeetingStatus.cancelled;
+    final (icon, typeLabel) = _typeInfo;
+    final accent = cancelled ? colors.onSurfaceVariant : palette.meetingPurple;
+    final detail = meeting.type == MeetingType.inPerson
+        ? meeting.location
+        : (meeting.virtualLink ?? '');
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+      child: Container(
+        padding: AppSpacing.allSm,
+        decoration: BoxDecoration(
+          color: colors.surface,
+          borderRadius: AppSpacing.roundedMd,
+          border: Border.all(color: colors.outlineVariant, width: 0.5),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.12),
+                borderRadius: AppSpacing.roundedMd,
+              ),
+              child: Icon(icon, color: accent, size: 20),
+            ),
+            AppSpacing.gapW12,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    DateFormat('EEE, d MMM · h:mm a').format(meeting.when),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      decoration:
+                          cancelled ? TextDecoration.lineThrough : null,
+                      color: cancelled ? colors.onSurfaceVariant : null,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '$typeLabel · $profileName${detail.isNotEmpty ? ' · $detail' : ''}',
+                    style: theme.textTheme.bodySmall
+                        ?.copyWith(color: colors.onSurfaceVariant),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            if (cancelled)
+              Text('Cancelled',
+                  style: theme.textTheme.labelSmall
+                      ?.copyWith(color: colors.onSurfaceVariant))
+            else
+              IconButton(
+                tooltip: 'Cancel meeting',
+                icon: Icon(Icons.close_rounded,
+                    size: 18, color: colors.onSurfaceVariant),
+                onPressed: onCancel,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Schedule meeting sheet ──────────────────────────────────────────────────
+
+class _MeetingDraft {
+  const _MeetingDraft({
+    required this.profileId,
+    required this.when,
+    required this.durationMinutes,
+    required this.type,
+    required this.location,
+    required this.virtualLink,
+    required this.notes,
+  });
+  final String profileId;
+  final DateTime when;
+  final int durationMinutes;
+  final MeetingType type;
+  final String location;
+  final String? virtualLink;
+  final String? notes;
+}
+
+class _ScheduleMeetingSheet extends StatefulWidget {
+  const _ScheduleMeetingSheet({required this.profiles});
+  final List<CandidateProfile> profiles;
+
+  @override
+  State<_ScheduleMeetingSheet> createState() => _ScheduleMeetingSheetState();
+}
+
+class _ScheduleMeetingSheetState extends State<_ScheduleMeetingSheet> {
+  late String _profileId = widget.profiles.first.id;
+  DateTime _date = DateTime.now().add(const Duration(days: 1));
+  TimeOfDay _time = const TimeOfDay(hour: 18, minute: 0);
+  MeetingType _type = MeetingType.virtual;
+  int _duration = 30;
+  final _detailCtrl = TextEditingController();
+  final _notesCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _detailCtrl.dispose();
+    _notesCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _date,
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    if (picked != null) setState(() => _date = picked);
+  }
+
+  Future<void> _pickTime() async {
+    final picked = await showTimePicker(context: context, initialTime: _time);
+    if (picked != null) setState(() => _time = picked);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isVirtual = _type == MeetingType.virtual;
+    final isPhone = _type == MeetingType.phone;
+
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+            AppSpacing.md,
+            AppSpacing.sm,
+            AppSpacing.md,
+            MediaQuery.of(context).viewInsets.bottom + AppSpacing.md),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Schedule a meeting',
+                  style: theme.textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w700)),
+              AppSpacing.gapH16,
+
+              Text('Profile',
+                  style: theme.textTheme.labelMedium
+                      ?.copyWith(color: colors.onSurfaceVariant)),
+              AppSpacing.gapH4,
+              DropdownButtonFormField<String>(
+                initialValue: _profileId,
+                isExpanded: true,
+                decoration: InputDecoration(
+                  isDense: true,
+                  border: OutlineInputBorder(
+                      borderRadius: AppSpacing.roundedMd),
+                ),
+                items: widget.profiles
+                    .map((p) => DropdownMenuItem(
+                          value: p.id,
+                          child: Text('${p.name}, ${p.age}',
+                              overflow: TextOverflow.ellipsis),
+                        ))
+                    .toList(),
+                onChanged: (v) => setState(() => _profileId = v ?? _profileId),
+              ),
+              AppSpacing.gapH16,
+
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _pickDate,
+                      icon: const Icon(Icons.event_rounded, size: 18),
+                      label: Text(DateFormat('EEE, d MMM').format(_date)),
+                    ),
+                  ),
+                  AppSpacing.gapW12,
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _pickTime,
+                      icon: const Icon(Icons.schedule_rounded, size: 18),
+                      label: Text(_time.format(context)),
+                    ),
+                  ),
+                ],
+              ),
+              AppSpacing.gapH16,
+
+              Text('Type',
+                  style: theme.textTheme.labelMedium
+                      ?.copyWith(color: colors.onSurfaceVariant)),
+              AppSpacing.gapH4,
+              SegmentedButton<MeetingType>(
+                segments: const [
+                  ButtonSegment(
+                      value: MeetingType.virtual,
+                      icon: Icon(Icons.videocam_rounded),
+                      label: Text('Virtual')),
+                  ButtonSegment(
+                      value: MeetingType.inPerson,
+                      icon: Icon(Icons.place_rounded),
+                      label: Text('In person')),
+                  ButtonSegment(
+                      value: MeetingType.phone,
+                      icon: Icon(Icons.call_rounded),
+                      label: Text('Phone')),
+                ],
+                selected: {_type},
+                onSelectionChanged: (s) => setState(() => _type = s.first),
+              ),
+              AppSpacing.gapH16,
+
+              if (!isPhone) ...[
+                TextField(
+                  controller: _detailCtrl,
+                  decoration: InputDecoration(
+                    labelText: isVirtual ? 'Meeting link' : 'Location',
+                    hintText: isVirtual
+                        ? 'https://meet.example.com/…'
+                        : 'Venue / address',
+                    border: OutlineInputBorder(
+                        borderRadius: AppSpacing.roundedMd),
+                  ),
+                ),
+                AppSpacing.gapH12,
+              ],
+
+              TextField(
+                controller: _notesCtrl,
+                maxLines: 2,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: InputDecoration(
+                  labelText: 'Notes (optional)',
+                  border:
+                      OutlineInputBorder(borderRadius: AppSpacing.roundedMd),
+                ),
+              ),
+              AppSpacing.gapH12,
+
+              Row(
+                children: [
+                  Text('Duration',
+                      style: theme.textTheme.labelMedium
+                          ?.copyWith(color: colors.onSurfaceVariant)),
+                  const Spacer(),
+                  DropdownButton<int>(
+                    value: _duration,
+                    items: const [30, 45, 60, 90]
+                        .map((d) => DropdownMenuItem(
+                            value: d, child: Text('$d min')))
+                        .toList(),
+                    onChanged: (v) => setState(() => _duration = v ?? 30),
+                  ),
+                ],
+              ),
+              AppSpacing.gapH16,
+
+              FilledButton.icon(
+                onPressed: () {
+                  final when = DateTime(_date.year, _date.month, _date.day,
+                      _time.hour, _time.minute);
+                  Navigator.pop(
+                    context,
+                    _MeetingDraft(
+                      profileId: _profileId,
+                      when: when,
+                      durationMinutes: _duration,
+                      type: _type,
+                      location: isVirtual || isPhone ? '' : _detailCtrl.text.trim(),
+                      virtualLink: isVirtual && _detailCtrl.text.trim().isNotEmpty
+                          ? _detailCtrl.text.trim()
+                          : null,
+                      notes: _notesCtrl.text.trim().isEmpty
+                          ? null
+                          : _notesCtrl.text.trim(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.event_available_rounded),
+                label: const Text('Schedule meeting'),
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(48),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

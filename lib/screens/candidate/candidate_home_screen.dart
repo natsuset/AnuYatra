@@ -11,8 +11,10 @@ import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/core/theme/app_palette.dart';
+import 'package:intl/intl.dart';
 import 'package:testing_flutter/models/app_user.dart';
 import 'package:testing_flutter/models/candidate_profile.dart';
+import 'package:testing_flutter/models/meeting.dart';
 import 'package:testing_flutter/models/shared_profile.dart';
 
 class CandidateHomeScreen extends ConsumerStatefulWidget {
@@ -27,6 +29,7 @@ class _CandidateHomeScreenState extends ConsumerState<CandidateHomeScreen> {
   AppUser? _linkedParent;
   CandidateProfile? _ownProfile;
   List<SharedProfile> _sharedProfiles = [];
+  List<_CandMeeting> _meetings = const [];
   bool _loading = true;
 
   @override
@@ -60,11 +63,35 @@ class _CandidateHomeScreenState extends ConsumerState<CandidateHomeScreen> {
     final ownProfile =
         allProfiles.where((p) => p.candidateUserId == uid).firstOrNull;
 
+    // Upcoming meetings scheduled by the broker (visible to the candidate's
+    // party), discussed around profiles shared with the candidate.
+    final meetings = <_CandMeeting>[];
+    if (linkedParentId != null) {
+      final meetingRepo = ref.read(meetingRepositoryProvider);
+      final nowTs = DateTime.now();
+      final byId = {for (final p in allProfiles) p.id: p};
+      for (final s in shared) {
+        final list = await meetingRepo.getMeetingsFor(
+          parentUserId: linkedParentId,
+          candidateProfileId: s.profileId,
+          viewerUserId: uid,
+        );
+        for (final m in list) {
+          if (m.status == MeetingStatus.scheduled && m.when.isAfter(nowTs)) {
+            final p = byId[s.profileId];
+            if (p != null) meetings.add(_CandMeeting(meeting: m, profile: p));
+          }
+        }
+      }
+      meetings.sort((a, b) => a.meeting.when.compareTo(b.meeting.when));
+    }
+
     if (!mounted) return;
     setState(() {
       _linkedParent = linkedParent;
       _sharedProfiles = shared;
       _ownProfile = ownProfile;
+      _meetings = meetings;
       _loading = false;
     });
   }
@@ -181,6 +208,17 @@ class _CandidateHomeScreenState extends ConsumerState<CandidateHomeScreen> {
                     0,
                   ),
                   child: _LinkPromptBanner(palette: palette, colors: colors),
+                ),
+              ),
+
+            // ── Upcoming meetings ───────────────────────────────────────────
+            if (_meetings.isNotEmpty)
+              SliverToBoxAdapter(
+                child: _UpcomingMeetings(
+                  meetings: _meetings,
+                  colors: colors,
+                  theme: theme,
+                  palette: palette,
                 ),
               ),
 
@@ -700,6 +738,108 @@ class _QuickActionChip extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ── Upcoming meetings ───────────────────────────────────────────────────────
+
+class _CandMeeting {
+  final Meeting meeting;
+  final CandidateProfile profile;
+  const _CandMeeting({required this.meeting, required this.profile});
+}
+
+class _UpcomingMeetings extends StatelessWidget {
+  const _UpcomingMeetings({
+    required this.meetings,
+    required this.colors,
+    required this.theme,
+    required this.palette,
+  });
+
+  final List<_CandMeeting> meetings;
+  final ColorScheme colors;
+  final ThemeData theme;
+  final AppPalette palette;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+          AppSpacing.md, AppSpacing.lg, AppSpacing.md, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.event_available_rounded,
+                  size: 20, color: palette.meetingPurple),
+              AppSpacing.gapW8,
+              Text('Upcoming meetings',
+                  style: theme.textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w700)),
+            ],
+          ),
+          AppSpacing.gapH8,
+          ...meetings.map((u) {
+            final m = u.meeting;
+            final (IconData icon, String typeLabel) = switch (m.type) {
+              MeetingType.inPerson => (Icons.place_rounded, 'In person'),
+              MeetingType.virtual => (Icons.videocam_rounded, 'Virtual'),
+              MeetingType.phone => (Icons.call_rounded, 'Phone'),
+            };
+            final detail = m.type == MeetingType.inPerson
+                ? m.location
+                : (m.virtualLink ?? '');
+            return Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+              child: Container(
+                padding: AppSpacing.allSm,
+                decoration: BoxDecoration(
+                  color: colors.surface,
+                  borderRadius: AppSpacing.roundedMd,
+                  border: Border.all(color: colors.outlineVariant, width: 0.5),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: palette.meetingPurple.withValues(alpha: 0.12),
+                        borderRadius: AppSpacing.roundedMd,
+                      ),
+                      child: Icon(icon, color: palette.meetingPurple, size: 20),
+                    ),
+                    AppSpacing.gapW12,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            DateFormat('EEE, d MMM · h:mm a').format(m.when),
+                            style: theme.textTheme.bodyMedium
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '$typeLabel · ${u.profile.name}${detail.isNotEmpty ? ' · $detail' : ''}',
+                            style: theme.textTheme.bodySmall
+                                ?.copyWith(color: colors.onSurfaceVariant),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ],
       ),
     );
   }

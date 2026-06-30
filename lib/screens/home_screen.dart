@@ -13,7 +13,9 @@ import 'package:testing_flutter/core/providers/repository_providers.dart';
 import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/core/theme/app_theme.dart';
+import 'package:intl/intl.dart';
 import 'package:testing_flutter/models/candidate_profile.dart';
+import 'package:testing_flutter/models/meeting.dart';
 import 'package:testing_flutter/models/shared_profile.dart';
 import 'package:testing_flutter/screens/debug/theme_tinkerer_screen.dart';
 import 'package:testing_flutter/screens/parent/forward_to_child_sheet.dart';
@@ -32,6 +34,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   List<_SharedProfileItem> _items = [];
   List<_ChildResponseItem> _childResponses = const [];
+  List<_UpcomingMeeting> _upcomingMeetings = const [];
   List<CandidateProfile> _recentlyViewed = const [];
   int _connectedBrokerCount = 0;
   int _pendingRequestCount = 0;
@@ -129,10 +132,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       }
     }
 
+    // Upcoming meetings (broker-scheduled introductions are visible to the
+    // parent party). Look across the profiles shared with this parent.
+    final meetingRepo = ref.read(meetingRepositoryProvider);
+    final nowTs = DateTime.now();
+    final upcoming = <_UpcomingMeeting>[];
+    for (final item in items) {
+      final meetings = await meetingRepo.getMeetingsFor(
+        parentUserId: uid,
+        candidateProfileId: item.profile.id,
+        viewerUserId: uid,
+      );
+      for (final m in meetings) {
+        if (m.status == MeetingStatus.scheduled && m.when.isAfter(nowTs)) {
+          upcoming.add(_UpcomingMeeting(meeting: m, profile: item.profile));
+        }
+      }
+    }
+    upcoming.sort((a, b) => a.meeting.when.compareTo(b.meeting.when));
+
     if (!mounted) return;
     setState(() {
       _items = items;
       _childResponses = childResponses;
+      _upcomingMeetings = upcoming;
       _connectedBrokerCount = brokerIds.length;
       _pendingRequestCount = pendingRequests.length;
       _savedCount = saves.length;
@@ -320,6 +343,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: CustomScrollView(
           slivers: [
             SliverToBoxAdapter(child: _buildDashboardSummary(theme)),
+            if (_upcomingMeetings.isNotEmpty)
+              SliverToBoxAdapter(child: _buildUpcomingMeetings(theme)),
             if (_childResponses.isNotEmpty)
               SliverToBoxAdapter(child: _buildChildResponses(theme)),
             if (_recentlyViewed.isNotEmpty)
@@ -366,6 +391,89 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             const SliverToBoxAdapter(child: AppSpacing.gapH24),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildUpcomingMeetings(ThemeData theme) {
+    final colors = theme.colorScheme;
+    final palette = context.palette;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+          AppSpacing.md, AppSpacing.md, AppSpacing.md, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.event_available_rounded,
+                  size: 20, color: palette.meetingPurple),
+              AppSpacing.gapW8,
+              Text('Upcoming meetings',
+                  style: theme.textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w700)),
+            ],
+          ),
+          AppSpacing.gapH8,
+          ..._upcomingMeetings.map((u) {
+            final m = u.meeting;
+            final (IconData icon, String typeLabel) = switch (m.type) {
+              MeetingType.inPerson => (Icons.place_rounded, 'In person'),
+              MeetingType.virtual => (Icons.videocam_rounded, 'Virtual'),
+              MeetingType.phone => (Icons.call_rounded, 'Phone'),
+            };
+            final detail = m.type == MeetingType.inPerson
+                ? m.location
+                : (m.virtualLink ?? '');
+            return Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+              child: Container(
+                padding: AppSpacing.allSm,
+                decoration: BoxDecoration(
+                  color: colors.surface,
+                  borderRadius: AppSpacing.roundedMd,
+                  border:
+                      Border.all(color: colors.outlineVariant, width: 0.5),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: palette.meetingPurple.withValues(alpha: 0.12),
+                        borderRadius: AppSpacing.roundedMd,
+                      ),
+                      child:
+                          Icon(icon, color: palette.meetingPurple, size: 20),
+                    ),
+                    AppSpacing.gapW12,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            DateFormat('EEE, d MMM · h:mm a').format(m.when),
+                            style: theme.textTheme.bodyMedium
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '$typeLabel · with ${u.profile.name}${detail.isNotEmpty ? ' · $detail' : ''}',
+                            style: theme.textTheme.bodySmall
+                                ?.copyWith(color: colors.onSurfaceVariant),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ],
       ),
     );
   }
@@ -746,6 +854,13 @@ class _ChildResponseItem {
     required this.response,
     required this.childName,
   });
+}
+
+/// An upcoming meeting visible to the parent, paired with its profile.
+class _UpcomingMeeting {
+  final Meeting meeting;
+  final CandidateProfile profile;
+  const _UpcomingMeeting({required this.meeting, required this.profile});
 }
 
 // ---------------------------------------------------------------------------
