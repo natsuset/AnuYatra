@@ -8,7 +8,10 @@ import 'package:testing_flutter/core/auth/auth_state.dart';
 import 'package:testing_flutter/core/constants/app_spacing.dart';
 import 'package:testing_flutter/core/l10n/l10n_extension.dart';
 import 'package:testing_flutter/core/providers/repository_providers.dart';
+import 'package:testing_flutter/core/routing/route_names.dart';
 import 'package:testing_flutter/models/chat_message.dart';
+import 'package:testing_flutter/models/candidate_profile.dart';
+import 'package:testing_flutter/models/user_role.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({super.key});
@@ -21,6 +24,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   List<ChatMessage> _messages = [];
+  final Map<String, CandidateProfile> _sharedProfiles = {};
   String? _currentUserId;
   String _contactName = '';
 
@@ -67,12 +71,29 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
 
     final messages = await messagingRepo.getMessages(_conversationId);
+    await _loadSharedProfiles(messages);
     if (!mounted) return;
     setState(() {
       _messages = messages;
     });
 
     _scrollToBottom();
+  }
+
+  /// Fetch the candidate profiles referenced by any profile-share messages so
+  /// they can render as rich cards.
+  Future<void> _loadSharedProfiles(List<ChatMessage> messages) async {
+    final profileRepo = ref.read(profileRepositoryProvider);
+    final ids = messages
+        .where((m) =>
+            m.type == ChatMessageType.profileShare && m.profileId != null)
+        .map((m) => m.profileId!)
+        .toSet();
+    for (final id in ids) {
+      if (_sharedProfiles.containsKey(id)) continue;
+      final p = await profileRepo.getCandidateProfile(id);
+      if (p != null) _sharedProfiles[id] = p;
+    }
   }
 
   Future<void> _sendMessage() async {
@@ -331,14 +352,18 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(
-              message.content,
-              style: TextStyle(
-                fontSize: 15,
-                color: textColor,
-                height: 1.3,
+            if (message.type == ChatMessageType.profileShare &&
+                message.profileId != null)
+              _buildProfileShareCard(message, isSent, textColor),
+            if (message.content.isNotEmpty)
+              Text(
+                message.content,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: textColor,
+                  height: 1.3,
+                ),
               ),
-            ),
             const SizedBox(height: 3),
             Row(
               mainAxisSize: MainAxisSize.min,
@@ -363,6 +388,191 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
+  /// Opens a picker so the user can share a candidate profile into the chat.
+  /// Brokers share from their managed roster; others share profiles that were
+  /// shared with them (forwarding). Sending also records a [SharedProfile] for
+  /// brokers so the share is tracked in the Client Hub.
+  Future<void> _shareProfileFromChat() async {
+    final auth = ref.read(authProvider);
+    if (auth is! AuthAuthenticated || _currentUserId == null) return;
+
+    final messaging = ref.read(messagingRepositoryProvider);
+    final conversation = await messaging.getConversation(_conversationId);
+    if (conversation == null) return;
+    final recipientId = conversation.participantIds
+        .where((id) => id != _currentUserId)
+        .firstOrNull;
+    if (recipientId == null) return;
+
+    final profileRepo = ref.read(profileRepositoryProvider);
+    final isBroker = auth.user.role == UserRole.broker;
+    List<CandidateProfile> options;
+    if (isBroker) {
+      options = await profileRepo.getCandidatesByBroker(_currentUserId!);
+    } else {
+      final shared = await ref
+          .read(sharedProfileRepositoryProvider)
+          .getSharedProfilesForUser(_currentUserId!);
+      final list = <CandidateProfile>[];
+      for (final s in shared) {
+        final p = await profileRepo.getCandidateProfile(s.profileId);
+        if (p != null) list.add(p);
+      }
+      options = list;
+    }
+
+    if (!mounted) return;
+    final picked = await showModalBottomSheet<CandidateProfile>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (ctx) => _ChatProfilePickSheet(profiles: options),
+    );
+    if (picked == null) return;
+
+    await messaging.sendMessage(
+      conversationId: _conversationId,
+      senderId: _currentUserId!,
+      recipientId: recipientId,
+      content: 'Sharing ${picked.name}\'s profile.',
+      type: ChatMessageType.profileShare,
+      profileId: picked.id,
+    );
+    if (isBroker) {
+      await ref.read(sharedProfileRepositoryProvider).shareProfile(
+            profileId: picked.id,
+            sharedByUserId: _currentUserId!,
+            sharedWithUserId: recipientId,
+          );
+    }
+
+    await _loadMessages();
+  }
+
+  Widget _buildProfileShareCard(
+    ChatMessage message,
+    bool isSent,
+    Color textColor,
+  ) {
+    final profile = _sharedProfiles[message.profileId];
+    final colors = Theme.of(context).colorScheme;
+    final hasPhoto =
+        profile != null && profile.photos.isNotEmpty &&
+            profile.photos.first.startsWith('http');
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Material(
+        color: colors.surface,
+        borderRadius: AppSpacing.roundedMd,
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: profile == null
+              ? null
+              : () => context.pushNamed(
+                    RouteNames.profileView,
+                    pathParameters: {'id': profile.id},
+                  ),
+          child: Container(
+            width: 230,
+            decoration: BoxDecoration(
+              borderRadius: AppSpacing.roundedMd,
+              border: Border.all(color: colors.outlineVariant, width: 0.5),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Photo / banner
+                SizedBox(
+                  height: 120,
+                  width: double.infinity,
+                  child: hasPhoto
+                      ? Image.network(
+                          profile.photos.first,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) =>
+                              _shareFallback(profile, colors),
+                        )
+                      : _shareFallback(profile, colors),
+                ),
+                Padding(
+                  padding: AppSpacing.allSm,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.badge_outlined,
+                              size: 13, color: colors.primary),
+                          const SizedBox(width: 4),
+                          Text('Shared profile',
+                              style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: colors.primary)),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        profile == null
+                            ? 'Profile unavailable'
+                            : '${profile.name}, ${profile.age}',
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: colors.onSurface),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (profile != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          [profile.profession, profile.city]
+                              .where((s) => s.isNotEmpty)
+                              .join(' · '),
+                          style: TextStyle(
+                              fontSize: 12, color: colors.onSurfaceVariant),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Text('View profile',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: colors.primary)),
+                            Icon(Icons.chevron_right,
+                                size: 16, color: colors.primary),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _shareFallback(CandidateProfile? profile, ColorScheme colors) {
+    return Container(
+      color: colors.surfaceContainerHighest,
+      alignment: Alignment.center,
+      child: Text(
+        profile != null && profile.name.isNotEmpty
+            ? profile.name[0].toUpperCase()
+            : '?',
+        style: TextStyle(
+            fontSize: 40, fontWeight: FontWeight.w700, color: colors.primary),
+      ),
+    );
+  }
+
   Widget _buildInputArea(bool isDark) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
@@ -372,13 +582,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         child: Row(
           children: [
             IconButton(
+              tooltip: 'Share a profile',
               icon: Icon(
                 Icons.add,
                 color: isDark
                     ? Theme.of(context).colorScheme.onSurfaceVariant
                     : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
-              onPressed: () {},
+              onPressed: _shareProfileFromChat,
             ),
             Expanded(
               child: Container(
@@ -460,5 +671,71 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     if (_isSameDay(date, yesterday)) return 'Yesterday';
 
     return DateFormat('MMMM d, y').format(date);
+  }
+}
+
+/// Bottom sheet to pick a candidate profile to share into a chat.
+class _ChatProfilePickSheet extends StatelessWidget {
+  const _ChatProfilePickSheet({required this.profiles});
+  final List<CandidateProfile> profiles;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    return SafeArea(
+      child: Padding(
+        padding: AppSpacing.allMd,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Share a profile',
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w700)),
+            AppSpacing.gapH12,
+            if (profiles.isEmpty)
+              Padding(
+                padding: AppSpacing.allMd,
+                child: Text('No profiles available to share.',
+                    style: theme.textTheme.bodyMedium
+                        ?.copyWith(color: colors.onSurfaceVariant)),
+              )
+            else
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: profiles.length,
+                  itemBuilder: (ctx, i) {
+                    final p = profiles[i];
+                    final hasPhoto = p.photos.isNotEmpty &&
+                        p.photos.first.startsWith('http');
+                    return ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: colors.surfaceContainerHighest,
+                        backgroundImage:
+                            hasPhoto ? NetworkImage(p.photos.first) : null,
+                        child: hasPhoto
+                            ? null
+                            : Text(p.name.isNotEmpty ? p.name[0] : '?'),
+                      ),
+                      title: Text('${p.name}, ${p.age}'),
+                      subtitle: Text(
+                        [p.profession, p.city]
+                            .where((s) => s.isNotEmpty)
+                            .join(' · '),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      trailing: const Icon(Icons.send_rounded, size: 18),
+                      onTap: () => Navigator.pop(context, p),
+                    );
+                  },
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }

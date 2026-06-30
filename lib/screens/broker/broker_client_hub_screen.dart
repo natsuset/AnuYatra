@@ -11,6 +11,7 @@ import 'package:testing_flutter/core/theme/app_palette.dart';
 import 'package:testing_flutter/models/app_user.dart';
 import 'package:testing_flutter/models/broker_follow_up.dart';
 import 'package:testing_flutter/models/candidate_profile.dart';
+import 'package:testing_flutter/models/chat_message.dart';
 import 'package:testing_flutter/models/client_engagement.dart';
 import 'package:testing_flutter/models/parent_profile.dart';
 import 'package:testing_flutter/models/shared_profile.dart';
@@ -120,6 +121,20 @@ class _BrokerClientHubScreenState extends ConsumerState<BrokerClientHubScreen> {
           sharedByUserId: _brokerUid,
           sharedWithUserId: widget.clientUserId,
         );
+
+    // Also drop a profile-share message into the chat so it shows up there.
+    final messaging = ref.read(messagingRepositoryProvider);
+    final convId = await messaging.getOrCreateConversation(
+        _brokerUid, widget.clientUserId);
+    await messaging.sendMessage(
+      conversationId: convId,
+      senderId: _brokerUid,
+      recipientId: widget.clientUserId,
+      content: 'Sharing ${picked.name}\'s profile for your consideration.',
+      type: ChatMessageType.profileShare,
+      profileId: picked.id,
+    );
+
     await _load();
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(

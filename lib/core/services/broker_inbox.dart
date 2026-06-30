@@ -104,11 +104,15 @@ List<BrokerAttentionItem> buildBrokerInbox({
     ));
   }
 
-  // 2) Responses to profiles the broker shared
+  // 2) Responses to profiles the broker shared.
+  // Use the most downstream response: a candidate's response (childResponse)
+  // takes precedence over the parent/recipient response so the broker sees
+  // the latest decision in the chain.
   for (final s in sharedByBroker) {
     final client = nameOf(s.sharedWithUserId);
     final pName = profileName(s.profileId);
-    switch (s.parentResponse) {
+    final resp = s.childResponse ?? s.parentResponse;
+    switch (resp) {
       case SharedProfileResponse.interested:
         items.add(BrokerAttentionItem(
           kind: BrokerAttentionKind.clientInterested,

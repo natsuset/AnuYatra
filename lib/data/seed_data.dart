@@ -720,7 +720,8 @@ Future<void> seedDemoData(AppDataModule data) async {
     sharedByUserId: 'parent-001',
     sharedWithUserId: 'candidate-001',
     sharedAt: now.subtract(const Duration(days: 12)),
-    parentResponse: SharedProfileResponse.interested,
+    forwardedToChild: true,
+    childResponse: SharedProfileResponse.interested,
   ));
 
   await sharedRepo.saveSharedProfile(SharedProfile(
@@ -729,7 +730,8 @@ Future<void> seedDemoData(AppDataModule data) async {
     sharedByUserId: 'parent-001',
     sharedWithUserId: 'candidate-001',
     sharedAt: now.subtract(const Duration(days: 7)),
-    parentResponse: SharedProfileResponse.interested,
+    forwardedToChild: true,
+    childResponse: SharedProfileResponse.pass,
   ));
 
   await sharedRepo.saveSharedProfile(SharedProfile(

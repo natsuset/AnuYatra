@@ -31,6 +31,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   List<_SharedProfileItem> _items = [];
+  List<_ChildResponseItem> _childResponses = const [];
   List<CandidateProfile> _recentlyViewed = const [];
   int _connectedBrokerCount = 0;
   int _pendingRequestCount = 0;
@@ -87,6 +88,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       if (p != null) recentProfiles.add(p);
     }
 
+    final allShares = await sharedProfileRepo.getAllSharedProfiles();
+
     final allCandidates = await profileRepo.getAllCandidateProfiles();
     final myOwnedIds = allCandidates
         .where((c) => c.parentUserId == uid)
@@ -94,7 +97,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         .toSet();
     var incomingCount = 0;
     if (myOwnedIds.isNotEmpty) {
-      final allShares = await sharedProfileRepo.getAllSharedProfiles();
       incomingCount = allShares
           .where((s) =>
               myOwnedIds.contains(s.profileId) &&
@@ -102,9 +104,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           .length;
     }
 
+    // Child responses: profiles this parent forwarded to their child that the
+    // child has responded to. Surfaced so the parent can act on them.
+    final userRepo = ref.read(userRepositoryProvider);
+    final childId = await linkRepo.getLinkedChildId(uid);
+    final childResponses = <_ChildResponseItem>[];
+    if (childId != null) {
+      final childUser = await userRepo.getUser(childId);
+      final childName = childUser?.displayName ?? 'Your child';
+      final responded = allShares.where((s) =>
+          s.sharedByUserId == uid &&
+          s.sharedWithUserId == childId &&
+          s.childResponse != null &&
+          s.childResponse != SharedProfileResponse.pending);
+      for (final s in responded) {
+        final p = await profileRepo.getCandidateProfile(s.profileId);
+        if (p != null) {
+          childResponses.add(_ChildResponseItem(
+            profile: p,
+            response: s.childResponse!,
+            childName: childName,
+          ));
+        }
+      }
+    }
+
     if (!mounted) return;
     setState(() {
       _items = items;
+      _childResponses = childResponses;
       _connectedBrokerCount = brokerIds.length;
       _pendingRequestCount = pendingRequests.length;
       _savedCount = saves.length;
@@ -196,6 +224,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   ) async {
     final repo = ref.read(sharedProfileRepositoryProvider);
     await repo.updateSharedProfile(shared.copyWith(parentResponse: response));
+
+    // Notify the broker who shared this profile in chat.
+    final auth = ref.read(authProvider);
+    if (auth is AuthAuthenticated && shared.sharedByUserId.isNotEmpty) {
+      final profileName = _items
+              .where((i) => i.shared.id == shared.id)
+              .map((i) => i.profile.name)
+              .firstOrNull ??
+          'the profile';
+      final verb = response == SharedProfileResponse.interested
+          ? 'is interested in'
+          : 'passed on';
+      final messaging = ref.read(messagingRepositoryProvider);
+      final convId = await messaging.getOrCreateConversation(
+          auth.user.uid, shared.sharedByUserId);
+      await messaging.sendMessage(
+        conversationId: convId,
+        senderId: auth.user.uid,
+        recipientId: shared.sharedByUserId,
+        content: '${auth.user.displayName} $verb $profileName.',
+      );
+    }
+
     await _loadData();
   }
 
@@ -269,6 +320,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: CustomScrollView(
           slivers: [
             SliverToBoxAdapter(child: _buildDashboardSummary(theme)),
+            if (_childResponses.isNotEmpty)
+              SliverToBoxAdapter(child: _buildChildResponses(theme)),
             if (_recentlyViewed.isNotEmpty)
               SliverToBoxAdapter(child: _buildRecentlyViewed(theme)),
             SliverToBoxAdapter(child: _buildSectionHeader(theme)),
@@ -313,6 +366,127 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             const SliverToBoxAdapter(child: AppSpacing.gapH24),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildChildResponses(ThemeData theme) {
+    final colors = theme.colorScheme;
+    final palette = context.palette;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+          AppSpacing.md, AppSpacing.md, AppSpacing.md, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.how_to_reg_rounded, size: 20, color: palette.meetingPurple),
+              AppSpacing.gapW8,
+              Text(
+                'Your child\'s responses',
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w700),
+              ),
+            ],
+          ),
+          AppSpacing.gapH8,
+          ..._childResponses.map((item) {
+            final interested =
+                item.response == SharedProfileResponse.interested;
+            final accent = interested ? palette.success : colors.onSurfaceVariant;
+            final hasPhoto = item.profile.photos.isNotEmpty &&
+                item.profile.photos.first.startsWith('http');
+            return Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+              child: Material(
+                color: colors.surface,
+                borderRadius: AppSpacing.roundedMd,
+                child: InkWell(
+                  borderRadius: AppSpacing.roundedMd,
+                  onTap: () => context.pushNamed(
+                    RouteNames.profileView,
+                    pathParameters: {'id': item.profile.id},
+                  ),
+                  child: Container(
+                    padding: AppSpacing.allSm,
+                    decoration: BoxDecoration(
+                      borderRadius: AppSpacing.roundedMd,
+                      border:
+                          Border.all(color: colors.outlineVariant, width: 0.5),
+                    ),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 22,
+                          backgroundColor: colors.surfaceContainerHighest,
+                          backgroundImage:
+                              hasPhoto ? NetworkImage(item.profile.photos.first) : null,
+                          child: hasPhoto
+                              ? null
+                              : Text(item.profile.name.isNotEmpty
+                                  ? item.profile.name[0]
+                                  : '?'),
+                        ),
+                        AppSpacing.gapW12,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${item.childName} ${interested ? 'is interested in' : 'passed on'} ${item.profile.name}',
+                                style: theme.textTheme.bodyMedium
+                                    ?.copyWith(fontWeight: FontWeight.w600),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                [item.profile.profession, item.profile.city]
+                                    .where((s) => s.isNotEmpty)
+                                    .join(' · '),
+                                style: theme.textTheme.bodySmall
+                                    ?.copyWith(color: colors.onSurfaceVariant),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                        AppSpacing.gapW8,
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: accent.withValues(alpha: 0.14),
+                            borderRadius: AppSpacing.roundedFull,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                  interested
+                                      ? Icons.favorite_rounded
+                                      : Icons.do_not_disturb_on_rounded,
+                                  size: 12,
+                                  color: accent),
+                              const SizedBox(width: 4),
+                              Text(interested ? 'Interested' : 'Passed',
+                                  style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: accent)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
+        ],
       ),
     );
   }
@@ -559,6 +733,18 @@ class _SharedProfileItem {
     required this.shared,
     required this.profile,
     this.brokerName,
+  });
+}
+
+/// A response the parent's child gave on a profile the parent forwarded.
+class _ChildResponseItem {
+  final CandidateProfile profile;
+  final SharedProfileResponse response;
+  final String childName;
+  const _ChildResponseItem({
+    required this.profile,
+    required this.response,
+    required this.childName,
   });
 }
 

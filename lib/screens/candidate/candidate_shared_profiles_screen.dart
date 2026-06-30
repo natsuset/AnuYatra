@@ -57,6 +57,30 @@ class _CandidateSharedProfilesScreenState
   Future<void> _respond(SharedProfile shared, SharedProfileResponse response) async {
     final repo = ref.read(sharedProfileRepositoryProvider);
     await repo.updateSharedProfile(shared.copyWith(childResponse: response));
+
+    // Notify whoever shared this profile (parent or broker) in chat, so the
+    // response is visible in the conversation thread.
+    final auth = ref.read(authProvider);
+    if (auth is AuthAuthenticated && shared.sharedByUserId.isNotEmpty) {
+      final profileName = _items
+              .where((i) => i.shared.id == shared.id)
+              .map((i) => i.profile.name)
+              .firstOrNull ??
+          'the profile';
+      final verb = response == SharedProfileResponse.interested
+          ? 'is interested in'
+          : 'passed on';
+      final messaging = ref.read(messagingRepositoryProvider);
+      final convId = await messaging.getOrCreateConversation(
+          auth.user.uid, shared.sharedByUserId);
+      await messaging.sendMessage(
+        conversationId: convId,
+        senderId: auth.user.uid,
+        recipientId: shared.sharedByUserId,
+        content: '${auth.user.displayName} $verb $profileName.',
+      );
+    }
+
     await _loadProfiles();
 
     if (!mounted) return;
