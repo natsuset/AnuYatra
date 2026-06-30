@@ -7,6 +7,7 @@ import 'package:testing_flutter/models/shared_profile.dart';
 /// The category of a broker "needs attention" item. Drives the icon, accent
 /// colour, and the set of actions shown on the dashboard feed.
 enum BrokerAttentionKind {
+  mutualMatch,
   pendingConnection,
   clientInterested,
   clientPassed,
@@ -56,6 +57,7 @@ class BrokerAttentionItem {
 
   /// Higher = more urgent. Used for ordering the feed.
   int get _priority => switch (kind) {
+        BrokerAttentionKind.mutualMatch => 110,
         BrokerAttentionKind.pendingConnection => 100,
         BrokerAttentionKind.clientInterested => 90,
         BrokerAttentionKind.followUpDue => 80,
@@ -81,6 +83,7 @@ List<BrokerAttentionItem> buildBrokerInbox({
   required List<BrokerFollowUp> followUps,
   required Map<String, String> userNames,
   required Map<String, CandidateProfile> profiles,
+  List<SharedProfile> allShares = const [],
 }) {
   final items = <BrokerAttentionItem>[];
   final now = DateTime.now();
@@ -89,6 +92,17 @@ List<BrokerAttentionItem> buildBrokerInbox({
       id == null ? 'someone' : (userNames[id] ?? 'a client');
   String profileName(String? id) =>
       id == null ? 'a profile' : (profiles[id]?.name ?? 'a profile');
+
+  // Profiles a candidate has expressed interest in anywhere (childResponse).
+  // Used to detect a two-sided "mutual match".
+  final candidateInterestProfiles = allShares
+      .where((s) => s.childResponse == SharedProfileResponse.interested)
+      .map((s) => s.profileId)
+      .toSet();
+
+  // Track profiles we've already surfaced as a mutual match so we don't add
+  // duplicate response items for the same profile.
+  final mutualProfileIds = <String>{};
 
   // 1) Pending connection requests
   for (final r in pendingRequests) {
@@ -112,17 +126,33 @@ List<BrokerAttentionItem> buildBrokerInbox({
     final client = nameOf(s.sharedWithUserId);
     final pName = profileName(s.profileId);
     final resp = s.childResponse ?? s.parentResponse;
+    // Mutual match: this client is interested AND a candidate is interested in
+    // the same profile elsewhere in the chain.
+    final isMutual = resp == SharedProfileResponse.interested &&
+        candidateInterestProfiles.contains(s.profileId);
     switch (resp) {
       case SharedProfileResponse.interested:
-        items.add(BrokerAttentionItem(
-          kind: BrokerAttentionKind.clientInterested,
-          title: '$client is interested in $pName',
-          subtitle: 'Relay the interest to the other party',
-          at: s.sharedAt,
-          clientUserId: s.sharedWithUserId,
-          candidateProfileId: s.profileId,
-          sharedProfileId: s.id,
-        ));
+        if (isMutual && mutualProfileIds.add(s.profileId)) {
+          items.add(BrokerAttentionItem(
+            kind: BrokerAttentionKind.mutualMatch,
+            title: 'Mutual match on $pName',
+            subtitle: 'Both sides are interested — arrange an introduction',
+            at: s.sharedAt,
+            clientUserId: s.sharedWithUserId,
+            candidateProfileId: s.profileId,
+            sharedProfileId: s.id,
+          ));
+        } else if (!isMutual) {
+          items.add(BrokerAttentionItem(
+            kind: BrokerAttentionKind.clientInterested,
+            title: '$client is interested in $pName',
+            subtitle: 'Relay the interest to the other party',
+            at: s.sharedAt,
+            clientUserId: s.sharedWithUserId,
+            candidateProfileId: s.profileId,
+            sharedProfileId: s.id,
+          ));
+        }
       case SharedProfileResponse.pass:
         items.add(BrokerAttentionItem(
           kind: BrokerAttentionKind.clientPassed,

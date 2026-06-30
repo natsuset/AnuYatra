@@ -51,6 +51,7 @@ class _BrokerDashboardScreenState extends ConsumerState<BrokerDashboardScreen> {
     final brokerProfile = await brokerRepo.getBrokerProfile(uid);
     final pending = await linkRepo.getPendingRequestsFor(uid);
     final shared = await sharedRepo.getSharedProfilesByBroker(uid);
+    final allShares = await sharedRepo.getAllSharedProfiles();
     final engagements = await engagementRepo.getForBroker(uid);
     final followUps = await followUpRepo.getForBroker(uid);
 
@@ -85,6 +86,7 @@ class _BrokerDashboardScreenState extends ConsumerState<BrokerDashboardScreen> {
       followUps: followUps,
       userNames: userNames,
       profiles: profiles,
+      allShares: allShares,
     );
 
     if (!mounted) return;
@@ -337,6 +339,8 @@ class _AttentionTile extends StatelessWidget {
 
   _AttentionVisual _visual(AppPalette palette, ColorScheme colors) {
     return switch (item.kind) {
+      BrokerAttentionKind.mutualMatch =>
+        _AttentionVisual(Icons.favorite_rounded, const Color(0xFFE91E63)),
       BrokerAttentionKind.pendingConnection =>
         _AttentionVisual(Icons.person_add_rounded, colors.primary),
       BrokerAttentionKind.clientInterested =>
